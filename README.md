@@ -10,27 +10,31 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
 
 **The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
 
-# I. CMake with Ninja Generator
-
-### Windows
+# I. Install CMake and Ninja
 
 1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org
 2. Download and install the binary distribution of Ninja (if unavailable, then build it from the source)
    https://ninja-build.org
    https://github.com/ninja-build/ninja/releases
-   
-### macOS using Homebrew
 
-1. Install CMake and Ninja with command line
-`brew install cmake`
-`brew install ninja`
+### Alternative installations
 
-### Ubuntu/Debian
+##### CMake and Ninja for macOS using Homebrew
+1. Update Homebrew
+    `brew update`
+    `brew upgrade`
+2. Install CMake and Ninja
+    `brew install cmake`
+    `brew install ninja`
 
-1. Install CMake and Ninja with command line
-`sudo apt install cmake`
-`sudo apt install ninja-build`
+##### Install CMake and Ninja for Ubuntu/Debian with command line
+1. Update the package and dependency list:
+    `sudo apt update`
+    `sudo apt upgrade`
+2. Install CMake and Ninja
+    `sudo apt install cmake`
+    `sudo apt install ninja-build`
 
 - More info
 https://www.gnu.org/software/make/manual/html_node/Options-Summary.html
@@ -46,7 +50,7 @@ https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
 1. Install CLion
    https://www.jetbrains.com/clion
-2. Perform the steps in **MSYS2 MinGW-w64 toolchain with LLVM/clang**
+2. CLion currently supports the following toolchains: Visual C++, MinGW, Cygwin and GCC (https://www.jetbrains.com/help/clion/toolchains.html)
 3. Open CLion and navigate to `File -> Settings -> Build, Execution, Deployment -> Toolchains`
 4. For the option `Environment` select `MinGW`
 5. Now the compiler should auto-detect the paths of the required components.
@@ -64,8 +68,8 @@ https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
 ### Visual Studio (Windows, macOS)
 
-1. Download and install Visual Studio from the link https://visualstudio.microsoft.com or https://visualstudio.microsoft.com/vs/features/cplusplus
-    Don't forget to check the `Visual C++ tools for CMake` component under the `Individual components` tab at the installation
+1. Download and install Visual Studio with `Visual C++ tools for CMake` component (you can select it at the `Individual components` tab in the installer)
+    https://visualstudio.microsoft.com or https://visualstudio.microsoft.com/vs/features/cplusplus
 2. Perform the steps in **Visual C++ toolchain with LLVM/clang (clang-cl)**
 3. Create a directory for your project and copy the `CMakeLists.txt` and `CMakeSettings.json` files to it.
 
@@ -82,6 +86,8 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
    or the more verbose https://marketplace.visualstudio.com/items?itemName=vector-of-bool.cmake-tools
 4. Perform the steps in **MSYS2 MinGW-w64 toolchain with LLVM/clang**
 5. Create a directory for your project and copy the `CMakeLists.txt` and `c_cpp_properties.json` to the `.vscode` folder.
+
+This section is still incomplete, TODO
 
 ### Code::Blocks (Windows, macOS, Linux)
 
@@ -102,7 +108,7 @@ TODO
 2. (Optional) Download and install Qt for your compiler infrastructure
     https://www.qt.io/download
 
-**Alternatively, you can also install LLVM/clang the following ways:**
+### Alternative installations
 
 ##### MSYS2 MinGW-w64 with LLVM/clang for Windows
 
@@ -130,12 +136,18 @@ TODO
 10. (Optional) Install Qt 5 if required with command:
    `pacman -Sy mingw-w64-x86_64-qt5`
     
-##### LLVM/clang for macOS
-Install the latest version of LLVM/clang with Homebrew:
-`brew install --with-toolchain llvm`
+##### LLVM/clang for macOS using Homebrew
+1. Update Homebrew
+    `brew update`
+    `brew upgrade`
+2. Install the latest version of LLVM/clang
+    `brew install --with-toolchain llvm`
     
-##### LLVM/clang for Linux
-Install the latest version of clang with command line:
-`sudo apt install clang`
+##### LLVM/clang for Linux using command line
+1. Update the package and dependency list:
+    `sudo apt update`
+    `sudo apt upgrade`
+2. Install the latest version of LLVM/clang
+    `sudo apt install clang`
 
 - More info https://medium.com/audelabs/c-development-using-visual-studio-code-cmake-and-lldb-d0f13d38c563
