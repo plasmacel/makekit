@@ -39,7 +39,8 @@ if (MAKEKIT_QT)
     if (MAKEKIT_CLANG_CL)
         set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
     else (MAKEKIT_CLANG_CL)
-        set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
+        # Using MinGW Toolchain, CMake will find the Qt5 CMake configs
+        #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
     endif (MAKEKIT_CLANG_CL)
 
     find_package(Qt5 REQUIRED COMPONENTS Core)
