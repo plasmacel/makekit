@@ -33,9 +33,10 @@ https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
 8. The `C++ Compiler` field should set to the path `C:\msys64\mingw64\bin\clang++.exe`
 9. The `Debugger` option should be set to `MinGW-w64 GDB (C:\msys64\mingw64\bin\gdb.exe)`
 10. Navigate to `File -> Settings -> Build, Execution, Deployment -> CMake`
-11. Now create your target profiles (build types) like `Debug`, `Release`, `RelWithDebInfo`, `MinSizeRel`, with the following options
+11. Now create your target profiles (build types) like `Debug`, `Release`, `RelWithDebInfo`, `MinSizeRel`, with the following options\
+12. The `CMake options` field should begin with `-GNinja`
 12. The `Environment` field should contain `CC=C:\msys64\mingw64\bin\clang.exe;CXX=C:\msys64\mingw64\bin\clang++.exe`
-13. The Build options can be left on the default `-j 4`
+13. The `Build options` field should be set to `-j 8` to take advantage of multiple cores
 14. Create a new project by `File -> New Project...` and copy `CMakeLists.txt` to the project folder
 
 ### Visual Studio (Windows, macOS)
