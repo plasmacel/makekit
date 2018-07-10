@@ -18,6 +18,7 @@ https://gitlab.kitware.com/cmake/community/wikis/FAQ
 https://www.johnlamp.net/cmake-tutorial.html
 http://lektiondestages.blogspot.com/2017/09/setting-up-qt-5-cmake-project-for.html
 https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
+https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
 # II. Select an IDE
 
@@ -62,7 +63,7 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 4. Perform the steps in **MSYS2 MinGW-w64 toolchain with LLVM/clang**
 5. Create a directory for your project and copy the `CMakeLists.txt` and `c_cpp_properties.json` to the `.vscode` folder.
 
-# III. Toolchains for Windows
+# III/A. Toolchains for Windows
 
 ### MSYS2 MinGW-w64 toolchain with LLVM/clang
 
@@ -95,5 +96,12 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 1. Download and install the latest stable Windows (`clang-cl`) distribution of LLVM/clang from the link http://releases.llvm.org
 2. (Optional) Download and install Qt for Visual Studio
     https://www.qt.io/download
+    
+# III/B. Toolchains on Linux
+
+### Clang
+
+Install the latest version of clang with command line:
+`sudo apt install clang`
 
 - More info https://medium.com/audelabs/c-development-using-visual-studio-code-cmake-and-lldb-d0f13d38c563
