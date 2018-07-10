@@ -1,12 +1,12 @@
 # MakeKit
 
-MakeKit is a collection of CMake files and step by step guides to make the cross-platform build of modern C/C++ simple. 
+MakeKit is a collection of CMake files and step-by-step guides to make the cross-platform compilation of modern C/C++ simple. With proper CMake files you can build your project on wide variety of platforms and compilers, while using an arbitrary IDE.
 
 **The project is at a very early stage, so if you find any problem or you could simply add something to it, please contribute.**
 
 # I. CMake + Ninja Generator
 
-1. Download and install the latest version of CMake
+1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org
 2. Download and install the binary distribution of Ninja (if unavailable, then build it from the source)
    https://ninja-build.org
