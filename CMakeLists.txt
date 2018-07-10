@@ -4,6 +4,7 @@ project(untitled)
 # MakeKit Variables
 #set(MAKEKIT_CLANG_CL 1)
 #set(MAKEKIT_QT 1)
+#set(MAKEKIT_OPENCL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_ASM 1)
@@ -55,6 +56,11 @@ set(SOURCE main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE})
 
 # Linked libraries
+# Link OpenCL
+if (MAKEKIT_OPENCL)
+    find_package(OpenCL REQUIRED)
+    target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
+endif()
 #target_link_libraries(${PROJECT_NAME} mylib.lib)
 
 # ------------------------------ Qt related stuff ------------------------------
