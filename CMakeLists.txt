@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_FLAGS "/DWIN64 /D_WINDOWS /Wall /GR /EHsc" CACHE INTERNAL "")
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
 
+# OpenMP Compiler Flag(s)
 if (MAKEKIT_OPENMP)
     find_package(OpenMP)
     if (OPENMP_FOUND)
@@ -23,10 +24,25 @@ if (MAKEKIT_OPENMP)
     endif()
 endif (MAKEKIT_OPENMP)
 
+# OS Platform Detection
+if (MSVC OR MSYS OR MINGW)
+    set(MAKEKIT_OS_WINDOWS, 1)
+elseif (UNIX)
+    set(MAKEKIT_OS_UNIX, 1)
+    if (APPLE)
+        set(MAKEKIT_OS_MACOS, 1)
+    else(APPLE)
+        set(MAKEKIT_OS_LINUX, 1)
+    endif(APPLE)
+endif()
+
 # Source and Executable
 #add_executable(${PROJECT_NAME} main.cpp)
 set(SOURCE main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE})
+
+# Linked libraries
+#target_link_libraries(${PROJECT_NAME} mylib.lib)
 
 # ------------------------------ Qt related stuff ------------------------------
 
