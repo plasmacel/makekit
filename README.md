@@ -19,7 +19,7 @@ https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
 
 # II. Select an IDE
 
-### CLion (Windows, macOs, Linux)
+### CLion (Windows, macOS, Linux)
 
 1. Install CLion
    https://www.jetbrains.com/clion
