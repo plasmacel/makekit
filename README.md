@@ -63,7 +63,7 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 
 ### MSYS2 MinGW-w64 toolchain with LLVM/clang
 
-1. Download and install the x64 MSYS2 toolchain package of mingw-64 from the link
+1. Download and install the x86_64 MSYS2 toolchain package of MinGW-w64 from the link
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
 2. Launch the MSYS2 terminal from the Start Menu
 3. Update the package database and core system packages with command:
