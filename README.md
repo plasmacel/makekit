@@ -119,9 +119,7 @@ TODO
 
 ##### III/A Visual C++ development environment with LLVM/clang for Windows
 
-If you already have a Visual Studio 2017 installed on your computer, then you are done - there's nothing else to do.
-
-1. Download and install Microsoft's Build Tools for Visual Studio 2017.
+1. If you already have a Visual Studio 2017 installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
    It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE:
    https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
 2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
@@ -129,7 +127,7 @@ If you already have a Visual Studio 2017 installed on your computer, then you ar
 
 ##### III/B MSYS2 MinGW-w64 development environment with LLVM/clang for Windows
 
-1. Download and install the x86_64 MSYS2 toolchain package of MinGW-w64 from the link
+1. Download and install the **x86_64 MSYS2** toolchain package of **MinGW-w64**:
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
 2. Launch the MSYS2 terminal from the Start Menu
 3. Update the package database and core system packages with command:
