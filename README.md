@@ -63,8 +63,8 @@ CLion on Windows currently supports the following set of development environment
 5. Now CMake should auto-detect the paths of the required components.
    If they are detected, then proceed to the next step and check your settings, otherwise you should set them manually.
 6. The `Make` field should be set to the path or `nmake.exe` or `C:\msys64\mingw64\bin\mingw32-make.exe`
-7. The `C Compiler` field should set to the path `C:/Program Files/LLVM/bin/clang.exe` or `C:\msys64\mingw64\bin\clang.exe`
-8. The `C++ Compiler` field should set to the path `C:/Program Files/LLVM/bin/clang++.exe` or `C:\msys64\mingw64\bin\clang++.exe`
+7. The `C Compiler` field should set to the path `C:/Program Files/LLVM/bin/clang-cl.exe` or `C:\msys64\mingw64\bin\clang.exe`
+8. The `C++ Compiler` field should set to the path `C:/Program Files/LLVM/bin/clang-cl.exe` or `C:\msys64\mingw64\bin\clang++.exe`
 9. The `Debugger` option should be set to `MinGW-w64 GDB (C:\msys64\mingw64\bin\gdb.exe)`
 10. Navigate to `File -> Settings -> Build, Execution, Deployment -> CMake`
 11. Now create your target profiles (build types) like `Debug`, `Release`, `RelWithDebInfo`, `MinSizeRel`, with the following options\
@@ -108,7 +108,7 @@ TODO
 
 TODO
 
-# III Toolchains and compilers
+# III Development environments and compilers
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
