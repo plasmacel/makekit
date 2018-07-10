@@ -1,10 +1,16 @@
 # MakeKit
 
-MakeKit is a collection of CMake files and step-by-step guides to make the cross-platform compilation of modern C/C++ simple. With the proper CMake files you can build your project on wide variety of platforms and compilers, while using an arbitrary IDE. MakeKit also helps to integrate your IDE with the CMake build system.
+MakeKit is a collection of CMake files, integration tools and step-by-step guides to make the cross-platform compilation of modern C/C++ simple. With the proper CMake files you can build your project on wide variety of platforms and compilers, while using an arbitrary IDE. MakeKit also helps to integrate your IDE with the CMake build system.
 
-**The project is at a very early stage, so if you find any problem or you could simply add something to it, please contribute.**
+MakeKit is strictly relies on the CMake build system, Ninja build generator, and the LLVM/clang compiler infrastructure to achieve:
 
-# I. CMake + Ninja Generator
+- Support of cross-platform compilation of modern C/C++
+- Support of parallel technologies like OpenMP, OpenCL and CUDA
+- Support of the cross-platform windowing framework Qt
+
+**The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
+
+# I. CMake with Ninja Generator
 
 ### Windows
 
@@ -58,7 +64,7 @@ https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
 ### Visual Studio (Windows, macOS)
 
-1. Download and install Visual Studio from the link https://visualstudio.microsoft.com
+1. Download and install Visual Studio from the link https://visualstudio.microsoft.com or https://visualstudio.microsoft.com/vs/features/cplusplus
     Don't forget to check the `Visual C++ tools for CMake` component under the `Individual components` tab at the installation
 2. Perform the steps in **Visual C++ toolchain with LLVM/clang (clang-cl)**
 3. Create a directory for your project and copy the `CMakeLists.txt` and `CMakeSettings.json` files to it.
@@ -77,9 +83,28 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 4. Perform the steps in **MSYS2 MinGW-w64 toolchain with LLVM/clang**
 5. Create a directory for your project and copy the `CMakeLists.txt` and `c_cpp_properties.json` to the `.vscode` folder.
 
-# III/A. Toolchains for Windows
+### Code::Blocks (Windows, macOS, Linux)
 
-### MSYS2 MinGW-w64 toolchain with LLVM/clang
+TODO
+
+### Sublime Text (Windows, macOS, Linux)
+
+.TODO
+
+### Xcode (macOS)
+
+TODO
+
+# III Toolchains and compilers
+
+1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
+    http://releases.llvm.org
+2. (Optional) Download and install Qt for your compiler infrastructure
+    https://www.qt.io/download
+
+**Alternatively, you can also install LLVM/clang the following ways:**
+
+##### MSYS2 MinGW-w64 with LLVM/clang for Windows
 
 1. Download and install the x86_64 MSYS2 toolchain package of MinGW-w64 from the link
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
@@ -104,19 +129,13 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
    `pacman -S mingw-w64-x86_64-toolchain`
 10. (Optional) Install Qt 5 if required with command:
    `pacman -Sy mingw-w64-x86_64-qt5`
-
-### Visual C++ toolchain with LLVM/clang (clang-cl)
-
-1. Download and install the latest stable Windows (`clang-cl`) distribution of LLVM/clang from the link http://releases.llvm.org
-2. (Optional) Download and install Qt for Visual Studio
-    https://www.qt.io/download
     
-# III/B. Toolchains for Linux
-
-### Clang
-
+##### LLVM/clang for macOS
+Install the latest version of LLVM/clang with Homebrew:
+`brew install --with-toolchain llvm`
+    
+##### LLVM/clang for Linux
 Install the latest version of clang with command line:
 `sudo apt install clang`
-
 
 - More info https://medium.com/audelabs/c-development-using-visual-studio-code-cmake-and-lldb-d0f13d38c563
