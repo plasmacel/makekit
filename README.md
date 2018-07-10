@@ -77,7 +77,7 @@ CLion on Windows currently supports the following set of development environment
 
 1. Download and install Visual Studio with `Visual C++ tools for CMake` component (you can select it at the `Individual components` tab in the installer)
     https://visualstudio.microsoft.com or https://visualstudio.microsoft.com/vs/features/cplusplus
-2. Perform the steps in **Visual C++ toolchain with LLVM/clang (clang-cl)**
+2. Perform the steps in guide **III/A**
 3. Create a directory for your project and copy the `CMakeLists.txt` and `CMakeSettings.json` files to it.
 
 For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp
@@ -108,7 +108,7 @@ TODO
 
 TODO
 
-# III Development environments and compilers
+# III. Development environments and compilers
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
