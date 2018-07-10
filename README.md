@@ -1,6 +1,6 @@
 # MakeKit
 
-MakeKit is a collection of CMake files and step-by-step guides to make the cross-platform compilation of modern C/C++ simple. With proper CMake files you can build your project on wide variety of platforms and compilers, while using an arbitrary IDE.
+MakeKit is a collection of CMake files and step-by-step guides to make the cross-platform compilation of modern C/C++ simple. With the proper CMake files you can build your project on wide variety of platforms and compilers, while using an arbitrary IDE. MakeKit also helps to integrate your IDE with the CMake build system.
 
 **The project is at a very early stage, so if you find any problem or you could simply add something to it, please contribute.**
 
