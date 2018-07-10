@@ -48,16 +48,23 @@ https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
 ### CLion (Windows, macOS, Linux)
 
+CLion on Windows currently supports the following set of development environments: MinGW, Visual Studio.
+
+- For the `Visual Studio` environment, perform the steps of guide **III/A**.
+- For the `MinGW` environment, perform the steps of guide **III/B**.
+
 1. Install CLion
    https://www.jetbrains.com/clion
-2. CLion currently supports the following toolchains: Visual C++, MinGW, Cygwin and GCC (https://www.jetbrains.com/help/clion/toolchains.html)
-3. Open CLion and navigate to `File -> Settings -> Build, Execution, Deployment -> Toolchains`
-4. For the option `Environment` select `MinGW`
-5. Now the compiler should auto-detect the paths of the required components.
-   If they are detected, then proceed to the next steps and check your settings, otherwise you should set them manually.
-6. The `Make` field should be set to the path `C:\msys64\mingw64\bin\mingw32-make.exe`
-7. The `C Compiler` field should set to the path `C:\msys64\mingw64\bin\clang.exe`
-8. The `C++ Compiler` field should set to the path `C:\msys64\mingw64\bin\clang++.exe`
+3. Open CLion and navigate to
+   Windows, Linux: `File -> Settings -> Build, Execution, Deployment -> Toolchains`
+   macOS: `CLion -> Preferences -> Build, Execution, Deployment -> Toolchains`
+4. Windows: For the option `Environment` select `Visual Studio` or `MinGW`. Now CMake should auto-detect the path of the development environment. If they are detected, then proceed to the next step, otherwise you should set them manually. The default path of `Visual Studio` environment is `C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools`, `C:\Program Files (x86)\Microsoft Visual Studio\2017\Community` or `C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise`, while the default path of `MinGW` is `...`.
+   macOS, Linux: Proceed to step 9.
+5. Now CMake should auto-detect the paths of the required components.
+   If they are detected, then proceed to the next step and check your settings, otherwise you should set them manually.
+6. The `Make` field should be set to the path or `nmake.exe` or `C:\msys64\mingw64\bin\mingw32-make.exe`
+7. The `C Compiler` field should set to the path `C:/Program Files/LLVM/bin/clang.exe` or `C:\msys64\mingw64\bin\clang.exe`
+8. The `C++ Compiler` field should set to the path `C:/Program Files/LLVM/bin/clang++.exe` or `C:\msys64\mingw64\bin\clang++.exe`
 9. The `Debugger` option should be set to `MinGW-w64 GDB (C:\msys64\mingw64\bin\gdb.exe)`
 10. Navigate to `File -> Settings -> Build, Execution, Deployment -> CMake`
 11. Now create your target profiles (build types) like `Debug`, `Release`, `RelWithDebInfo`, `MinSizeRel`, with the following options\
@@ -110,7 +117,13 @@ TODO
 
 ### Alternative installations
 
-##### MSYS2 MinGW-w64 with LLVM/clang for Windows
+##### III/A Visual C++ development environment with LLVM/clang for Windows
+
+1. Download and install Microsoft's Build Tools for Visual Studio 2017.
+   It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE.
+   https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
+
+##### III/B MSYS2 MinGW-w64 development environment with LLVM/clang for Windows
 
 1. Download and install the x86_64 MSYS2 toolchain package of MinGW-w64 from the link
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
@@ -136,14 +149,14 @@ TODO
 10. (Optional) Install Qt 5 if required with command:
    `pacman -Sy mingw-w64-x86_64-qt5`
     
-##### LLVM/clang for macOS using Homebrew
+##### III/C LLVM/clang for macOS using Homebrew
 1. Update Homebrew
     `brew update`
     `brew upgrade`
 2. Install the latest version of LLVM/clang
     `brew install --with-toolchain llvm`
     
-##### LLVM/clang for Linux using command line
+##### III/D LLVM/clang for Linux using command line
 1. Update the package and dependency list:
     `sudo apt update`
     `sudo apt upgrade`
