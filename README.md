@@ -97,7 +97,7 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 2. (Optional) Download and install Qt for Visual Studio
     https://www.qt.io/download
     
-# III/B. Toolchains on Linux
+# III/B. Toolchains for Linux
 
 ### Clang
 
