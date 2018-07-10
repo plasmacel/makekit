@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(untitled)
 
-set(MAKEKIT_CLANG_CL 0)
-set(MAKEKIT_QT 1)
+# MakeKit Variables
+#set(MAKEKIT_CLANG_CL 0)
+#set(MAKEKIT_QT 1)
 
 # Language Standard
 set(CMAKE_C_STANDARD 11)
@@ -13,7 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
 
 # Source and Executable
-#add_executable(${PROJECT_NAME} main.cpp A.cpp A.h C.cpp C.h)
+#add_executable(${PROJECT_NAME} main.cpp)
 set(SOURCE main.cpp A.cpp A.h C.cpp C.h)
 add_executable(${PROJECT_NAME} ${SOURCE})
 
