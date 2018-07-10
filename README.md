@@ -83,7 +83,7 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
    `pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-extra-cmake-modules`
 7. Instal GDB (GNU Debugger) with command:
    `pacman -S mingw-w64-x86_64-gdb`
-8. Install the x64 version of LLVM/clang with command:
+8. Install the x86_64 version of LLVM/clang with command:
    `pacman -S mingw-w64-x86_64-llvm mingw-w64-x86_64-clang`
 9. Install the preferred toolchain with command:
    `pacman -S mingw-w64-x86_64-toolchain`
