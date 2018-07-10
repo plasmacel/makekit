@@ -19,7 +19,7 @@ https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
 
 # II. Select an IDE
 
-### CLion
+### CLion (Windows, macOs, Linux)
 
 1. Install CLion
    https://www.jetbrains.com/clion
@@ -38,7 +38,7 @@ https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
 13. The Build options can be left on the default `-j 4`
 14. Create a new project by `File -> New Project...` and copy `CMakeLists.txt` to the project folder
 
-### Visual Studio
+### Visual Studio (Windows, macOS)
 
 1. Download and install Visual Studio from the link https://visualstudio.microsoft.com
     Don't forget to check the `Visual C++ tools for CMake` component under the `Individual components` tab at the installation
@@ -47,7 +47,7 @@ https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
 
 For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp
 
-### Visual Studio Code
+### Visual Studio Code (Windows, macOS, Linux)
 
 1. Download and install Visual Studio Code from the link
    https://code.visualstudio.com
