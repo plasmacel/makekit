@@ -119,6 +119,8 @@ TODO
 
 ##### III/A Visual C++ development environment with LLVM/clang for Windows
 
+If you already have a Visual Studio 2017 installed on your computer, then you are done - there's nothing else to do.
+
 1. Download and install Microsoft's Build Tools for Visual Studio 2017.
    It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE.
    https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
