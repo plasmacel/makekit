@@ -85,7 +85,7 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
    `pacman -S mingw-w64-x86_64-llvm mingw-w64-x86_64-clang`
 9. Install the preferred toolchain with command:
    `pacman -S mingw-w64-x86_64-toolchain`
-10. (Optional) Install Qt 5 if required by command:
+10. (Optional) Install Qt 5 if required with command:
    `pacman -Sy mingw-w64-x86_64-qt5`
 
 ### Visual C++ toolchain with LLVM/clang (clang-cl)
