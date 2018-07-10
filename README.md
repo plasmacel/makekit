@@ -48,7 +48,7 @@ https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
 ### CLion (Windows, macOS, Linux)
 
-CLion on Windows currently supports the following set of development environments: MinGW, Visual Studio.
+CLion on Windows currently supports the following set of development environments: `MinGW`, `Cygwin`, `WSL` and `Visual Studio`. Unfortunately, debugging is not yet supported with the `Visual Studio` environment. If debugging is required then `MinGW` and `WSL` are recommended. Currently, MakeKit only supports the `MinGW` and `Visual Studio` environments.
 
 - For the `Visual Studio` environment, perform the steps of guide **III/A**.
 - For the `MinGW` environment, perform the steps of guide **III/B**.
