@@ -28,7 +28,7 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
     `brew install cmake`
     `brew install ninja`
 
-##### Install CMake and Ninja for Ubuntu/Debian with command line
+##### Install CMake and Ninja for Ubuntu/Debian using command line
 1. Update the package and dependency list:
     `sudo apt update`
     `sudo apt upgrade`
