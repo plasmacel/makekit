@@ -2,9 +2,22 @@ cmake_minimum_required(VERSION 3.10)
 project(untitled)
 
 # MakeKit Variables
-#set(MAKEKIT_CLANG_CL 0)
+#set(MAKEKIT_CLANG_CL 1)
 #set(MAKEKIT_QT 1)
 #set(MAKEKIT_OPENMP 1)
+#set(MAKEKIT_CUDA 1)
+#set(MAKEKIT_ASM 1)
+
+enable_language(C)
+enable_language(CXX)
+
+if (MAKEKIT_ASM)
+    enable_language(ASM)
+endif()
+
+if (MAKEKIT_CUDA)
+    enable_language(CUDA)
+endif()
 
 # Language Standard
 set(CMAKE_C_STANDARD 11)
