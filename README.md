@@ -122,8 +122,10 @@ TODO
 If you already have a Visual Studio 2017 installed on your computer, then you are done - there's nothing else to do.
 
 1. Download and install Microsoft's Build Tools for Visual Studio 2017.
-   It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE.
+   It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE:
    https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
+2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
+   http://releases.llvm.org
 
 ##### III/B MSYS2 MinGW-w64 development environment with LLVM/clang for Windows
 
