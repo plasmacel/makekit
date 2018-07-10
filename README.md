@@ -6,11 +6,25 @@ MakeKit is a collection of CMake files and step-by-step guides to make the cross
 
 # I. CMake + Ninja Generator
 
+### Windows
+
 1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org
 2. Download and install the binary distribution of Ninja (if unavailable, then build it from the source)
    https://ninja-build.org
    https://github.com/ninja-build/ninja/releases
+   
+### macOS using Homebrew
+
+1. Install CMake and Ninja with command line
+`brew install cmake`
+`brew install ninja`
+
+### Ubuntu/Debian
+
+1. Install CMake and Ninja with command line
+`sudo apt install cmake`
+`sudo apt install ninja-build`
 
 - More info
 https://www.gnu.org/software/make/manual/html_node/Options-Summary.html
@@ -103,5 +117,6 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 
 Install the latest version of clang with command line:
 `sudo apt install clang`
+
 
 - More info https://medium.com/audelabs/c-development-using-visual-studio-code-cmake-and-lldb-d0f13d38c563
