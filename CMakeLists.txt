@@ -4,6 +4,7 @@ project(untitled)
 # MakeKit Variables
 #set(MAKEKIT_CLANG_CL 0)
 #set(MAKEKIT_QT 1)
+#set(MAKEKIT_OPENMP 1)
 
 # Language Standard
 set(CMAKE_C_STANDARD 11)
@@ -12,6 +13,15 @@ set(CMAKE_CXX_STANDARD 17)
 # Compiler Flags
 #set(CMAKE_CXX_FLAGS "/DWIN64 /D_WINDOWS /Wall /GR /EHsc" CACHE INTERNAL "")
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
+
+if (MAKEKIT_OPENMP)
+    find_package(OpenMP)
+    if (OPENMP_FOUND)
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    endif()
+endif (MAKEKIT_OPENMP)
 
 # Source and Executable
 #add_executable(${PROJECT_NAME} main.cpp)
