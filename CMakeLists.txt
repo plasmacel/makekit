@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Source and Executable
 #add_executable(${PROJECT_NAME} main.cpp)
-set(SOURCE main.cpp A.cpp A.h C.cpp C.h)
+set(SOURCE main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE})
 
 # ------------------------------ Qt related stuff ------------------------------
