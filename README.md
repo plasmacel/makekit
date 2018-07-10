@@ -1,6 +1,8 @@
 # MakeKit
 
-MakeKit is a collection of CMake files and step by step guides to make the cross-platform build of modern C/C++ simple.
+MakeKit is a collection of CMake files and step by step guides to make the cross-platform build of modern C/C++ simple. 
+
+**The project is at a very early stage, so if you find any problem or you could simply add something to it, please contribute.**
 
 # I. CMake + Ninja Generator
 
