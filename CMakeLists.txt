@@ -5,7 +5,7 @@ project(untitled)
 #set(MAKEKIT_CLANG_CL 1)
 #set(MAKEKIT_QT 1)
 #set(MAKEKIT_OPENCL 1)
-set(MAKEKIT_OPENMP 1)
+#set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_ASM 1)
 
