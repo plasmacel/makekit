@@ -10,7 +10,8 @@
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER=\"C:/Program Files (x86)/LLVM/bin/clang-cl.exe\"",
       "buildCommandArgs": "-v -j 8",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "x86-Release With Debug Info",
@@ -21,7 +22,8 @@
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER=\"C:/Program Files (x86)/LLVM/bin/clang-cl.exe\"",
       "buildCommandArgs": "-v -j 8",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "x86-Release",
@@ -32,7 +34,8 @@
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER=\"C:/Program Files (x86)/LLVM/bin/clang-cl.exe\"",
       "buildCommandArgs": "-v -j 8",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "x64-Debug",
@@ -43,7 +46,8 @@
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER=\"C:/Program Files/LLVM/bin/clang-cl.exe\"",
       "buildCommandArgs": "-v -j 8",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "x64-Release With Debug Info",
@@ -54,7 +58,8 @@
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER=\"C:/Program Files/LLVM/bin/clang-cl.exe\"",
       "buildCommandArgs": "-v -j 8",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "x64-Release",
@@ -65,7 +70,8 @@
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER=\"C:/Program Files/LLVM/bin/clang-cl.exe\"",
       "buildCommandArgs": "-v -j 8",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     }
   ]
 }
