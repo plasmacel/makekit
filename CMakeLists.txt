@@ -28,17 +28,6 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_FLAGS "/DWIN64 /D_WINDOWS /Wall /GR /EHsc" CACHE INTERNAL "")
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
 
-# OpenMP Compiler Flag(s)
-if (MAKEKIT_OPENMP)
-	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-    #find_package(OpenMP REQUIRED)
-    #if (OPENMP_FOUND)
-    #    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    #    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    #endif()
-endif (MAKEKIT_OPENMP)
-
 # OS Platform Detection
 if (MSVC OR MSYS OR MINGW)
     set(MAKEKIT_OS_WINDOWS, 1)
@@ -59,11 +48,27 @@ FILE(GLOB_RECURSE CXX_INLINES "*.inc" "*.inl" "*.ipp")
 add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES})
 
 # Linked libraries
-# Link OpenCL
+
+# OpenCL
 if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
     target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 endif()
+
+# OpenMP
+if (MAKEKIT_OPENMP)
+	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+	target_link_libraries(${PROJECT_NAME} "C:/Program Files (x86)/LLVM/lib/libomp.lib")
+    #find_package(OpenMP REQUIRED)
+    #if (OPENMP_FOUND)
+    #    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    #    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    #endif()
+endif ()
+
+# Custom libraries
+
 #target_link_libraries(${PROJECT_NAME} mylib.lib)
 
 # ------------------------------ Qt related stuff ------------------------------
