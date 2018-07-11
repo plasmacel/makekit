@@ -52,8 +52,10 @@ endif()
 
 # Source and Executable
 #add_executable(${PROJECT_NAME} main.cpp)
-set(SOURCE main.cpp)
-add_executable(${PROJECT_NAME} ${SOURCE})
+FILE(GLOB_RECURSE CXX_SOURCES "*.cpp" "*.cxx")
+FILE(GLOB_RECURSE CXX_HEADERS "*.h" "*.hpp" ".hxx")
+FILE(GLOB_RECURSE CXX_INLINES "*.inl" "*.ipp")
+add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES})
 
 # Linked libraries
 # Link OpenCL
