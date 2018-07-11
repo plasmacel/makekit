@@ -44,7 +44,7 @@ endif()
 #add_executable(${PROJECT_NAME} main.cpp)
 FILE(GLOB_RECURSE CXX_SOURCES "*.cc" "*.cpp" "*.cxx")
 FILE(GLOB_RECURSE CXX_HEADERS "*.h" "*.hh" "*.hpp" ".hxx")
-FILE(GLOB_RECURSE CXX_INLINES "*.inc" "*.inl" "*.ipp")
+FILE(GLOB_RECURSE CXX_INLINES "*.inc" "*.inl" "*.ipp" "*.ixx")
 add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES})
 
 # Linked libraries
