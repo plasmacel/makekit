@@ -70,8 +70,8 @@ endif(MAKEKIT_OS_WINDOWS)
         #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
     endif (MAKEKIT_CLANG_CL)
 
-	find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network script)
-	qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+    find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network)
+    qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
 endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
@@ -99,6 +99,10 @@ if (MAKEKIT_OPENMP)
 	#	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
     #endif()
 endif ()
+
+if (MAKEKIT_QT)
+    target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network)
+endif (MAKEKIT_QT)
 
 # Custom libraries
 
