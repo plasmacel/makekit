@@ -52,6 +52,8 @@ endif(MAKEKIT_OS_WINDOWS)
 
 # ------------------------------ Qt related stuff ------------------------------
  if (MAKEKIT_QT)
+    FILE(GLOB_RECURSE CXX_UIFILES "*.ui")
+ 
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
