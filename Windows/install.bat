@@ -24,20 +24,23 @@ if not exist "%LLVM_INSTALL%" (
 REM Set dependency path variables
 set VCVARS_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 set WINSDK_DIR=C:\Program Files (x86)\Windows Kits\10\bin\%WINSDK_VER%\x64
-set CMAKE_DIR=%CMAKE_INSTALL%\bin
-set LLVM_DIR=%LLVM_INSTALL%\bin
+set CMAKE_BIN=%CMAKE_INSTALL%\bin
+set LLVM_BIN=%LLVM_INSTALL%\bin
 
 echo Installing Ninja...
 
-copy "%~dp0\ninja\ninja.exe" "%CMAKE_DIR%\ninja.exe"
+copy "%~dp0\ninja\ninja.exe" "%CMAKE_BIN%\ninja.exe"
 
 echo Adding the required dependencies to user PATH...
+
+setx MAKEKIT_CMAKE_BIN "%CMAKE_BIN%"
+setx MAKEKIT_LLVM_BIN "%LLVM_BIN%"
 
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%VCVARS_DIR%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%WINSDK_DIR%"
 
-PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%CMAKE_DIR%"
-PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%LLVM_DIR%"
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%CMAKE_BIN%"
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%LLVM_BIN%"
 
 echo Done.
 set /p dummy=Press ENTER...
