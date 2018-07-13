@@ -1,20 +1,27 @@
 @echo off
-call winsdk_version.bat WINSDK_VER
+call %~dp0\winsdk_version.bat WINSDK_VER
 
 set DEFAULT_CMAKE_INSTALL=C:\Program Files\CMake
 set DEFAULT_LLVM_INSTALL=C:\Program Files\LLVM
 
 REM set /p WINSDK_VER=Windows SDK Version (default is %WINSDK_VER%):
 set /p CMAKE_INSTALL=LLVM installation directory (default is %DEFAULT_CMAKE_INSTALL%):
+if not exist "%CMAKE_INSTALL%" (
+	echo ERROR: CMake installation directory cannot be found!
+	set /p dummy=Press ENTER...
+	@echo on
+	exit
+)
+
 set /p LLVM_INSTALL=LLVM installation directory (default is %DEFAULT_LLVM_INSTALL%):
-
-if "%CMAKE_INSTALL%" == "" (
-	set CMAKE_INSTALL=%DEFAULT_CMAKE_INSTALL%
+if not exist "%LLVM_INSTALL%" (
+	echo ERROR: LLVM installation directory cannot be found!
+	set /p dummy=Press ENTER...
+	@echo on
+	exit
 )
 
-if "%LLVM_INSTALL%" == "" (
-	set CMAKE_INSTALL=%DEFAULT_LLVM_INSTALL%
-)
+echo %LLVM_INSTALL%
 
 REM Set dependency path variables
 set VCVARS_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
@@ -32,3 +39,5 @@ PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" %LLVM_DI
 
 echo Done.
 set /p dummy=Press ENTER...
+@echo on
+exit
