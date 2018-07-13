@@ -31,11 +31,11 @@ set LLVM_DIR=%LLVM_INSTALL%\bin
 
 echo Adding the required dependencies to user PATH...
 
-PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" %VCVARS_DIR%
-PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" %WINSDK_DIR%
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%VCVARS_DIR%"
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%WINSDK_DIR%"
 
-PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" %CMAKE_DIR%
-PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" %LLVM_DIR%
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%CMAKE_DIR%"
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%LLVM_DIR%"
 
 echo Done.
 set /p dummy=Press ENTER...
