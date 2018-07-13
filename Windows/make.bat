@@ -5,6 +5,6 @@ if exist "build\" (
 	@RD /S /Q "build"
 )
 call vcvars64.bat
-cmake %~dp0 -G "Ninja" -B "build" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe"
+cmake %~dp0 -G "Ninja" -Bbuild -DCMAKE_C_COMPILER="%MAKEKIT_LLVM_BIN%\clang-cl.exe" -DCMAKE_CXX_COMPILER="%MAKEKIT_LLVM_BIN%\clang-cl.exe" -DCMAKE_LINKER="%MAKEKIT_LLVM_BIN%\lld-link.exe"
 set /p dummy=Press any button:
 @echo on
