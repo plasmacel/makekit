@@ -29,7 +29,7 @@ set LLVM_DIR=%LLVM_INSTALL%\bin
 
 echo Installing Ninja...
 
-copy "%~dp0\ninja/ninja.exe" "%CMAKE_DIR%/ninja.exe"
+copy "%~dp0\ninja\ninja.exe" "%CMAKE_DIR%\ninja.exe"
 
 echo Adding the required dependencies to user PATH...
 
