@@ -13,6 +13,20 @@ else
 	brew upgrade
 fi
 
+echo Detecting Ninja...
+
+brew ls --versions ninja
+if [[ $? != 0 ]] ; then
+    # Install Ninja
+    echo Ninja not found, installing...
+    brew install ninja
+else
+    # Update Ninja
+    brew info ninja
+    echo Ninja found, updating...
+    brew upgrade ninja
+fis
+
 echo Detecting LLVM...
 
 brew ls --versions llvm
