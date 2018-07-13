@@ -31,10 +31,12 @@ echo Installing Ninja...
 
 copy "%~dp0\ninja\ninja.exe" "%CMAKE_BIN%\ninja.exe"
 
-echo Adding the required dependencies to user PATH...
+echo Adding required environment variables...
 
-setx MAKEKIT_CMAKE_BIN "%CMAKE_BIN%"
-setx MAKEKIT_LLVM_BIN "%LLVM_BIN%"
+setx MAKEKIT_CMAKE_BIN "%CMAKE_BIN:\=/%"
+setx MAKEKIT_LLVM_BIN "%LLVM_BIN:\=/%"
+
+echo Adding required dependencies to user PATH...
 
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%VCVARS_DIR%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%WINSDK_DIR%"
