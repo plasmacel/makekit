@@ -10,13 +10,27 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
 
 **The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
 
-# I. Install CMake and Ninja
+# I. Installation
+
+## Windows
 
 1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org
-2. Download and install the binary distribution of Ninja (if unavailable, then build it from the source)
+2. Download the binary distribution of Ninja (if unavailable, then build it from the source)
    https://ninja-build.org
    https://github.com/ninja-build/ninja/releases
+3. Run `install.bat`, or open command prompt, navigate to its directory and use command `install`.
+   
+ ## macOS
+ 
+ 1. Download and install the latest version (3.10 or above is required) of CMake
+   https://cmake.org
+ 2. Run `install.sh`, or navigate to its directory and use command `./install.sh`.
+   It will detect and install Homebrew if needed, followed by the installation of Ninja and LLVM.
+   
+ ## Linux
+ 
+ TODO
 
 ### Alternative installations
 
