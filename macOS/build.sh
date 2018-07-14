@@ -1,1 +1,1 @@
-ninja -C build
+ninja -v -C build
