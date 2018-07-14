@@ -1,5 +1,4 @@
 @echo off
-setlocal
 set BUILD_TYPE="Release"
 
 if "%1" == "debug" (
