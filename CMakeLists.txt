@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+
+#include()
+
 project(untitled)
 
 # MakeKit Variables
@@ -8,6 +11,7 @@ project(untitled)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_ASM 1)
+#set(MAKEKIT_MODULE_MODE 0)
 
 enable_language(C)
 enable_language(CXX)
@@ -76,7 +80,21 @@ endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
 
-add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+if (MAKEKIT_MODULE_MODE EQUALS 0)
+	# Do nothing
+elseif (MAKEKIT_MODULE_MODE LESS 4)
+	if (MAKEKIT_MODULE_MODE EQUALS 1)
+		set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
+	elseif (MAKEKIT_MODULE_MODE EQUALS 2)
+		set(MAKEKIT_MODULE_VISIBILITY PRIVATE)
+	elseif (MAKEKIT_MODULE_MODE EQUALS 3)
+		set(MAKEKIT_MODULE_VISIBILITY PUBLIC)
+	endif()
+	
+	add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+else()
+	add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+endif()
 
 # Linked libraries
 
