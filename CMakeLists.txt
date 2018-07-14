@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-#include()
+#include(MakeKitSettings.cmake)
 
 project(untitled)
 
