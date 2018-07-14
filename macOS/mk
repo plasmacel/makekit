@@ -3,5 +3,9 @@ if [ $1="make" ]; then
 elif [ $1="build" ]; then
 	mk_build $2
 else
-	echo Invalid command: $1
+	if [ $1="" ]; then
+		echo No command specified.
+	else
+		echo Invalid command: $1
+	fi
 fi
