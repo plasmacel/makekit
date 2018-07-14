@@ -1,5 +1,3 @@
-@echo off
-
 if "%1" == "make" (
 	call mk_make.bat %2
 ) else if "%1" == "build" (
@@ -11,6 +9,3 @@ if "%1" == "make" (
 		echo Invalid command: "%1"
 	)
 )
-
-set /p dummy=Press ENTER...
-@echo on
