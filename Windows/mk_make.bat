@@ -1,4 +1,5 @@
 @echo off
+setlocal
 set BUILD_TYPE="Release"
 
 if "%1" == "debug" (
@@ -21,7 +22,11 @@ if exist "build\" (
 )
 
 :: Set environment variables for x64
-call vcvars64.bat
+if not "%VSCMD_ARG_TGT_ARCH%" == "x64" (
+	if not "%VSCMD_ARG_HOST_ARCH%" == "x64" (
+		call vcvars64.bat
+	)
+)
 
 :: Run CMake
 cmake %~dp0 -G "Ninja" -Bbuild -DCMAKE_C_COMPILER="%MAKEKIT_LLVM_BIN%/clang-cl.exe" -DCMAKE_CXX_COMPILER="%MAKEKIT_LLVM_BIN%/clang-cl.exe" -DCMAKE_LINKER="%MAKEKIT_LLVM_BIN%/lld-link.exe" -DCMAKE_BUILD_TYPE="%BUILD_TYPE%"
