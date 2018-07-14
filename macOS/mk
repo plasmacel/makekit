@@ -1,0 +1,7 @@
+if [ $1="make" ]; then
+	mk_make $2
+elif [ $1="build" ]; then
+	mk_build $2
+else
+	echo Invalid command: $1
+fi
