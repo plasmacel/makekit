@@ -1,6 +1,8 @@
 @echo off
 
-if "%1" == "config" (
+if "%1" == "clean" (
+	call mk_clean.bat %2
+) else if "%1" == "config" (
 	call mk_config.bat %2
 ) else if "%1" == "make" (
 	call mk_make.bat %2
