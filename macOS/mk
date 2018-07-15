@@ -1,0 +1,13 @@
+if [ "$1" == "config" ]; then
+	"mk_config" $2
+elif [ "$1" == "make" ]; then
+	"mk_make" $2
+elif [ "$1" == "remake" ]; then
+	"mk_remake" $2
+else
+	if [ "$1" == "" ]; then
+		echo No command specified.
+	else
+		echo Invalid command: $1
+	fi
+fi

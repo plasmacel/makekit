@@ -1,0 +1,3 @@
+"mk_config" $1
+echo Making $1 build...
+ninja -v -C build_$1
