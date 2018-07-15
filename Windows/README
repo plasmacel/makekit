@@ -1,0 +1,4 @@
+LLVM/clang toolchain on Windows requires the following Windows SDK tools even when compiling and linking using LLVM/clang.
+
+- Microsoft Library Manager (LIB) - https://docs.microsoft.com/en-us/cpp/build/reference/lib-reference
+- Microsoft Resource Compiler (RC) - https://docs.microsoft.com/en-us/windows/desktop/menurc/resource-compiler
