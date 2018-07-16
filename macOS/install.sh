@@ -43,3 +43,11 @@ else
 	echo LLVM found, updating...
 	brew upgrade llvm
 fi
+
+echo Copying files to /usr/local/bin/...
+
+sudo cp mk /usr/local/bin/
+sudo cp mk_clean /usr/local/bin/
+sudo cp mk_config /usr/local/bin/
+sudo cp mk_make /usr/local/bin/
+sudo cp mk_remake /usr/local/bin/
