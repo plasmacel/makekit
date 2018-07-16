@@ -1,6 +1,6 @@
 ### `mk config BUILD_TYPE`
 
-Creates a build system configuration for the specified `BUILD_TYPE`. If the build system has been already configured, then updates it. This command is mandatory when files has been added or removed from the source.
+Creates a build system configuration for the specified `BUILD_TYPE`. If a build system has been already configured, then updates it. This command is mandatory when files has been added or removed from the source.
 
 ### `mk refresh BUILD_TYPE`
 
