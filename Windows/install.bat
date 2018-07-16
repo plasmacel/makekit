@@ -71,6 +71,8 @@ copy "%~dp0\mk.bat" "%MAKEKIT_BIN%\mk.bat"
 copy "%~dp0\mk_clean.bat" "%MAKEKIT_BIN%\mk_clean.bat"
 copy "%~dp0\mk_config.bat" "%MAKEKIT_BIN%\mk_config.bat"
 copy "%~dp0\mk_make.bat" "%MAKEKIT_BIN%\mk_make.bat"
+copy "%~dp0\mk_reconfig.bat" "%MAKEKIT_BIN%\mk_reconfig.bat"
+copy "%~dp0\mk_refresh.bat" "%MAKEKIT_BIN%\mk_refresh.bat"
 copy "%~dp0\mk_remake.bat" "%MAKEKIT_BIN%\mk_remake.bat"
 
 echo Done.
