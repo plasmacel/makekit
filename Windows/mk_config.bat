@@ -14,9 +14,6 @@ if "%1" == "debug" (
 :: Enter execution directory
 :: cd %~dp0
 
-:: Delete build directory if exists
-call mk_clean.bat %1
-
 :: Set environment variables for x64
 if not "%VSCMD_ARG_TGT_ARCH%" == "x64" (
 	if not "%VSCMD_ARG_HOST_ARCH%" == "x64" (
