@@ -1,0 +1,3 @@
+echo Cleaning $1 configuration...
+[ -d build_$1 ] && rm -R build_$1
+"mk_config" $1
