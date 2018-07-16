@@ -7,5 +7,3 @@ if exist "build_%1\" (
 ) else (
 	echo Nothing to clean.
 )
-
-@echo on
