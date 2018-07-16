@@ -6,7 +6,7 @@ To build a source with a valid `CMakeLists.txt` open the command line terminal, 
 
 To make the management of the build configurations, the generated CMakeLists.txt of MakeKit automatically finds source files.
 
-If files have been added or removed from the source after creating a build configuration, then you should update the configuration by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make` automatically performs this refresh.
+If the source tree has been changed by adding or removing files, existing build configurations should be updated to correctly reflect the changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make` automatically performs this refresh.
 
 ## Commands
 
