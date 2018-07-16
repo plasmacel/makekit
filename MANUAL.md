@@ -41,7 +41,7 @@ Creates a build system configuration for the specified `BUILD_TYPE`. If it has b
 
 #### `mk refresh BUILD_TYPE`
 
-Alias for `mk config BUILD_TYPE`
+Alias for `mk config BUILD_TYPE`.
 
 #### `mk reconfig BUILD_TYPE`
 
