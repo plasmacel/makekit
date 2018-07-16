@@ -4,7 +4,7 @@ set DEFAULT_CMAKE_INSTALL=C:\Program Files\CMake
 set DEFAULT_LLVM_INSTALL=C:\Program Files\LLVM
 set DEFAULT_MAKEKIT_INSTALL=C:\Program Files\MakeKit
 
-:: Get latest installed WIndows 10 SDK version
+:: Get latest installed Windows 10 SDK version
 
 call %~dp0\winsdk_version.bat WINSDK_VER
 
