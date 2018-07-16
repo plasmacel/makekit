@@ -24,7 +24,7 @@ If the source tree has been changed by adding or removing files, existing build 
 
 ## Build types
 
-Currently the following build types are evailable:
+Currently the following build types are available:
 
 - `debug` - Debug
 - `debuginfo` - RelWithDebInfo, i.e. release with debug information
