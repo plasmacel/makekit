@@ -12,7 +12,7 @@ if "%1" == "debug" (
 )
 
 :: Enter execution directory
-cd %~dp0
+:: cd %~dp0
 
 :: Delete build directory if exists
 call mk_clean.bat %1
@@ -26,7 +26,8 @@ if not "%VSCMD_ARG_TGT_ARCH%" == "x64" (
 
 :: Run CMake
 echo Configuring %1 build...
-cmake %~dp0 -G "Ninja" -Bbuild_%1 -DCMAKE_C_COMPILER:PATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:PATH="clang-cl.exe" -DCMAKE_LINKER:PATH="lld-link.exe" -DCMAKE_RC_COMPILER:PATH="rc.exe" -DCMAKE_BUILD_TYPE="%BUILD_TYPE%"
+cmake . -G "Ninja" -Bbuild_%1 -DCMAKE_C_COMPILER:PATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:PATH="clang-cl.exe" -DCMAKE_LINKER:PATH="lld-link.exe" -DCMAKE_RC_COMPILER:PATH="rc.exe" -DCMAKE_BUILD_TYPE="%BUILD_TYPE%"
+:: cmake %~dp0 -G "Ninja" -Bbuild_%1 -DCMAKE_C_COMPILER:PATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:PATH="clang-cl.exe" -DCMAKE_LINKER:PATH="lld-link.exe" -DCMAKE_RC_COMPILER:PATH="rc.exe" -DCMAKE_BUILD_TYPE="%BUILD_TYPE%"
 :: cmake %~dp0 -G "Ninja" -Bbuild_%1 -DCMAKE_TOOLCHAIN_FILE="MakeKitToolchain.cmake" -DCMAKE_BUILD_TYPE="%BUILD_TYPE%"
 
 @echo on
