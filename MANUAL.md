@@ -4,7 +4,7 @@ To build a source with a valid `CMakeLists.txt` open the command line terminal, 
 
 ## Adding or removing files from the source
 
-The auto-generated `CMakeLists` configuration of MakeKit will automatically find files in your source directory, including:
+When you create or refresh a build configuration, then CMake will automatically find files in your source directory, including:
 
 - header files (`.h`, `.hh`, `.hpp`, `.hxx`)
 - inline files (`.inc`, `.inl`, `.ipp`, `.ixx`)
