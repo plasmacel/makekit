@@ -85,7 +85,7 @@ endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
 
-if (${CXX_SOURCES})
+if (CXX_SOURCES)
     if (${MAKEKIT_MODULE_MODE} EQUAL 0)
             # Do nothing
     elseif (${MAKEKIT_MODULE_MODE} LESS 4)
