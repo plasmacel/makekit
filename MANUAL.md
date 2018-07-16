@@ -6,7 +6,7 @@ TODO
 
 ## Create a build system configuration and build
 
-The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake, then this build system is being executed in parallelized, concurrent fashion, where each build task will use the LLVM compiler and linker.
+The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake using `mk config`, then this build system is being executed in parallelized, concurrent fashion using `mk make`, where each build task will use the LLVM compiler and linker.
 
 To build a source with the pre-generated `CMakeLists.txt` file(s), open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE` instead. Later, you can execute it by `mk make BUILD_TYPE`.
 
