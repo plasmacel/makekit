@@ -6,7 +6,7 @@ TODO
 
 ## Create a build system configuration and build
 
-The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM compiler and linker. The generated build system can be updated (`mk_refresh`) and re-generated (`mk reconfig`) any time. Similarly, then binaries can be re-built (`mk remake`) any time. Also, if required, all generated files, including the build system and the built binaries can be removed (`mk clean`). 
+The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM compiler (clang) and linker (lld). The generated build system can be updated (`mk_refresh`) and re-generated (`mk reconfig`) any time. Similarly, then binaries can be re-built (`mk remake`) any time. Also, if required, all generated files, including the build system and the built binaries can be removed (`mk clean`). 
 
 To build a source with the pre-generated `CMakeLists.txt` file(s), open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE` instead. Later, you can execute it by `mk make BUILD_TYPE`.
 
