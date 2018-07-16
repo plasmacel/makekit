@@ -2,11 +2,11 @@
 
 TODO
 
-## Build a source
+## Create a build system configuration and build
 
 To build a source with the proper `CMakeLists.txt` file(s), open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE` instead. Later, you can execute it by `mk make BUILD_TYPE`.
 
-## Adding or removing files from the source
+## Adding/removing files from the source
 
 Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh a build configuration, CMake will automatically find and register files in your source directory, including:
 
