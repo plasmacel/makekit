@@ -1,2 +1,6 @@
-Cleaning $1 build...
-ninja -C build_$1 -t clean
+if [ -d build_$1 ]; then
+	echo Cleaning $1 build...
+	ninja -C build_$1 -t clean
+else
+	echo Nothing to clean.
+fi
