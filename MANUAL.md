@@ -4,11 +4,24 @@ To build a source with a valid `CMakeLists.txt` open the command line terminal, 
 
 ## Adding or removing files from the source
 
-To make the management of the build configurations, the generated CMakeLists.txt of MakeKit automatically finds source files.
+The auto-generated `CMakeLists` configuration of MakeKit will automatically find files in your source directory, including:
 
-The auto-generated `CMakeLists` of MakeKit will automatically find files in your source directory, including header (`.h`, `.hh`, `.hpp`, `.hxx`), inline (`.inc`, `.inl`, `.ipp`, `.ixx`), source (`.c`, `.cc`, `.cpp`, `.cxx`), Qt user interface (`.ui`) and pre-built object (`.o`, `.obj`) files.
+- header files (`.h`, `.hh`, `.hpp`, `.hxx`)
+- inline files (`.inc`, `.inl`, `.ipp`, `.ixx`)
+- source files (`.c`, `.cc`, `.cpp`, `.cxx`)
+- Qt user interface files (`.ui`)
+- pre-built object files (`.o`, `.obj`)
 
-If the source tree has been changed by adding or removing files, existing build configurations should be updated to correctly reflect the changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make` automatically performs this refresh.
+If the source tree has been changed by adding or removing files, existing build configurations should be updated to correctly reflect the changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
+
+## Build types
+
+Currently the following build types are evailable:
+
+- `debug` - Debug
+- `debuginfo` - RelWithDebInfo, i.e. release with debug information
+- `release` - Release
+- `releasemin` - MinSizeRel, i.e. release with minimal size
 
 ## Commands
 
