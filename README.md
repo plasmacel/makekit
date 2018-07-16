@@ -31,16 +31,6 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
  
  TODO
 
-### Alternative installations
-
-##### CMake and Ninja for macOS using Homebrew
-1. Update Homebrew
-    `brew update`
-    `brew upgrade`
-2. Install CMake and Ninja
-    `brew install cmake`
-    `brew install ninja`
-
 ##### Install CMake and Ninja for Ubuntu/Debian using command line
 1. Update the package and dependency list:
     `sudo apt update`
