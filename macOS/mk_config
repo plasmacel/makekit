@@ -11,6 +11,5 @@ else
 	exit 1
 fi
 
-#[ -d build_$1 ] && rm -R build_$1
 echo Configuring $1 build...
 cmake . -G "Ninja" -Bbuild_$1 -DCMAKE_C_COMPILER="clang" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_LINKER="lld-link" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
