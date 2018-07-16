@@ -1,5 +1,7 @@
 ## Generate `CMakeLists.txt` files
 
+MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
+
 TODO
 
 ## Create a build system configuration and build
