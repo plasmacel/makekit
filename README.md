@@ -19,7 +19,7 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
 2. Download the binary distribution of Ninja (if unavailable, then build it from the source)
    https://ninja-build.org
    https://github.com/ninja-build/ninja/releases
-3. Run `install.bat`, or open command prompt, navigate to its directory and use command `install`.
+3. Run `install.bat` as administrator, or open command prompt as administrator, navigate to its directory and use command `install`.
    
  ## macOS
  
