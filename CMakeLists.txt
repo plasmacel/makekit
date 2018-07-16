@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-#include(MakeKitSettings.cmake)
-
 project(untitled)
 
 # MakeKit Variables
@@ -11,7 +9,7 @@ project(untitled)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_ASM 1)
-#set(MAKEKIT_MODULE_MODE 0)
+set(MAKEKIT_MODULE_MODE 4)
 
 enable_language(C)
 enable_language(CXX)
@@ -80,14 +78,14 @@ endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
 
-if (MAKEKIT_MODULE_MODE EQUALS 0)
+if (${MAKEKIT_MODULE_MODE} EQUAL 0)
 	# Do nothing
-elseif (MAKEKIT_MODULE_MODE LESS 4)
-	if (MAKEKIT_MODULE_MODE EQUALS 1)
+elseif (${MAKEKIT_MODULE_MODE} LESS 4)
+	if (${MAKEKIT_MODULE_MODE} EQUALS 1)
 		set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
-	elseif (MAKEKIT_MODULE_MODE EQUALS 2)
+	elseif (${MAKEKIT_MODULE_MODE} EQUALS 2)
 		set(MAKEKIT_MODULE_VISIBILITY PRIVATE)
-	elseif (MAKEKIT_MODULE_MODE EQUALS 3)
+	elseif (${MAKEKIT_MODULE_MODE} EQUALS 3)
 		set(MAKEKIT_MODULE_VISIBILITY PUBLIC)
 	endif()
 	
@@ -165,4 +163,3 @@ if (MAKEKIT_QT)
 endif(MAKEKIT_QT)
 
 # ------------------------------ End of Qt related stuff ------------------------------
-
