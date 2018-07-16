@@ -25,8 +25,7 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
  
  1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org
- 2. Run `install.sh`, or navigate to its directory and use command `./install.sh`.
-   It will detect and install Homebrew if needed, followed by the installation of Ninja and LLVM.
+ 2. Run `install`. It will detect and install Homebrew if needed, followed by the installation of Ninja and LLVM.
    
  ## Linux
  
