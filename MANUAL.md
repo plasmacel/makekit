@@ -1,8 +1,8 @@
-### Build
+## Build
 
-To build a source with a valid `CMakeList.txt` open command prompt, navigate to its directory and use `mk make release`.
+To build a source with a valid `CMakeLists.txt` open the command line terminal, navigate to the source directory and use `mk make release`.
 
-### Commands
+## Commands
 
 #### `mk config BUILD_TYPE`
 
