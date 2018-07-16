@@ -31,7 +31,7 @@ Currently the following build types are evailable:
 
 #### `mk config BUILD_TYPE`
 
-Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will update it. This command is mandatory when files has been added or removed from the source.
+Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
 
 #### `mk refresh BUILD_TYPE`
 
