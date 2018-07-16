@@ -1,3 +1,9 @@
+### Build
+
+To build a source with a valid `CMakeList.txt` open command prompt, navigate to its directory and use `mk make release`.
+
+### Commands
+
 #### `mk config BUILD_TYPE`
 
 Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will update it. This command is mandatory when files has been added or removed from the source.
