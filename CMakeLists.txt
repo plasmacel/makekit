@@ -10,6 +10,7 @@ project(untitled)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_ASM 1)
 set(MAKEKIT_MODULE_MODE 4)
+set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 
 enable_language(C)
 enable_language(CXX)
@@ -43,14 +44,20 @@ elseif (UNIX)
 endif()
 
 # Source and Executable
-FILE(GLOB_RECURSE CXX_SOURCES "*.cc" "*.cpp" "*.cxx")
-FILE(GLOB_RECURSE CXX_HEADERS "*.h" "*.hh" "*.hpp" ".hxx")
-FILE(GLOB_RECURSE CXX_INLINES "*.inc" "*.inl" "*.ipp" "*.ixx")
+FILE(GLOB_RECURSE CXX_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cc *.cpp *.cxx)
+FILE(GLOB_RECURSE CXX_HEADERS RELATIVE ${MAKEKIT_SOURCE} *.h *.hh *.hpp *.hxx)
+FILE(GLOB_RECURSE CXX_INLINES RELATIVE ${MAKEKIT_SOURCE} *.inc *.inl *.ipp *.ixx)
 if (MAKEKIT_OS_WINDOWS)
-	FILE(GLOB_RECURSE CXX_OBJECTS "*.obj")
+	FILE(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.obj)
 else (MAKEKIT_OS_WINDOWS)
-	FILE(GLOB_RECURSE CXX_OBJECTS "*.o")
+	FILE(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.o)
 endif(MAKEKIT_OS_WINDOWS)
+
+# Excluding CMake generated files for safety
+list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
+list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
+list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
+list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
 # ------------------------------ Qt related stuff ------------------------------
  if (MAKEKIT_QT)
@@ -78,21 +85,35 @@ endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
 
-if (${MAKEKIT_MODULE_MODE} EQUAL 0)
-	# Do nothing
-elseif (${MAKEKIT_MODULE_MODE} LESS 4)
-	if (${MAKEKIT_MODULE_MODE} EQUALS 1)
-		set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
-	elseif (${MAKEKIT_MODULE_MODE} EQUALS 2)
-		set(MAKEKIT_MODULE_VISIBILITY PRIVATE)
-	elseif (${MAKEKIT_MODULE_MODE} EQUALS 3)
-		set(MAKEKIT_MODULE_VISIBILITY PUBLIC)
-	endif()
-	
-	add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+if (${CXX_SOURCES})
+    if (${MAKEKIT_MODULE_MODE} EQUAL 0)
+            # Do nothing
+    elseif (${MAKEKIT_MODULE_MODE} LESS 4)
+            if (${MAKEKIT_MODULE_MODE} EQUALS 1)
+                    set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
+            elseif (${MAKEKIT_MODULE_MODE} EQUALS 2)
+                    set(MAKEKIT_MODULE_VISIBILITY PRIVATE)
+            elseif (${MAKEKIT_MODULE_MODE} EQUALS 3)
+                    set(MAKEKIT_MODULE_VISIBILITY PUBLIC)
+            endif()
+
+            add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+    else()
+            add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+    endif()
 else()
-	add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+    message("No C/C++ sources found.")
 endif()
+
+# Set linker language for cases when it cannot be determined
+# (for example when the source consists precompiled object files only)
+#get_target_property(MAKEKIT_LINKER_LANGUAGE ${PROJECT_NAME} LINKER_LANGUAGE)
+#message(${MAKEKIT_LINKER_LANGUAGE})
+#if (${MAKEKIT_LINKER_LANGUAGE} STREQUAL "NOTFOUND")
+#    message(OK)
+#    set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+#endif()
+#set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINKER_LANGUAGE CXX)
 
 # Linked libraries
 
