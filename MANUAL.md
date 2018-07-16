@@ -1,6 +1,12 @@
 ## Build
 
-To build a source with a valid `CMakeLists.txt` open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE`. If files have been added or removed from the source after creating a build configuration, then you can update the configuration by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`.
+To build a source with a valid `CMakeLists.txt` open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE` instead. Later, you can execute it by `mk make BUILD_TYPE`.
+
+## Adding or removing files from the source
+
+To make the management of the build configurations, the generated CMakeLists.txt of MakeKit automatically finds source files.
+
+If files have been added or removed from the source after creating a build configuration, then you should update the configuration by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make` automatically performs this refresh.
 
 ## Commands
 
