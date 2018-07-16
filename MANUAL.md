@@ -19,6 +19,8 @@ Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh
 - source files (`.c`, `.cc`, `.cpp`, `.cxx`)
 - Qt user interface files (`.ui`)
 - pre-built binary object files (`.o`, `.obj`)
+- assembler files (`.asm`, `.s`)
+- CUDA source files (`.cu`)
 
 If the source tree has been changed by adding or removing files, existing build configurations should be updated to correctly reflect the changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
 
