@@ -4,6 +4,10 @@ elif [ "$1" == "config" ]; then
 	"mk_config" $2
 elif [ "$1" == "make" ]; then
 	"mk_make" $2
+elif [ "$1" == "reconfig" ]; then
+	"mk_reconfig" $2
+elif [ "$1" == "refresh" ]; then
+	"mk_refresh" $2
 elif [ "$1" == "remake" ]; then
 	"mk_remake" $2
 else
