@@ -113,7 +113,7 @@ void make(const std::string& build_type)
 	#endif
 	
 	system_command command{ "ninja" };
-	command.append("-v");
+	//command.append("-v");
 	command.append("-C " + BUILD_DIR_PREFIX + build_type);
     
 	std::system(command);
