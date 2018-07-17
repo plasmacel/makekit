@@ -2,8 +2,24 @@
 #include <iostream>
 #include <string>
 
-const static std::string BUILD_DIR_PREFIX = "build.";
-const static std::string DEFAULT_BUILD_TYPE = "release";
+static const std::string BUILD_DIR_PREFIX = "build.";
+static const std::string DEFAULT_BUILD_TYPE = "release";
+
+#ifdef _WIN32
+static const std::string MAKEKIT_ASM_COMPILER = "ml64.exe";
+static const std::string MAKEKIT_C_COMPILER = "clang-cl.exe";
+static const std::string MAKEKIT_CXX_COMPILER = "clang-cl.exe";
+static const std::string MAKEKIT_CUDA_COMPILER = "nvcc.exe";
+static const std::string MAKEKIT_RC_COMPILER = "rc.exe";
+static const std::string MAKEKIT_LINKER = "lld-link.exe";
+#else
+static const std::string MAKEKIT_ASM_COMPILER = "llvm-as";
+static const std::string MAKEKIT_C_COMPILER = "clang";
+static const std::string MAKEKIT_CXX_COMPILER = "clang++";
+static const std::string MAKEKIT_CUDA_COMPILER = "nvcc";
+static const std::string MAKEKIT_RC_COMPILER = "";
+static const std::string MAKEKIT_LINKER = "lld";
+#endif
 
 struct system_commands
 {
@@ -33,32 +49,36 @@ struct system_commands
 	}
 };
 
+std::string get_dir(const std::string& build_type)
+{
+	return BUILD_DIR_PREFIX + build_type;
+}
+
+std::string get_env_var(const std::string& variable)
+{
+	std::string value;
+
+	#ifdef _WIN32
+	char* buf = nullptr;
+	size_t n = 0;
+
+	if ((_dupenv_s(&buf, &n, variable.c_str()) == 0) && (buf != nullptr))
+	{
+		value.assign(buf, n);
+		std::free(buf);
+	}
+	#else
+	value = std::get_env_var(variable.c_str());
+	#endif
+
+	return value;
+}
+
 #ifdef _WIN32
 void add_set_environment_command(const std::string& host_arch, const std::string& target_arch, system_commands& cmd)
 {
-	std::string current_host_arch;
-	std::string current_target_arch;
-	
-	char* buf;
-	size_t n = 0;
-
-	buf = nullptr;
-	if ((_dupenv_s(&buf, &n, "VSCMD_ARG_HOST_ARCH") == 0) && (buf != nullptr))
-	{
-		current_host_arch.assign(buf, n);
-		std::free(buf);
-	}
-
-	//std::cout << current_host_arch << std::endl;
-
-	buf = nullptr;
-	if ((_dupenv_s(&buf, &n, "VSCMD_ARG_TGT_ARCH") == 0) && (buf != nullptr))
-	{
-		current_target_arch.assign(buf, n);
-		std::free(buf);
-	}
-
-	//std::cout << current_target_arch << std::endl;
+	std::string current_host_arch = get_env_var("VSCMD_ARG_HOST_ARCH");
+	std::string current_target_arch = get_env_var("VSCMD_ARG_TGT_ARCH");
 	
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
@@ -72,6 +92,14 @@ void add_set_environment_command(const std::string& arch, system_commands& cmd)
 }
 #endif
 
+bool check_executable(const std::string& filename)
+{
+	system_commands cmd{ "for %X in (" + filename + ") do (set MAKEKIT_FOUND=%~$PATH:X)" };
+
+	std::system(cmd);
+	return !get_env_var("MAKEKIT_FOUND").empty();
+}
+
 int config(const std::string& build_type, system_commands& cmd)
 {
 	std::string cmake_build_type;
@@ -80,7 +108,7 @@ int config(const std::string& build_type, system_commands& cmd)
 	{
 		cmake_build_type = "Debug";
 	}
-	else if (build_type == "release:debuginfo")
+	else if (build_type == "release-debuginfo")
 	{
 		cmake_build_type = "RelWithDebInfo";
 	}
@@ -88,7 +116,7 @@ int config(const std::string& build_type, system_commands& cmd)
 	{
 		cmake_build_type = "Release";
 	}
-	else if (build_type == "release:minsize")
+	else if (build_type == "release-minsize")
 	{
 		cmake_build_type = "RelMinSize";
 	}
@@ -108,24 +136,15 @@ int config(const std::string& build_type, system_commands& cmd)
 	
 	// Append run CMake command
 
-	std::string cmake_command = "cmake";
-	cmake_command += " .";
+	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
 	cmake_command += " -B" + BUILD_DIR_PREFIX + build_type;
-	#ifdef _WIN32 // Windows flags
-	cmake_command += " -DCMAKE_C_COMPILER:PATH=\"clang-cl.exe\"";
-	cmake_command += " -DCMAKE_CXX_COMPILER:PATH=\"clang-cl.exe\"";
-	cmake_command += " -DCMAKE_LINKER:PATH=\"lld-link.exe\"";
-	cmake_command += " -DCMAKE_RC_COMPILER:PATH=\"rc.exe\"";
-	//cmake_command += " -DCMAKE_ASM_COMPILER:PATH=ml64.exe";
-	//cmake_command += " -DCMAKE_CUDA_COMPILER:PATH=nvcc.exe";
-	#else // macOS, Linux flags
-	cmake_command += " -DCMAKE_C_COMPILER:PATH=\"clang\"";
-	cmake_command += " -DCMAKE_CXX_COMPILER:PATH=\"clang++\"";
-	cmake_command += " -DCMAKE_LINKER:PATH=\"lld\"";
-	//cmake_command += " -DCMAKE_ASM_COMPILER:PATH=\"llvm-as\"";
-	//cmake_command += " -DCMAKE_CUDA_COMPILER:PATH=\"nvcc\"";
-	#endif
+	//cmake_command += " -DCMAKE_ASM_COMPILER:PATH=\"" + MAKEKIT_ASM_COMPILER + "\"";
+	cmake_command += " -DCMAKE_C_COMPILER:PATH=\"" + MAKEKIT_C_COMPILER + "\"";
+	cmake_command += " -DCMAKE_CXX_COMPILER:PATH=\"" + MAKEKIT_CXX_COMPILER + "\"";
+	//cmake_command += " -DCMAKE_CUDA_COMPILER:PATH=\"" + MAKEKIT_CUDA_COMPILER + "\"";
+	cmake_command += " -DCMAKE_RC_COMPILER:PATH=\"" + MAKEKIT_RC_COMPILER + "\"";
+	cmake_command += " -DCMAKE_LINKER:PATH=\"" + MAKEKIT_LINKER + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
 
 	cmd.append(cmake_command);
@@ -158,17 +177,21 @@ int clean_all(const std::string& build_type, system_commands& cmd)
 
 int clean_config(const std::string& build_type, system_commands& cmd)
 {
+	const std::string build_dir = get_dir(build_type);
+
 	#ifdef _WIN32
-	cmd.append("@if exist " + BUILD_DIR_PREFIX + build_type + "\\CMakeCache.txt" + " @del /f /q " + BUILD_DIR_PREFIX + build_type + "\\CMakeCache.txt");
+	cmd.append("@if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
 	#else
-	cmd.append("rm -f " + BUILD_DIR_PREFIX + build_type + "/CMakeCache.txt");
+	cmd.append("rm -f " + build_dir + "/CMakeCache.txt");
 	#endif
 	return 0;
 }
 
 int clean_make(const std::string& build_type, system_commands& cmd)
 {
-	cmd.append("ninja -C " + BUILD_DIR_PREFIX + build_type + " -t clean");
+	const std::string build_dir = get_dir(build_type);
+
+	cmd.append("ninja -C " + build_dir + " -t clean");
 	return 0;
 }
 
