@@ -1,4 +1,4 @@
-#include <iostream>
+#include <ostream>
 #include <string>
 
 const static std::string BUILD_DIR_PREFIX = "build_";
