@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-const static std::string BUILD_DIR_PREFIX = "build_";
+const static std::string BUILD_DIR_PREFIX = "build.";
 const static std::string DEFAULT_BUILD_TYPE = "release";
 
 struct system_command
