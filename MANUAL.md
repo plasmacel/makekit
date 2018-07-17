@@ -33,6 +33,8 @@ Currently the following `BUILD_TYPE` values are available:
 - `release-debuginfo` - RelWithDebInfo, i.e. Release with debug information
 - `release-minsize` - MinSizeRel, i.e. Release with minimal binary size
 
+Custom build types will be available in the future.
+
 ## Commands
 
 #### `mk clean BUILD_TYPE`
