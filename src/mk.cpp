@@ -92,14 +92,6 @@ void add_set_environment_command(const std::string& arch, system_commands& cmd)
 }
 #endif
 
-bool check_executable(const std::string& filename)
-{
-	system_commands cmd{ "for %X in (" + filename + ") do (set MAKEKIT_FOUND=%~$PATH:X)" };
-
-	std::system(cmd);
-	return !get_env_var("MAKEKIT_FOUND").empty();
-}
-
 int config(const std::string& build_type, system_commands& cmd)
 {
 	std::string cmake_build_type;
