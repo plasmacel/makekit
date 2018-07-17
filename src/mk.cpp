@@ -83,10 +83,12 @@ void config(const std::string& build_type)
 	command.append("-DCMAKE_CXX_COMPILER:PATH='clang-cl.exe'");
 	command.append("-DCMAKE_LINKER:PATH='lld-link.exe'");
 	command.append("-DCMAKE_RC_COMPILER:PATH='rc.exe'");
+	command.append("-DCMAKE_ASM_COMPILER:PATH='ml64.exe'");
 	#else
 	command.append("-DCMAKE_C_COMPILER:PATH='clang'");
 	command.append("-DCMAKE_CXX_COMPILER:PATH='clang++'");
 	command.append("-DCMAKE_LINKER:PATH='lld-link'");
+	command.append("-DCMAKE_ASM_COMPILER:PATH='llvm-as'");
 	#endif
 	
 	command.append("-DCMAKE_BUILD_TYPE=" + cmake_build_type);
