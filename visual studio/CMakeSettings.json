@@ -14,7 +14,7 @@
       "variables": []
     },
     {
-      "name": "Release + Debug info",
+      "name": "Release - DebugInfo",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "inheritEnvironments": [ "msvc_x64" ],
@@ -38,7 +38,7 @@
       "variables": []
     },
     {
-      "name": "Release minimal size",
+      "name": "Release - MinSize",
       "generator": "Ninja",
       "configurationType": "MinSizeRel",
       "inheritEnvironments": [ "msvc_x64" ],
