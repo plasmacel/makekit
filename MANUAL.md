@@ -4,7 +4,7 @@ MakeKit automatically generates `CMakeLists.txt` files for your project using a 
 
 TODO
 
-## Create a build system configuration and build
+## Create a build system configuration (and execute it)
 
 The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM compiler (clang) and linker (lld). The generated build system can be updated (`mk_refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. Also, if required, all generated files, including the build system and the built binaries can be removed (`mk clean`). 
 
