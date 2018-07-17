@@ -26,7 +26,7 @@ If the source tree has been changed by adding or removing files, existing build 
 
 ## Build types
 
-Currently the following build types are available:
+Currently the following `BUILD_TYPE` values are available:
 
 - `debug` - Debug
 - `release` - Release
