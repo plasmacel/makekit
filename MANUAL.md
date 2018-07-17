@@ -29,9 +29,9 @@ If the source tree has been changed by adding or removing files, existing build 
 Currently the following build types are available:
 
 - `debug` - Debug
-- `debuginfo` - RelWithDebInfo, i.e. release with debug information
 - `release` - Release
-- `releasemin` - MinSizeRel, i.e. release with minimal size
+- `release-debuginfo` - RelWithDebInfo, i.e. release with debug information
+- `release-minsize` - MinSizeRel, i.e. release with minimal size
 
 ## Commands
 
