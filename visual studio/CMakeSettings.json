@@ -8,19 +8,19 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER:PATH='clang-cl.exe'",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:PATH=clang-cl.exe -D CMAKE_CXX_COMPILER:PATH=clang-cl.exe -D CMAKE_LINKER:PATH=lld-link.exe",
       "buildCommandArgs": "-v -j 8",
       "ctestCommandArgs": "",
       "variables": []
     },
     {
-      "name": "Release With Debug Info",
+      "name": "Release + Debug info",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER:PATH='clang-cl.exe'",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:PATH=clang-cl.exe -D CMAKE_CXX_COMPILER:PATH=clang-cl.exe -D CMAKE_LINKER:PATH=lld-link.exe",
       "buildCommandArgs": "-v -j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -32,7 +32,19 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_CXX_COMPILER:PATH='clang-cl.exe'",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:PATH=clang-cl.exe -D CMAKE_CXX_COMPILER:PATH=clang-cl.exe -D CMAKE_LINKER:PATH=lld-link.exe",
+      "buildCommandArgs": "-v -j 8",
+      "ctestCommandArgs": "",
+      "variables": []
+    },
+    {
+      "name": "Release minimal size",
+      "generator": "Ninja",
+      "configurationType": "MinSizeRel",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:PATH=clang-cl.exe -D CMAKE_CXX_COMPILER:PATH=clang-cl.exe -D CMAKE_LINKER:PATH=lld-link.exe",
       "buildCommandArgs": "-v -j 8",
       "ctestCommandArgs": "",
       "variables": []
