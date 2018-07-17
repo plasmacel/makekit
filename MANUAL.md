@@ -30,8 +30,8 @@ Currently the following build types are available:
 
 - `debug` - Debug
 - `release` - Release
-- `release-debuginfo` - RelWithDebInfo, i.e. release with debug information
-- `release-minsize` - MinSizeRel, i.e. release with minimal size
+- `release-debuginfo` - RelWithDebInfo, i.e. Release with debug information
+- `release-minsize` - MinSizeRel, i.e. Release with minimal binary size
 
 ## Commands
 
