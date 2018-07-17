@@ -87,7 +87,7 @@ void config(const std::string& build_type)
 	#else
 	command.append("-DCMAKE_C_COMPILER:PATH='clang'");
 	command.append("-DCMAKE_CXX_COMPILER:PATH='clang++'");
-	command.append("-DCMAKE_LINKER:PATH='lld-link'");
+	command.append("-DCMAKE_LINKER:PATH='lld'");
 	command.append("-DCMAKE_ASM_COMPILER:PATH='llvm-as'");
 	#endif
 	
