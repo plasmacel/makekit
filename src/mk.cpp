@@ -49,6 +49,26 @@ struct system_commands
 	}
 };
 
+void where_path(const std::string& filename, system_commands& cmd)
+{
+	#ifdef _WIN32
+	cmd.append("where " + filename);
+	#else
+	cmd.append("which " + filename);
+	#endif
+}
+
+bool has_path(const std::string& filename)
+{
+	#ifdef _WIN32
+	cmd.append("where /q " + filename);
+	return get_env_var("ERRORLEVEL") == "0";
+	#else
+	cmd.append("which " + filename);
+	return get_env_var("?") == "0";
+	#endif
+}
+
 std::string get_dir(const std::string& build_type)
 {
 	return BUILD_DIR_PREFIX + build_type;
@@ -58,7 +78,7 @@ std::string get_env_var(const std::string& variable)
 {
 	std::string value;
 
-	#ifdef _WIN32
+#ifdef _WIN32
 	char* buf = nullptr;
 	size_t n = 0;
 
@@ -67,9 +87,9 @@ std::string get_env_var(const std::string& variable)
 		value.assign(buf, n);
 		std::free(buf);
 	}
-	#else
+#else
 	value = std::get_env_var(variable.c_str());
-	#endif
+#endif
 
 	return value;
 }
@@ -79,7 +99,7 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 {
 	std::string current_host_arch = get_env_var("VSCMD_ARG_HOST_ARCH");
 	std::string current_target_arch = get_env_var("VSCMD_ARG_TGT_ARCH");
-	
+
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
 		cmd.append("call vcvars64.bat");
@@ -95,7 +115,7 @@ void add_set_environment_command(const std::string& arch, system_commands& cmd)
 int config(const std::string& build_type, system_commands& cmd)
 {
 	std::string cmake_build_type;
-	
+
 	if (build_type == "debug")
 	{
 		cmake_build_type = "Debug";
@@ -122,10 +142,10 @@ int config(const std::string& build_type, system_commands& cmd)
 
 	// Append set environment command (required on Windows only)
 
-	#ifdef _WIN32
+#ifdef _WIN32
 	add_set_environment_command("x64", cmd);
-	#endif
-	
+#endif
+
 	// Append run CMake command
 
 	std::string cmake_command = "cmake .";
@@ -140,14 +160,14 @@ int config(const std::string& build_type, system_commands& cmd)
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
 
 	cmd.append(cmake_command);
-	
+
 	return 0;
 }
 
 int make(const std::string& build_type, system_commands& cmd)
 {
 	// Config or refresh
-	
+
 	if (config(build_type, cmd) != 0) return 1;
 
 	// Add Ninja build command
@@ -159,11 +179,11 @@ int make(const std::string& build_type, system_commands& cmd)
 
 int clean_all(const std::string& build_type, system_commands& cmd)
 {
-	#ifdef _WIN32
+#ifdef _WIN32
 	cmd.append("@if exist " + BUILD_DIR_PREFIX + build_type + " @rd /s /q " + BUILD_DIR_PREFIX + build_type);
-	#else
+#else
 	cmd.append("rm -r -f " + BUILD_DIR_PREFIX + build_type);
-	#endif
+#endif
 	return 0;
 }
 
@@ -171,11 +191,11 @@ int clean_config(const std::string& build_type, system_commands& cmd)
 {
 	const std::string build_dir = get_dir(build_type);
 
-	#ifdef _WIN32
+#ifdef _WIN32
 	cmd.append("@if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
-	#else
+#else
 	cmd.append("rm -f " + build_dir + "/CMakeCache.txt");
-	#endif
+#endif
 	return 0;
 }
 
@@ -206,14 +226,14 @@ int remake(const std::string& build_type, system_commands& cmd)
 
 int main(int argc, char** argv)
 {
-   	std::string command;
-   	std::string build_type;
-	
+	std::string command;
+	std::string build_type;
+
 	if (argc > 1) command = argv[1];
 	if (argc > 2) build_type = argv[2];
-	
+
 	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
-	
+
 	system_commands cmd;
 	int retval;
 
@@ -268,6 +288,6 @@ int main(int argc, char** argv)
 	}
 
 	std::system(cmd);
-	
+
 	return 0;
 }
