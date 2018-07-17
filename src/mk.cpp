@@ -61,10 +61,10 @@ void where_path(const std::string& filename, system_commands& cmd)
 bool has_path(const std::string& filename)
 {
 	#ifdef _WIN32
-	cmd.append("where /q " + filename);
+	std::system(std::string{"where /q " + filename}.c_str());
 	return get_env_var("ERRORLEVEL") == "0";
 	#else
-	cmd.append("which " + filename);
+	std::system(std::string{"which " + filename}.c_str());
 	return get_env_var("?") == "0";
 	#endif
 }
