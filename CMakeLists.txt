@@ -74,11 +74,11 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
 # ------------------------------ Qt related stuff ------------------------------
  if (MAKEKIT_QT)
-    FILE(GLOB_RECURSE CXX_UIFILES "*.ui")
+    FILE(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
  
     set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
 
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -93,7 +93,8 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
     endif (MAKEKIT_CLANG_CL)
 
     find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network)
-    qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+    # Not required when CMAKE_AUTOUIC is ON
+    #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
 endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
