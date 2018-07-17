@@ -45,7 +45,7 @@ void config(const std::string& build_type)
 	{
 		cmake_build_type = "Debug";
 	}
-	else if (build_type == "release_debuginfo")
+	else if (build_type == "release:debuginfo")
 	{
 		cmake_build_type = "RelWithDebInfo";
 	}
@@ -53,7 +53,7 @@ void config(const std::string& build_type)
 	{
 		cmake_build_type = "Release";
 	}
-	else if (build_type == "release_minsize")
+	else if (build_type == "release:minsize")
 	{
 		cmake_build_type = "RelMinSize";
 	}
