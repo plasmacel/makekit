@@ -1,8 +1,8 @@
-//#include <experimental/filesystem>
 #include <iostream>
 #include <string>
 
 const static std::string BUILD_DIR_PREFIX = "build_";
+const static std::string DEFAULT_BUILD_TYPE = "release";
 
 struct system_command
 {
@@ -66,13 +66,13 @@ void config(const std::string& build_type)
 	std::cout << "Configuring " << build_type << " build..." << std::endl;
 	
 	// Set environment variables on Windows
-
+    
 	#ifdef _WIN32
 	set_environment("x64");
 	#endif
-
+    
 	// Run CMake
-
+    
 	system_command command{ "cmake" };
 	command.append(".");
 	command.append("-GNinja");
@@ -111,51 +111,35 @@ void make(const std::string& build_type)
 	system_command command{ "ninja" };
 	command.append("-v");
 	command.append("-C " + BUILD_DIR_PREFIX + build_type);
+    
 	std::system(command);
 }
 
 
 void clean_all(const std::string& build_type)
 {
-    //std::experimental::filesystem::path build_dir{ "build_" + build_type };
-	
-    //if (std::experimental::filesystem::exists(build_dir))
-	//{
-		std::cout << "Cleaning " + build_type + "..." << std::endl;
-        //std::experimental::filesystem::remove_all(build_dir);
-	//}
     #ifdef _WIN32
-    	system_command command{ "@RD"" };
-	command.append("/S");
-	command.append("/Q");
+    system_command command{ "@RD /S /Q" };
 	command.append(BUILD_DIR_PREFIX + build_type);
-    	std::system(command);
     #else
 	system_command command{ "rm -R" };
 	command.append(BUILD_DIR_PREFIX + build_type);
-    	std::system(command);
     #endif
+    
+    std::system(command);
 }
 
 void clean_config(const std::string& build_type)
 {
-    //std::experimental::filesystem::path cmake_cache{ "build_" + build_type + "/CMakeCache.txt" };
-	
-    //if (std::experimental::filesystem::exists(cmake_cache))
-	//{
-		std::cout << "Cleaning " + build_type + " configuration..." << std::endl;
-        //std::experimental::filesystem::remove(cmake_cache);
-	//}
-    
     #ifdef _WIN32
-    	system_command command{ "del" };
+    system_command command{ "del" };
 	command.append(BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt");
-        std::system(command);
     #else
 	system_command command{ "rm" };
 	command.append(BUILD_DIR_PREFIX + build_type + "/CMakeCache.txt");
-        std::system(command);
     #endif
+    
+    std::system(command);
 }
 
 void clean_make(const std::string& build_type)
@@ -163,6 +147,7 @@ void clean_make(const std::string& build_type)
 	system_command command{ "ninja" };
 	command.append("-C " + BUILD_DIR_PREFIX + build_type);
 	command.append("-t clean");
+    
 	std::system(command);
 }
 
@@ -187,11 +172,11 @@ int main(int argc, char** argv)
 {
    	std::string command;
    	std::string build_type;
-
+    
 	if (argc > 1) command = argv[1];
 	if (argc > 2) build_type = argv[2];
 
-	if (build_type.empty()) build_type = "release";
+	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
     
 	if (command == "clean")
 	{
