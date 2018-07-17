@@ -83,13 +83,13 @@ void config(const std::string& build_type)
 	command.append("-DCMAKE_CXX_COMPILER:PATH='clang-cl.exe'");
 	command.append("-DCMAKE_LINKER:PATH='lld-link.exe'");
 	command.append("-DCMAKE_RC_COMPILER:PATH='rc.exe'");
-	command.append("-DCMAKE_ASM_COMPILER:PATH='ml64.exe'");
+	//command.append("-DCMAKE_ASM_COMPILER:PATH='ml64.exe'");
 	//command.append("-DCMAKE_CUDA_COMPILER:PATH='nvcc.exe'");
 	#else
 	command.append("-DCMAKE_C_COMPILER:PATH='clang'");
 	command.append("-DCMAKE_CXX_COMPILER:PATH='clang++'");
 	command.append("-DCMAKE_LINKER:PATH='lld'");
-	command.append("-DCMAKE_ASM_COMPILER:PATH='llvm-as'");
+	//command.append("-DCMAKE_ASM_COMPILER:PATH='llvm-as'");
 	//command.append("-DCMAKE_CUDA_COMPILER:PATH='nvcc'");
 	#endif
 	
@@ -123,8 +123,8 @@ void make(const std::string& build_type)
 void clean_all(const std::string& build_type)
 {
 	#ifdef _WIN32
-	system_command command{ "@rd /s /q" };
-	command.append(BUILD_DIR_PREFIX + build_type);
+	system_command command{ "@if exist " + BUILD_DIR_PREFIX + build_type };
+	command.append("@rd /s /q " + BUILD_DIR_PREFIX + build_type);
 	#else
 	system_command command{ "rm -r -f" };
 	command.append(BUILD_DIR_PREFIX + build_type);
@@ -136,8 +136,8 @@ void clean_all(const std::string& build_type)
 void clean_config(const std::string& build_type)
 {
 	#ifdef _WIN32
-	system_command command{ "@del /f /q" };
-	command.append(BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt");
+	system_command command{ "@if exist " + BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt" };
+	command.append("@del /f /q " + BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt");
 	#else
 	system_command command{ "rm -f" };
 	command.append(BUILD_DIR_PREFIX + build_type + "/CMakeCache.txt");
