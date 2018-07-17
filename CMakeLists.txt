@@ -163,7 +163,7 @@ endif (MAKEKIT_QT)
 
 # ------------------------------ Qt related stuff ------------------------------
 
-if (MAKEKIT_QT)
+if (0)
 	
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
@@ -197,6 +197,6 @@ if (MAKEKIT_QT)
     qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
     target_sources(${PROJECT_NAME} PUBLIC ${CXX_QT_GENS})
 
-endif(MAKEKIT_QT)
+endif()
 
 # ------------------------------ End of Qt related stuff ------------------------------
