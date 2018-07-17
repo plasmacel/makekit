@@ -7,12 +7,12 @@ const static std::string DEFAULT_BUILD_TYPE = "release";
 struct system_command
 {
 	std::string command;
-
+	
 	void append(const std::string& flag)
 	{
 		command += ' ' + flag;
 	}
-
+	
 	operator const char*() const
 	{
 		return command.c_str();
@@ -37,10 +37,10 @@ void set_environment(const std::string& arch)
 }
 #endif
 
-void config(const std::string& build_type)
+int config(const std::string& build_type)
 {
 	std::string cmake_build_type;
-    
+	
 	if (build_type == "debug")
 	{
 		cmake_build_type = "Debug";
@@ -60,19 +60,19 @@ void config(const std::string& build_type)
 	else
 	{
 		std::cout << "ERROR Invalid build type: " << build_type << std::endl;
-		return;
+		return 1;
 	}
 	
 	std::cout << "Configuring " << build_type << " build..." << std::endl;
 	
 	// Set environment variables on Windows
-    
+	
 	#ifdef _WIN32
 	set_environment("x64");
 	#endif
-    
+	
 	// Run CMake
-    
+	
 	system_command command{ "cmake" };
 	command.append(".");
 	command.append("-GNinja");
@@ -96,16 +96,18 @@ void config(const std::string& build_type)
 	command.append("-DCMAKE_BUILD_TYPE=" + cmake_build_type);
 	
 	std::system(command);
+	
+	return 0;
 }
 
-void make(const std::string& build_type)
+int make(const std::string& build_type)
 {
 	// Config or refresh
-
-	config(build_type);
+	
+	if (config(build_type) != 0) return 1;
 	
 	// Make
-
+	
 	std::cout << "Making " << build_type << " build..." << std::endl;
 
 	#ifdef _WIN32
@@ -115,12 +117,13 @@ void make(const std::string& build_type)
 	system_command command{ "ninja" };
 	//command.append("-v");
 	command.append("-C " + BUILD_DIR_PREFIX + build_type);
-    
+	
 	std::system(command);
+	
+	return 0;
 }
 
-
-void clean_all(const std::string& build_type)
+int clean_all(const std::string& build_type)
 {
 	#ifdef _WIN32
 	system_command command{ "@if exist " + BUILD_DIR_PREFIX + build_type };
@@ -129,11 +132,12 @@ void clean_all(const std::string& build_type)
 	system_command command{ "rm -r -f" };
 	command.append(BUILD_DIR_PREFIX + build_type);
 	#endif
-    
+	
 	std::system(command);
+	return 0;
 }
 
-void clean_config(const std::string& build_type)
+int clean_config(const std::string& build_type)
 {
 	#ifdef _WIN32
 	system_command command{ "@if exist " + BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt" };
@@ -142,69 +146,71 @@ void clean_config(const std::string& build_type)
 	system_command command{ "rm -f" };
 	command.append(BUILD_DIR_PREFIX + build_type + "/CMakeCache.txt");
 	#endif
-    
+	
 	std::system(command);
+	return 0;
 }
 
-void clean_make(const std::string& build_type)
+int clean_make(const std::string& build_type)
 {
 	system_command command{ "ninja" };
 	command.append("-C " + BUILD_DIR_PREFIX + build_type);
 	command.append("-t clean");
-    
+	
 	std::system(command);
+	return 0;
 }
 
-void refresh(const std::string& build_type)
+int refresh(const std::string& build_type)
 {
-	config(build_type);
+	return config(build_type);
 }
 
-void reconfig(const std::string& build_type)
+int reconfig(const std::string& build_type)
 {
 	clean_config(build_type);
-	config(build_type);
+	return config(build_type);
 }
 
-void remake(const std::string& build_type)
+int remake(const std::string& build_type)
 {
 	clean_make(build_type);
-	make(build_type);
+	return make(build_type);
 }
 
 int main(int argc, char** argv)
 {
    	std::string command;
    	std::string build_type;
-    
+	
 	if (argc > 1) command = argv[1];
 	if (argc > 2) build_type = argv[2];
-
+	
 	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
-    
+	
 	if (command == "clean")
 	{
-		clean_all(build_type);
+		return clean_all(build_type);
 	}
 	else if (command == "config")
 	{
-		config(build_type);
+		return config(build_type);
 	}
 	else if (command == "make")
 	{
-		make(build_type);
+		return make(build_type);
 	}
 	else if (command == "reconfig")
 	{
-		reconfig(build_type);
+		return reconfig(build_type);
 	}
 	else if (command == "refresh")
 	{
-		refresh(build_type);
+		return refresh(build_type);
 	}
 	else if (command == "remake")
 	{
-		remake(build_type);
+		return remake(build_type);
 	}
 	else
 	{
@@ -218,7 +224,6 @@ int main(int argc, char** argv)
 			return 1;
 		}
 	}
-     
-
+	
 	return 0;
 }
