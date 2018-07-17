@@ -118,28 +118,28 @@ void make(const std::string& build_type)
 
 void clean_all(const std::string& build_type)
 {
-    #ifdef _WIN32
-    system_command command{ "@RD /S /Q" };
+	#ifdef _WIN32
+	system_command command{ "@RD /S /Q" };
 	command.append(BUILD_DIR_PREFIX + build_type);
-    #else
+	#else
 	system_command command{ "rm -R" };
 	command.append(BUILD_DIR_PREFIX + build_type);
-    #endif
+	#endif
     
-    std::system(command);
+	std::system(command);
 }
 
 void clean_config(const std::string& build_type)
 {
-    #ifdef _WIN32
-    system_command command{ "del" };
+	#ifdef _WIN32
+	system_command command{ "del" };
 	command.append(BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt");
-    #else
+	#else
 	system_command command{ "rm" };
 	command.append(BUILD_DIR_PREFIX + build_type + "/CMakeCache.txt");
-    #endif
+	#endif
     
-    std::system(command);
+	std::system(command);
 }
 
 void clean_make(const std::string& build_type)
