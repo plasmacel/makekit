@@ -122,7 +122,7 @@ void clean_all(const std::string& build_type)
 	system_command command{ "@RD /S /Q" };
 	command.append(BUILD_DIR_PREFIX + build_type);
 	#else
-	system_command command{ "rm -R" };
+	system_command command{ "rm -r -f" };
 	command.append(BUILD_DIR_PREFIX + build_type);
 	#endif
     
@@ -135,7 +135,7 @@ void clean_config(const std::string& build_type)
 	system_command command{ "del" };
 	command.append(BUILD_DIR_PREFIX + build_type + "\CMakeCache.txt");
 	#else
-	system_command command{ "rm" };
+	system_command command{ "rm -f" };
 	command.append(BUILD_DIR_PREFIX + build_type + "/CMakeCache.txt");
 	#endif
     
