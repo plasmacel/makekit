@@ -76,22 +76,22 @@ std::string get_env_var(const std::string& variable)
 
 void where_path(const std::string& filename, system_commands& cmd)
 {
-	#ifdef _WIN32
+#ifdef _WIN32
 	cmd.append("where " + filename);
-	#else
+#else
 	cmd.append("which " + filename);
-	#endif
+#endif
 }
 
 bool has_path(const std::string& filename)
 {
-	#ifdef _WIN32
+#ifdef _WIN32
 	std::system(std::string{"where /q " + filename}.c_str());
 	return get_env_var("ERRORLEVEL") == "0";
-	#else
+#else
 	std::system(std::string{"which " + filename}.c_str());
 	return get_env_var("?") == "0";
-	#endif
+#endif
 }
 
 #ifdef _WIN32
