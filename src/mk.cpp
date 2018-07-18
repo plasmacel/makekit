@@ -49,26 +49,6 @@ struct system_commands
 	}
 };
 
-void where_path(const std::string& filename, system_commands& cmd)
-{
-	#ifdef _WIN32
-	cmd.append("where " + filename);
-	#else
-	cmd.append("which " + filename);
-	#endif
-}
-
-bool has_path(const std::string& filename)
-{
-	#ifdef _WIN32
-	std::system(std::string{"where /q " + filename}.c_str());
-	return get_env_var("ERRORLEVEL") == "0";
-	#else
-	std::system(std::string{"which " + filename}.c_str());
-	return get_env_var("?") == "0";
-	#endif
-}
-
 std::string get_dir(const std::string& build_type)
 {
 	return BUILD_DIR_PREFIX + build_type;
@@ -92,6 +72,26 @@ std::string get_env_var(const std::string& variable)
 #endif
 
 	return value;
+}
+
+void where_path(const std::string& filename, system_commands& cmd)
+{
+	#ifdef _WIN32
+	cmd.append("where " + filename);
+	#else
+	cmd.append("which " + filename);
+	#endif
+}
+
+bool has_path(const std::string& filename)
+{
+	#ifdef _WIN32
+	std::system(std::string{"where /q " + filename}.c_str());
+	return get_env_var("ERRORLEVEL") == "0";
+	#else
+	std::system(std::string{"which " + filename}.c_str());
+	return get_env_var("?") == "0";
+	#endif
 }
 
 #ifdef _WIN32
