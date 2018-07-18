@@ -88,7 +88,7 @@ std::string get_env_var(const std::string& variable)
 		std::free(buf);
 	}
 #else
-	value = std::get_env_var(variable.c_str());
+	value = std::getenv(variable.c_str());
 #endif
 
 	return value;
