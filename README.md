@@ -108,6 +108,10 @@ This section is still incomplete, TODO
 
 TODO
 
+### Eclipse (Windows, macOS, Linux)
+
+TODO
+
 ### Sublime Text (Windows, macOS, Linux)
 
 TODO
