@@ -17,11 +17,11 @@ enable_language(CXX)
 
 if (MAKEKIT_ASM)
     enable_language(ASM)
-endif()
+endif ()
 
 if (MAKEKIT_CUDA)
     enable_language(CUDA)
-endif()
+endif ()
 
 # Set output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
@@ -43,10 +43,10 @@ elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, includ
     set(MAKEKIT_OS_UNIX, 1)
     if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
         set(MAKEKIT_OS_MACOS, 1)
-    else()
+    else ()
         set(MAKEKIT_OS_LINUX, 1)
-    endif()
-endif()
+    endif ()
+endif ()
 
 # Find source
 FILE(GLOB_RECURSE CXX_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cc *.cpp *.cxx)
@@ -56,15 +56,15 @@ if (MAKEKIT_OS_WINDOWS)
 	FILE(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.obj)
 else (MAKEKIT_OS_WINDOWS)
 	FILE(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.o)
-endif(MAKEKIT_OS_WINDOWS)
+endif (MAKEKIT_OS_WINDOWS)
 
 if (MAKEKIT_ASM)
 	FILE(GLOB_RECURSE ASM_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.asm *.s)
-endif()
+endif ()
 	
 if (MAKEKIT_CUDA)
 	FILE(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cu)
-endif()
+endif ()
 
 # Excluding CMake generated files for safety
 list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
@@ -93,12 +93,12 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 	    # Using Visual C++ toolchain
             set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
         endif ()
-    endif()
+    endif ()
 
     find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network)
     # Not required when CMAKE_AUTOUIC is ON
     #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
-endif()
+endif ()
 
 # ------------------------------ End of Qt related stuff ------------------------------
 
@@ -118,12 +118,12 @@ if (CXX_SOURCES)
             
 	    # For header-only libraries this line is required
 	    #target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
-    else()
+    else ()
             add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
-    endif()
-else()
+    endif ()
+else ()
     message("MakeKit: No C/C++ sources found.")
-endif()
+endif ()
 
 # Set linker language for cases when it cannot be determined
 # (for example when the source consists precompiled object files only)
@@ -140,7 +140,7 @@ endif()
 if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
     target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
-endif()
+endif ()
 
 # OpenMP
 if (MAKEKIT_OPENMP)
@@ -153,7 +153,7 @@ if (MAKEKIT_OPENMP)
 	#	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 	#	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
 	#	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    #endif()
+    #endif ()
 endif ()
 
 if (MAKEKIT_QT)
@@ -190,7 +190,7 @@ if (0)
 	    # Using Visual C++ toolchain
             set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
         endif ()
-    endif()
+    endif ()
 
     find_package(Qt5 REQUIRED COMPONENTS Core)
     target_link_libraries(${PROJECT_NAME} Qt5::Core)
@@ -202,6 +202,6 @@ if (0)
     qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
     target_sources(${PROJECT_NAME} PUBLIC ${CXX_QT_GENS})
 
-endif()
+endif ()
 
 # ------------------------------ End of Qt related stuff ------------------------------
