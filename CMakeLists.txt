@@ -5,6 +5,7 @@ project(untitled)
 # MakeKit Variables
 #set(MAKEKIT_QT 1)
 #set(MAKEKIT_OPENCL 1)
+#set(MAKEKIT_OPENGL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_ASM 1)
@@ -156,12 +157,22 @@ endif ()
 # Linked libraries
 
 # OpenCL
+# https://cmake.org/cmake/help/v3.10/module/FindOpenCL.html
 if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
     target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 endif ()
 
+# OpenGL
+# https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
+if (MAKEKIT_OPENGL)
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(${PROJECT_NAME} OPENGL_gl_LIBRARY)
+    #target_link_libraries(${PROJECT_NAME} OPENGL_glu_LIBRARY)
+endif ()
+
 # OpenMP
+# https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 if (MAKEKIT_OPENMP)
     if (MAKEKIT_OS_WINDOWS)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xclang -fopenmp")
