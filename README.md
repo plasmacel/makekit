@@ -5,7 +5,8 @@ MakeKit is a collection of CMake files, integration tools and step-by-step guide
 MakeKit is strictly relies on the CMake build system, Ninja build generator, and the LLVM/clang compiler infrastructure to achieve:
 
 - Support of cross-platform compilation of modern C/C++
-- Support of parallel technologies like OpenMP, OpenCL and CUDA
+- Support of parallel technologies OpenMP, OpenCL and CUDA
+- Support of graphics APIs OpenGL and Vulkan
 - Support of the cross-platform windowing framework Qt
 
 **The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
