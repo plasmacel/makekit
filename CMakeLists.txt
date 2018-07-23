@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(untitled)
 
 # MakeKit Variables
-#set(MAKEKIT_CLANG_CL 1)
 #set(MAKEKIT_QT 1)
 #set(MAKEKIT_OPENCL 1)
 #set(MAKEKIT_OPENMP 1)
