@@ -37,15 +37,15 @@ set(CMAKE_CXX_STANDARD 17)
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
 
 # OS Platform Detection
-if (MSVC OR MSYS OR MINGW)
+if (CMAKE_HOST_WIN32) # True if the host system is running Windows, including Windows 64-bit and MSYS, but false on Cygwin.
     set(MAKEKIT_OS_WINDOWS, 1)
-elseif (UNIX)
+elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, including APPLE operation systems and Cygwin.
     set(MAKEKIT_OS_UNIX, 1)
-    if (APPLE)
+    if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
         set(MAKEKIT_OS_MACOS, 1)
-    else(APPLE)
+    else()
         set(MAKEKIT_OS_LINUX, 1)
-    endif(APPLE)
+    endif()
 endif()
 
 # Find source
@@ -86,12 +86,13 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
     if (MAKEKIT_OS_WINDOWS)
-        if (MAKEKIT_CLANG_CL)
+        if (MSYS)
+	    # Using MSYS MinGW-w64 toolchain, CMake will automatically find the Qt5 CMake configs
+            #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
+        else ()
+	    # Using Visual C++ toolchain
             set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
-        else (MAKEKIT_CLANG_CL)
-            # Using MinGW Toolchain, CMake will find the Qt5 CMake configs
-            set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
-        endif (MAKEKIT_CLANG_CL)
+        endif ()
     endif()
 
     find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network)
