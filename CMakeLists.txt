@@ -192,6 +192,7 @@ if (MAKEKIT_OPENMP)
 	#	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
 	#	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
     #endif ()
+    #TODO copy openmp runtime library to the bin output
 endif ()
 
 # Vulkan
