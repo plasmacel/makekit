@@ -194,6 +194,7 @@ if (MAKEKIT_OPENMP)
     #endif ()
 endif ()
 
+# Vulkan
 if (MAKEKIT_VULKAN)
     find_package(Vulkan REQUIRED)
     if (Vulkan_FOUND)
