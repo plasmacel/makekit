@@ -130,7 +130,7 @@ int config(const std::string& build_type, system_commands& cmd)
 	}
 	else if (build_type == "release-minsize")
 	{
-		cmake_build_type = "RelMinSize";
+		cmake_build_type = "MinSizeRel";
 	}
 	else
 	{
