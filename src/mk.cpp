@@ -37,7 +37,7 @@ struct system_commands
 
 		if (!this->commands.empty())
 		{
-			sep = " & ";
+			sep = " && ";
 		}
 
 		this->commands += sep + cmd;
