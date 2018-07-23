@@ -167,7 +167,8 @@ endif ()
 # https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
 if (MAKEKIT_OPENGL)
     find_package(OpenGL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} OPENGL_gl_LIBRARY)
+    target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
+    #target_link_libraries(${PROJECT_NAME} OPENGL_gl_LIBRARY)
     #target_link_libraries(${PROJECT_NAME} OPENGL_glu_LIBRARY)
 endif ()
 
