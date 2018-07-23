@@ -85,12 +85,14 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-    if (MAKEKIT_CLANG_CL)
-        set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
-    else (MAKEKIT_CLANG_CL)
-        # Using MinGW Toolchain, CMake will find the Qt5 CMake configs
-        #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
-    endif (MAKEKIT_CLANG_CL)
+    if (MAKEKIT_OS_WINDOWS)
+        if (MAKEKIT_CLANG_CL)
+            set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
+        else (MAKEKIT_CLANG_CL)
+            # Using MinGW Toolchain, CMake will find the Qt5 CMake configs
+            set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
+        endif (MAKEKIT_CLANG_CL)
+    endif()
 
     find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network)
     # Not required when CMAKE_AUTOUIC is ON
