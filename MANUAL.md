@@ -26,14 +26,14 @@ If the source tree has been changed by adding or removing files, existing build 
 
 ## Build types
 
-Currently the following `BUILD_TYPE` values are available:
+Currently the following default `BUILD_TYPE`s are available:
 
 - `debug` - Debug
 - `release` - Release
 - `release-debuginfo` - RelWithDebInfo, i.e. Release with debug information
 - `release-minsize` - MinSizeRel, i.e. Release with minimal binary size
 
-Custom build types will be available in the future.
+Custom build types are also available and can be configured in `custom_builds.cmake`.
 
 ## Commands
 
