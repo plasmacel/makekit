@@ -199,7 +199,9 @@ if (0)
     #find_package(Qt5Core REQUIRED)
     #qt5_use_modules(${PROJECT_NAME} Core)
     
-    qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+    # Not required when CMAKE_AUTOUIC is ON
+    #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+    
     target_sources(${PROJECT_NAME} PUBLIC ${CXX_QT_GENS})
 
 endif ()
