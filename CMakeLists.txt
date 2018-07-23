@@ -182,13 +182,15 @@ if (0)
     #set(CMAKE_PREFIX_PATH "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
     #set(CMAKE_PREFIX_PATH "C:/msys64/mingw64/lib/cmake/Qt5/")
 
-    # Use Qt5_DIR
-    if (MAKEKIT_CLANG_CL)
-        set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
-    else (MAKEKIT_CLANG_CL)
-        # Using MinGW Toolchain, CMake will find the Qt5 CMake configs
-        #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
-    endif (MAKEKIT_CLANG_CL)
+    if (MAKEKIT_OS_WINDOWS)
+        if (MSYS)
+	    # Using MSYS MinGW-w64 toolchain, CMake will automatically find the Qt5 CMake configs
+            #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
+        else ()
+	    # Using Visual C++ toolchain
+            set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
+        endif ()
+    endif()
 
     find_package(Qt5 REQUIRED COMPONENTS Core)
     target_link_libraries(${PROJECT_NAME} Qt5::Core)
