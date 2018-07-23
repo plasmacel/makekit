@@ -172,13 +172,14 @@ int make(const std::string& build_type, system_commands& cmd)
 	const std::string build_dir = get_dir(build_type);
 	
 	// Config or refresh
-
+	
 	if (config(build_type, cmd) != 0) return 1;
-
+	
 	// Add Ninja build command
-
+	
 	cmd.append("ninja -C " + build_dir);
-
+	//cmd.append("cmake --build build " + build_dir + "--config " + build_type);
+	
 	return 0;
 }
 
