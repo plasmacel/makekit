@@ -47,6 +47,7 @@ set VCVARS_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\
 set WINSDK_DIR=C:\Program Files (x86)\Windows Kits\10\bin\%WINSDK_VER%\x64
 set CMAKE_BIN=%CMAKE_INSTALL%\bin
 set LLVM_BIN=%LLVM_INSTALL%\bin
+set LLVM_LIB=%LLVM_INSTALL%\lib
 set MAKEKIT_BIN=%MAKEKIT_INSTALL%\bin
 
 :: Set environment variables
@@ -61,6 +62,7 @@ PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%WINSDK
 
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%CMAKE_BIN%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%LLVM_BIN%"
+PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%LLVM_LIB%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%MAKEKIT_BIN%"
 
 :: Copying files
