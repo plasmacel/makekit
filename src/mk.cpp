@@ -134,8 +134,7 @@ int config(const std::string& build_type, system_commands& cmd)
 	}
 	else
 	{
-		std::cout << "ERROR Invalid build type: " << build_type << std::endl;
-		return 1;
+		// Using a custom build type.
 	}
 
 	// Compose terminal commands
