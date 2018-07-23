@@ -23,8 +23,27 @@ if (MAKEKIT_CUDA)
 endif ()
 
 # Set output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
+
+# The CMAKE_ARCHIVE_OUTPUT_DIRECTORY variable is used to initialize the ARCHIVE_OUTPUT_DIRECTORY property on all the targets.
+# ARCHIVE_OUTPUT_DIRECTORY property specifies the directory into which archive target files should be built.
+# An archive output artifact of a buildsystem target may be:
+# The static library file (e.g. .lib or .a) of a static library target created by the add_library() command with the STATIC option.
+# On DLL platforms: the import library file (e.g. .lib) of a shared library target created by the add_library() command with the SHARED option.
+# On DLL platforms: the import library file (e.g. .lib) of an executable target created by the add_executable() command when its ENABLE_EXPORTS target property is set.
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# The CMAKE_LIBRARY_OUTPUT_DIRECTORY variable is used to initialize the LIBRARY_OUTPUT_DIRECTORY property on all the targets.
+# LIBRARY_OUTPUT_DIRECTORY property specifies the directory into which library target files should be built.
+# A library output artifact of a buildsystem target may be:
+# The loadable module file (e.g. .dll or .so) of a module library target created by the add_library() command with the MODULE option.
+# On non-DLL platforms: the shared library file (e.g. .so or .dylib) of a shared shared library target created by the add_library() command with the SHARED option.
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# The CMAKE_RUNTIME_OUTPUT_DIRECTORY variable is used to initialize the RUNTIME_OUTPUT_DIRECTORY property on all the targets.
+# RUNTIME_OUTPUT_DIRECTORY property specifies the directory into which runtime target files should be built.
+# A runtime output artifact of a buildsystem target may be:
+# The executable file (e.g. .exe) of an executable target created by the add_executable() command.
+# On DLL platforms: the executable file (e.g. .dll) of a shared library target created by the add_library() command with the SHARED option.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Language Standard
