@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-project(untitled)
+set(MAKEKIT_PROJECT_NAME untitled)
+
+project(${MAKEKIT_PROJECT_NAME})
 
 # MakeKit Variables
 #set(MAKEKIT_ASM 1)
