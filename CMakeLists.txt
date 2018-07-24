@@ -4,7 +4,10 @@ set(MAKEKIT_PROJECT_NAME untitled)
 
 project(${MAKEKIT_PROJECT_NAME})
 
-# MakeKit Variables
+#
+# Variables
+#
+
 #set(MAKEKIT_ASM 1)
 #set(MAKEKIT_AUTODEPLOY 1)
 #set(MAKEKIT_CUDA 1)
@@ -28,7 +31,9 @@ if (MAKEKIT_CUDA)
     enable_language(CUDA)
 endif ()
 
-# Set output directories
+#
+# Output directories
+#
 
 # The CMAKE_ARCHIVE_OUTPUT_DIRECTORY variable is used to initialize the ARCHIVE_OUTPUT_DIRECTORY property on all the targets.
 # ARCHIVE_OUTPUT_DIRECTORY property specifies the directory into which archive target files should be built.
@@ -52,7 +57,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # On DLL platforms: the executable file (e.g. .dll) of a shared library target created by the add_library() command with the SHARED option.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Language Standard
+#
+# Language standard
+#
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -74,12 +82,18 @@ elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, includ
     endif ()
 endif ()
 
+#
 # Include custom build types (compiler, linker and other flags)
+#
+
 #set(CMAKE_CXX_FLAGS "/DWIN64 /D_WINDOWS /Wall /GR /EHsc" CACHE INTERNAL "")
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
 include(custom_builds.cmake)
 
+#
 # Find source
+#
+
 file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cc *.cpp *.cxx)
 file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MAKEKIT_SOURCE} *.h *.hh *.hpp *.hxx)
 file(GLOB_RECURSE CXX_INLINES RELATIVE ${MAKEKIT_SOURCE} *.inc *.inl *.ipp *.ixx *.tcc *.tpp *.txx)
@@ -97,13 +111,18 @@ if (MAKEKIT_CUDA)
 	file(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cu)
 endif ()
 
-# Excluding CMake generated files for safety
+#
+# Excluding CMake generated files from source for safety
+#
+
 list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
+#
 # Macros
+#
 
 # Macro to copy file(s) to the target runtime output directory
 macro(makekit_postbuild_copy_files PROJECT FILES)
@@ -144,7 +163,10 @@ macro(makekit_target_link_shared_libraries PROJECT LIBRARIES)
 	endif ()
 endmacro()
 
-# ------------------------------ Qt related stuff ------------------------------
+#
+# Qt5
+#
+
 if (MAKEKIT_QT)
     file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
  
@@ -177,9 +199,9 @@ if (MAKEKIT_QT)
     #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
 endif ()
 
-# ------------------------------ End of Qt related stuff ------------------------------
-
+#
 # Add target
+#
 
 if (CXX_SOURCES)
     if (${MAKEKIT_MODULE_MODE} EQUAL 0)
@@ -204,8 +226,11 @@ else ()
     message(STATUS "MakeKit: No C/C++ sources found.")
 endif ()
 
+#
 # Set linker language for cases when it cannot be determined
 # (for example when the source consists precompiled object files only)
+#
+
 #get_target_property(MAKEKIT_LINKER_LANGUAGE ${PROJECT_NAME} LINKER_LANGUAGE)
 #message(${MAKEKIT_LINKER_LANGUAGE})
 #if (${MAKEKIT_LINKER_LANGUAGE} STREQUAL "NOTFOUND")
@@ -213,10 +238,11 @@ endif ()
 #endif()
 #set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINKER_LANGUAGE CXX)
 
-# Linked libraries
-
+#
 # OpenCL
 # https://cmake.org/cmake/help/v3.10/module/FindOpenCL.html
+#
+
 if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
     if (OpenCL_FOUND)
@@ -227,8 +253,11 @@ if (MAKEKIT_OPENCL)
     endif ()
 endif ()
 
+#
 # OpenGL
 # https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
+#
+
 if (MAKEKIT_OPENGL)
     find_package(OpenGL REQUIRED)
     if (OpenGL_FOUND)
@@ -243,8 +272,11 @@ if (MAKEKIT_OPENGL)
     endif ()
 endif ()
 
+#
 # OpenMP
 # https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
+#
+
 if (MAKEKIT_OPENMP)
     if (1) # Use LLVM libomp
         if (MAKEKIT_OS_WINDOWS)
@@ -277,7 +309,11 @@ if (MAKEKIT_OPENMP)
     endif ()
 endif ()
 
+#
 # Vulkan
+# https://cmake.org/cmake/help/v3.10/module/FindVulkan.html
+#
+
 if (MAKEKIT_VULKAN)
     find_package(Vulkan REQUIRED)
     if (Vulkan_FOUND)
@@ -294,55 +330,16 @@ if (MAKEKIT_QT)
     endforeach ()
 endif ()
 
+#
 # Custom libraries
+#
 
 #target_link_libraries(${PROJECT_NAME} mylib.lib)
 
+#
 # Custom pre-build commands
+#
 
-
+#
 # Custom post-build commands
-
-
-# ------------------------------ Qt related stuff ------------------------------
-
-if (0)
-	
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTOUIC ON)
-    set(CMAKE_AUTORCC ON)
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-    #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
-
-    # Use CMAKE_PREFIX_PATH
-    #set(CMAKE_PREFIX_PATH "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
-    #set(CMAKE_PREFIX_PATH "C:/msys64/mingw64/lib/cmake/Qt5/")
-
-    if (MAKEKIT_OS_WINDOWS)
-        if (MSYS)
-	    # Using MSYS MinGW-w64 toolchain, CMake will automatically find the Qt5 CMake configs
-            #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
-        else ()
-	    # Using Visual C++ toolchain
-            set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
-        endif ()
-    endif ()
-
-    find_package(Qt5 REQUIRED COMPONENTS Core)
-    target_link_libraries(${PROJECT_NAME} Qt5::Core)
-    #target_link_libraries(${PROJECT_NAME} ${Qt5Core_LIBRARIES} Qt5::Core ${MYPROJECT_LIBRARIES})
-    #or
-    #find_package(Qt5Core REQUIRED)
-    #qt5_use_modules(${PROJECT_NAME} Core)
-    
-    # Not required when CMAKE_AUTOUIC is ON
-    #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
-    
-    target_sources(${PROJECT_NAME} PUBLIC ${CXX_QT_GENS})
-
-endif ()
-
-# ------------------------------ End of Qt related stuff ------------------------------
+#
