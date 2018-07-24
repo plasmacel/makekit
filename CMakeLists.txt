@@ -129,7 +129,7 @@ macro(makekit_target_add_runtime_libraries PROJECT LIBRARIES)
 	foreach (LIBRARY ${LIBRARIES})
 		string(REGEX REPLACE "\\.[^.]*$" "" LIBRARY_RUNTIME ${LIBRARY})
 		makekit_postbuild_copy_file(${PROJECT} "${LIBRARY_RUNTIME}${MAKEKIT_RUNTIME_LIBRARY_EXTENSION}")
-    endforeach ()
+	endforeach ()
 endmacro()
 
 macro(makekit_target_link_shared_libraries PROJECT LIBRARIES)
