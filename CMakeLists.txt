@@ -260,7 +260,7 @@ if (0) # Use LLVM libomp
 
         if (MAKEKIT_LIBOMP_LIB)
             target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
-            makekit_postbuild_copy_file(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
+            makekit_postbuild_copy_files(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
         else ()
             message(FATAL_ERROR OpenMP (libomp) cannot be found!)
         endif ()
