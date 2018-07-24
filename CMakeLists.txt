@@ -6,7 +6,7 @@ project(untitled)
 #set(MAKEKIT_ASM 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_OPENCL 1)
-set(MAKEKIT_OPENGL 1)
+#set(MAKEKIT_OPENGL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_VULKAN 1)
 set(MAKEKIT_QT Core) # core gui opengl widgets network
