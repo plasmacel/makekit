@@ -3,13 +3,14 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(untitled)
 
 # MakeKit Variables
-#set(MAKEKIT_QT 1)
+#set(MAKEKIT_ASM 1)
+#set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_OPENCL 1)
 #set(MAKEKIT_OPENGL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_VULKAN 1)
-#set(MAKEKIT_CUDA 1)
-#set(MAKEKIT_ASM 1)
+#set(MAKEKIT_QT 1)
+
 set(MAKEKIT_MODULE_MODE 4)
 set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 
