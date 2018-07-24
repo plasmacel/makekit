@@ -9,7 +9,7 @@ project(untitled)
 #set(MAKEKIT_OPENGL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_VULKAN 1)
-#set(MAKEKIT_QT 1) # core gui opengl widgets network
+#set(MAKEKIT_QT core) # core gui opengl widgets network
 
 set(MAKEKIT_MODULE_MODE 4)
 set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -71,21 +71,21 @@ endif ()
 include(custom_builds.cmake)
 
 # Find source
-FILE(GLOB_RECURSE CXX_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cc *.cpp *.cxx)
-FILE(GLOB_RECURSE CXX_HEADERS RELATIVE ${MAKEKIT_SOURCE} *.h *.hh *.hpp *.hxx)
-FILE(GLOB_RECURSE CXX_INLINES RELATIVE ${MAKEKIT_SOURCE} *.inc *.inl *.ipp *.ixx *.tcc *.tpp *.txx)
+file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cc *.cpp *.cxx)
+file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MAKEKIT_SOURCE} *.h *.hh *.hpp *.hxx)
+file(GLOB_RECURSE CXX_INLINES RELATIVE ${MAKEKIT_SOURCE} *.inc *.inl *.ipp *.ixx *.tcc *.tpp *.txx)
 if (MAKEKIT_OS_WINDOWS)
-	FILE(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.obj)
+	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.obj)
 else ()
-	FILE(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.o)
+	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MAKEKIT_SOURCE} *.o)
 endif ()
 
 if (MAKEKIT_ASM)
-	FILE(GLOB_RECURSE ASM_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.asm *.s)
+	file(GLOB_RECURSE ASM_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.asm *.s)
 endif ()
 	
 if (MAKEKIT_CUDA)
-	FILE(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cu)
+	file(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cu)
 endif ()
 
 # Excluding CMake generated files for safety
@@ -94,14 +94,14 @@ list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
+# Macros
+macro(makekit_copy_shared_library PROJECT LIBRARY)
+    add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${LIBRARY}> $<TARGET_FILE_DIR:${PROJECT}>)
+endmacro()
+
 # ------------------------------ Qt related stuff ------------------------------
 if (MAKEKIT_QT)
-    # Macro to copy Qt module DLLs to the binary output directory
-    macro(qt5_copy_dll PROJECT QTMODULE)
-        add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::${QTMODULE}> $<TARGET_FILE_DIR:${PROJECT}>)
-    endmacro()
- 
-    FILE(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
+    file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
  
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
@@ -122,7 +122,12 @@ if (MAKEKIT_QT)
         endif ()
     endif ()
 
-    find_package(Qt5 REQUIRED COMPONENTS ${MAKEKIT_QT})
+    find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
+
+    if (NOT Qt5_FOUND)
+        message(FATAL_ERROR Qt5 cannot be found!)
+    endif ()
+
     # Not required when CMAKE_AUTOUIC is ON
     #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
 endif ()
@@ -224,7 +229,7 @@ endif ()
 if (MAKEKIT_QT)
     foreach (QTMODULE ${MAKEKIT_QT})
         target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-        qt5_copy_dll(${PROJECT_NAME} ${QTMODULE})
+        makekit_copy_shared_library(${PROJECT_NAME} Qt5::${QTMODULE})
     endforeach ()
 endif ()
 
