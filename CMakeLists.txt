@@ -4,6 +4,7 @@ project(untitled)
 
 # MakeKit Variables
 #set(MAKEKIT_ASM 1)
+#set(MAKEKIT_AUTODEPLOY 1)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_OPENCL 1)
 #set(MAKEKIT_OPENGL 1)
