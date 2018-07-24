@@ -7,7 +7,7 @@ project(untitled)
 #set(MAKEKIT_CUDA 1)
 #set(MAKEKIT_OPENCL 1)
 #set(MAKEKIT_OPENGL 1)
-#set(MAKEKIT_OPENMP 1)
+#set(MAKEKIT_OPENMP 1) # system default or LLVM libomp
 #set(MAKEKIT_VULKAN 1)
 #set(MAKEKIT_QT Core) # Core Gui OpenGL Widgets Network
 
@@ -242,27 +242,26 @@ endif ()
 # OpenMP
 # https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 if (MAKEKIT_OPENMP)
-if (0) # Use LLVM libomp
+if (1) # Use LLVM libomp
         if (MAKEKIT_OS_WINDOWS)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xclang -fopenmp")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp")
-            #set(MAKEKIT_OPENMP_LIB C:/Program Files/LLVM/lib/libomp.lib)
-            find_library(MAKEKIT_LIBOMP_LIB libomp.lib PATHS C:/Program Files/LLVM/lib REQUIRED)
         elseif (MAKEKIT_OS_MACOS)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp=libomp")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp=libomp")
-            find_library(MAKEKIT_LIBOMP_LIB libomp.dylib PATHS /usr/local/opt/llvm/lib REQUIRED)
         else ()
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp=libomp")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp=libomp")
-            #set(MAKEKIT_OPENMP_LIB libomp.so)
         endif ()
+
+        set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
+        find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_LIB} NO_DEFAULT_PATH REQUIRED)
 
         if (MAKEKIT_LIBOMP_LIB)
             target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
             makekit_postbuild_copy_files(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
         else ()
-            message(FATAL_ERROR OpenMP (libomp) cannot be found!)
+            message(FATAL_ERROR "OpenMP (libomp) cannot be found!")
         endif ()
     else ()
         find_package(OpenMP REQUIRED)
