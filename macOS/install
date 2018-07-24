@@ -51,6 +51,12 @@ echo Creating required symbolic links...
 cd /usr/local/lib
 ln -s /usr/local/opt/llvm/lib/libomp.dylib libomp.dylib
 
+echo Creating required environment variables...
+
+export MAKEKIT_LLVM_DIR=/usr/local/opt/llvm
+export MAKEKIT_LLVM_BIN=/usr/local/opt/llvm/bin
+export MAKEKIT_LLVM_LIB=/usr/local/opt/llvm/lib
+
 echo Copying files to /usr/local/bin/...
 
 cd ${DIR}
