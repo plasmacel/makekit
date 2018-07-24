@@ -9,7 +9,7 @@ project(untitled)
 #set(MAKEKIT_OPENGL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_VULKAN 1)
-#set(MAKEKIT_QT 1)
+#set(MAKEKIT_QT 1) # core gui opengl widgets network
 
 set(MAKEKIT_MODULE_MODE 4)
 set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -122,12 +122,14 @@ if (MAKEKIT_QT)
         endif ()
     endif ()
 
-    find_package(Qt5 REQUIRED COMPONENTS core gui opengl widgets network)
+    find_package(Qt5 REQUIRED COMPONENTS ${MAKEKIT_QT})
     # Not required when CMAKE_AUTOUIC is ON
     #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
 endif ()
 
 # ------------------------------ End of Qt related stuff ------------------------------
+
+# Add target
 
 if (CXX_SOURCES)
     if (${MAKEKIT_MODULE_MODE} EQUAL 0)
@@ -220,7 +222,10 @@ if (MAKEKIT_VULKAN)
 endif ()
 
 if (MAKEKIT_QT)
-    target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network)
+    foreach (QTMODULE ${MYLIST})
+        target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
+        qt5_copy_dll(${PROJECT_NAME} ${QTMODULE})
+    endforeach ()
 endif ()
 
 # Custom libraries
