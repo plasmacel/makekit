@@ -94,7 +94,12 @@ list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
 # ------------------------------ Qt related stuff ------------------------------
- if (MAKEKIT_QT)
+if (MAKEKIT_QT)
+    # Macro to copy Qt module DLLs to the binary output directory
+    macro(qt5_copy_dll PROJECT QTMODULE)
+        add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::${QTMODULE}> $<TARGET_FILE_DIR:${PROJECT}>)
+    endmacro()
+ 
     FILE(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
  
     set(CMAKE_AUTOMOC ON)
@@ -212,6 +217,12 @@ endif ()
 # Custom libraries
 
 #target_link_libraries(${PROJECT_NAME} mylib.lib)
+
+# Custom pre-build commands
+
+
+# Custom post-build commands
+
 
 # ------------------------------ Qt related stuff ------------------------------
 
