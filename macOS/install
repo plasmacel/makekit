@@ -46,8 +46,14 @@ else
 	brew upgrade llvm
 fi
 
+echo Creating required symbolic links...
+
+cd /usr/local/lib
+ln -s /usr/local/opt/llvm/lib/libomp.dylib libomp.dylib
+
 echo Copying files to /usr/local/bin/...
 
+cd ${DIR}
 sudo cp ${DIR}/mk /usr/local/bin/
 sudo cp ${DIR}/mk_clean /usr/local/bin/
 sudo cp ${DIR}/mk_config /usr/local/bin/
