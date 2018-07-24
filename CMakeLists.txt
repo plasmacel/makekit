@@ -243,7 +243,7 @@ endif ()
 # OpenMP
 # https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 if (MAKEKIT_OPENMP)
-if (1) # Use LLVM libomp
+    if (1) # Use LLVM libomp
         if (MAKEKIT_OS_WINDOWS)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xclang -fopenmp")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp")
