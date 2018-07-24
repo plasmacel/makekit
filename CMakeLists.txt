@@ -9,7 +9,7 @@ project(untitled)
 set(MAKEKIT_OPENGL 1)
 #set(MAKEKIT_OPENMP 1)
 #set(MAKEKIT_VULKAN 1)
-set(MAKEKIT_QT Core) # core gui opengl widgets network
+set(MAKEKIT_QT Core) # Core Gui OpenGL Widgets Network
 
 set(MAKEKIT_MODULE_MODE 4)
 set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
