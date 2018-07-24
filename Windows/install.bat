@@ -55,7 +55,9 @@ set MAKEKIT_BIN=%MAKEKIT_INSTALL%\bin
 echo Setting required environment variables...
 
 setx MAKEKIT_CMAKE_BIN "%CMAKE_BIN:\=/%"
+setx MAKEKIT_LLVM_DIR "%LLVM_INSTALL:\=/%"
 setx MAKEKIT_LLVM_BIN "%LLVM_BIN:\=/%"
+setx MAKEKIT_LLVM_LIB "%LLVM_LIB:\=/%"
 
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%VCVARS_DIR%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\addpath.ps1" "%WINSDK_DIR%"
