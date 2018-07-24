@@ -166,16 +166,24 @@ endif ()
 # https://cmake.org/cmake/help/v3.10/module/FindOpenCL.html
 if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
+    if (OpenCL_FOUND)
+        target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
+    else ()
+	message(OpenCL cannot be found!)
+    endif ()
 endif ()
 
 # OpenGL
 # https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
 if (MAKEKIT_OPENGL)
     find_package(OpenGL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-    #target_link_libraries(${PROJECT_NAME} OPENGL_gl_LIBRARY)
-    #target_link_libraries(${PROJECT_NAME} OPENGL_glu_LIBRARY)
+    if (OpenGL_FOUND)
+        target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
+	#target_link_libraries(${PROJECT_NAME} OPENGL_gl_LIBRARY)
+        #target_link_libraries(${PROJECT_NAME} OPENGL_glu_LIBRARY)
+    else ()
+	message(OpenGL cannot be found!)
+    endif ()
 endif ()
 
 # OpenMP
