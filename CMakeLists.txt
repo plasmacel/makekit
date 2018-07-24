@@ -55,16 +55,17 @@ set(CMAKE_CXX_STANDARD 17)
 
 # OS Platform Detection
 if (CMAKE_HOST_WIN32) # True if the host system is running Windows, including Windows 64-bit and MSYS, but false on Cygwin.
+    message(STATUS "Detected OS: Windows")
     set(MAKEKIT_OS_WINDOWS 1)
     set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dll)
 elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, including APPLE operation systems and Cygwin.
     set(MAKEKIT_OS_UNIX 1)
     if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
-        message(STATUS macOS detected)
+        message(STATUS "Detected OS: macOS")
         set(MAKEKIT_OS_MACOS 1)
 	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dylib)
     else ()
-        message(STATUS Linux detected)
+        message(STATUS "Detected OS: Unix/Linux")
         set(MAKEKIT_OS_LINUX 1)
 	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .so)
     endif ()
@@ -166,7 +167,7 @@ if (MAKEKIT_QT)
     find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
 
     if (NOT Qt5_FOUND)
-        message(FATAL_ERROR Qt5 cannot be found!)
+        message(FATAL_ERROR "Qt5 cannot be found!")
     endif ()
 
     # Not required when CMAKE_AUTOUIC is ON
@@ -197,7 +198,7 @@ if (CXX_SOURCES)
             add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
     endif ()
 else ()
-    message("MakeKit: No C/C++ sources found.")
+    message(STATUS "MakeKit: No C/C++ sources found.")
 endif ()
 
 # Set linker language for cases when it cannot be determined
@@ -219,7 +220,7 @@ if (MAKEKIT_OPENCL)
         target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 		makekit_copy_shared_library(${PROJECT_NAME} OpenCL::OpenCL)
     else ()
-		message(FATAL_ERROR OpenCL cannot be found!)
+		message(FATAL_ERROR "OpenCL cannot be found!")
     endif ()
 endif ()
 
@@ -235,7 +236,7 @@ if (MAKEKIT_OPENGL)
         endif ()
         #makekit_target_link_shared_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
     else ()
-	    message(FATAL_ERROR OpenGL cannot be found!)
+	    message(FATAL_ERROR "OpenGL cannot be found!")
     endif ()
 endif ()
 
@@ -279,7 +280,7 @@ if (MAKEKIT_VULKAN)
     if (Vulkan_FOUND)
         target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
     else ()
-	    message(FATAL_ERROR Vulkan cannot be found!)
+	    message(FATAL_ERROR "Vulkan cannot be found!")
     endif ()
 endif ()
 
