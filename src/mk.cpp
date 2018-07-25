@@ -210,8 +210,7 @@ int make(const std::string& build_type, system_commands& cmd)
 	}
 
 	cmd.append("ninja -C " + build_dir);
-	//cmd.append("cmake --build build " + build_dir + "--config " + build_type);
-	
+	//cmd.append("cmake --build " + build_dir + " --target " + build_target + " --config " + build_type);
 	return 0;
 }
 
