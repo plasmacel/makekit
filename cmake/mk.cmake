@@ -109,6 +109,19 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
 set(MAKEKIT_DEPLOY_FILES "")
 
+macro(makekit_runtime_libraries LIBRARIES)
+    foreach (LIBRARY "${LIBRARIES}")
+        if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
+            string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
+	else ()
+	    set(LIBRARY_RUNTIME ${LIBRARY})
+	endif ()
+	
+        set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARY_RUNTIME})
+        #list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARY_RUNTIME})
+    endforeach ()
+endmacro()
+
 macro(makekit_deploy_libraries LIBRARIES)
     set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARIES})
     #list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARIES})
