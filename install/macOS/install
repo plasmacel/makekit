@@ -48,20 +48,21 @@ fi
 
 echo Creating required environment variables...
 
+export MAKEKIT_DIR=/usr/local/makekit
 export MAKEKIT_LLVM_DIR=/usr/local/opt/llvm
-export MAKEKIT_LLVM_BIN=/usr/local/opt/llvm/bin
-export MAKEKIT_LLVM_LIB=/usr/local/opt/llvm/lib
+export MAKEKIT_QT_DIR=""
 
-echo Copying files to /usr/local/bin/...
+echo Copying files to ${MAKEKIT_DIR}...
 
-cd ${DIR}
-sudo mkdir /usr/local/makekit
-sudo cp -r -v ${DIR}/bin /usr/local/makekit/bin
+sudo mkdir ${MAKEKIT_DIR}
+sudo cp -r -v ${DIR}/bin ${MAKEKIT_DIR}/bin
+sudo cp -r -v ${DIR}/cmake ${MAKEKIT_DIR}/cmake
+sudo cp -r -v ${DIR}/integration ${MAKEKIT_DIR}/integration
 
 echo Creating required symbolic links...
 
 ln -s /usr/local/opt/llvm/lib/libomp.dylib /usr/local/lib/libomp.dylib
-ln -s /usr/local/makekit/bin/mk /usr/local/bin/mk
+ln -s ${MAKEKIT_DIR}/bin/mk /usr/local/bin/mk
 
 #sudo cp ${DIR}/mk /usr/local/bin/
 #sudo cp ${DIR}/mk_clean /usr/local/bin/
