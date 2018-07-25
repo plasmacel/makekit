@@ -167,16 +167,16 @@ if (CXX_SOURCES)
             elseif (${MAKEKIT_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
                     set(MAKEKIT_MODULE_VISIBILITY SHARED)
             else()
-				message(FATAL_ERROR "Invalid MAKEKIT_MODULE_MODE!")
-				return()
-			endif ()
+                    message(FATAL_ERROR "Invalid MAKEKIT_MODULE_MODE!")
+                    return()
+            endif ()
 
             add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
             
-			# For header-only libraries this line is required
-			if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-				target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
-			endif ()
+            # For header-only libraries this line is required
+            if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
+                target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
+            endif ()
     endif ()
 else ()
     message(STATUS "MakeKit: No C/C++ sources found.")
@@ -236,7 +236,7 @@ endif ()
 #
 
 if (MAKEKIT_OPENMP)
-    if (1) # Use LLVM libomp
+    if (TRUE) # Use LLVM libomp
         if (MAKEKIT_OS_WINDOWS)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xclang -fopenmp")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp")
