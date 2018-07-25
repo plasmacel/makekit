@@ -125,18 +125,19 @@ set(MAKEKIT_DEPLOY_FILES "")
 
 macro(makekit_runtime_libraries LIBRARIES)
     foreach (LIBRARY "${LIBRARIES}")
-        get_property(LIBRARY_IMPORTED TARGET ${LIBRARY} PROPERTY IMPORTED)
-        
-	if (LIBRARY_IMPORTED)
-	    get_property(LIBRARY TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
-	    #get_property(LIBRARY TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION)
-	    #get_property(LIBRARY TARGET ${LIBRARY} PROPERTY LOCATION)
-	endif ()
-	
-        if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
-            string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
-	else ()
-	    set(LIBRARY_RUNTIME ${LIBRARY})
+	if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
+	    get_property(LIBRARY_IMPORTED TARGET ${LIBRARY} PROPERTY IMPORTED)
+	    if (LIBRARY_IMPORTED)
+	        #get_property(LIBRARY_RUNTIME TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
+	        get_property(LIBRARY_RUNTIME TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION)
+	        #get_property(LIBRARY_RUNTIME TARGET ${LIBRARY} PROPERTY LOCATION)
+	    endif ()
+	else () # LIBRARY is a FILEPATH
+	    if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
+                string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
+	    else ()
+	        set(LIBRARY_RUNTIME ${LIBRARY})
+	    endif ()
 	endif ()
 	
         set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARY_RUNTIME})
