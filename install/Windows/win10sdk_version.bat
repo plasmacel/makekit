@@ -1,7 +1,7 @@
 @echo off
 
 :: Set Windows Kits directory
-set WINSDK_DIR=C:\Program Files (x86)\Windows Kits\10\Include
+set WINSDK_DIR=%ProgramFiles(x86)%\Windows Kits\10\Include
 
 :: Search last directory in lexicographical order
 cd %WINSDK_DIR%
