@@ -78,8 +78,7 @@ copy "%~dp0\deps\llvm-openmp\lib\libompd.lib" "%LLVMDIR%\lib\libompd.lib"
 
 echo Copying files to %MAKEKIT_BIN%...
 
-copy "%~dp0\deps\llvm-openmp\ninja.exe" "%MAKEKIT_BIN%\ninja.exe"
-copy "%~dp0\deps\ninja\ninja.exe" "%MAKEKIT_BIN%\ninja.exe"
+xcopy /s "%~dp0\bin" "%MAKEKIT_BIN%"
 
 :: copy "%~dp0\mk.bat" "%MAKEKIT_BIN%\mk.bat"
 :: copy "%~dp0\mk_clean.bat" "%MAKEKIT_BIN%\mk_clean.bat"

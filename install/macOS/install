@@ -60,10 +60,13 @@ export MAKEKIT_LLVM_LIB=/usr/local/opt/llvm/lib
 echo Copying files to /usr/local/bin/...
 
 cd ${DIR}
-sudo cp ${DIR}/mk /usr/local/bin/
-sudo cp ${DIR}/mk_clean /usr/local/bin/
-sudo cp ${DIR}/mk_config /usr/local/bin/
-sudo cp ${DIR}/mk_make /usr/local/bin/
-sudo cp ${DIR}/mk_reconfig /usr/local/bin/
-sudo cp ${DIR}/mk_refresh /usr/local/bin/
-sudo cp ${DIR}/mk_remake /usr/local/bin/
+sudo mkdir /usr/local/makekit
+sudo cp -r -v ${DIR}/bin /usr/local/makekit/bin
+
+#sudo cp ${DIR}/mk /usr/local/bin/
+#sudo cp ${DIR}/mk_clean /usr/local/bin/
+#sudo cp ${DIR}/mk_config /usr/local/bin/
+#sudo cp ${DIR}/mk_make /usr/local/bin/
+#sudo cp ${DIR}/mk_reconfig /usr/local/bin/
+#sudo cp ${DIR}/mk_refresh /usr/local/bin/
+#sudo cp ${DIR}/mk_remake /usr/local/bin/
