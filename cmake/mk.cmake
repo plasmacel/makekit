@@ -69,8 +69,6 @@ endif ()
 # Include custom build types (compiler, linker and other flags)
 #
 
-#set(CMAKE_CXX_FLAGS "/DWIN64 /D_WINDOWS /Wall /GR /EHsc" CACHE INTERNAL "")
-#set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
 include(CustomBuilds.cmake OPTIONAL)
 
 #
