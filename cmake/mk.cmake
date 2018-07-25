@@ -49,17 +49,17 @@ set(CMAKE_CXX_STANDARD 17)
 #
 
 if (CMAKE_HOST_WIN32) # True if the host system is running Windows, including Windows 64-bit and MSYS, but false on Cygwin.
-    message(STATUS "Detected OS: Windows")
+    message(STATUS "MakeKit - Detected OS: Windows")
     set(MAKEKIT_OS_WINDOWS 1)
     set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dll)
 elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, including APPLE operation systems and Cygwin.
     set(MAKEKIT_OS_UNIX 1)
     if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
-        message(STATUS "Detected OS: macOS")
+        message(STATUS "MakeKit - Detected OS: macOS")
         set(MAKEKIT_OS_MACOS 1)
 	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dylib)
     else ()
-        message(STATUS "Detected OS: Unix/Linux")
+        message(STATUS "MakeKit - Detected OS: Unix/Linux")
         set(MAKEKIT_OS_LINUX 1)
 	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .so)
     endif ()
