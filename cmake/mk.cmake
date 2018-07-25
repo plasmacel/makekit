@@ -138,11 +138,12 @@ if (MAKEKIT_QT)
     #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-	set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
+    set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
     find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
 
     if (NOT Qt5_FOUND)
         message(FATAL_ERROR "Qt5 cannot be found!")
+	return()
     endif ()
 
     # Not required when CMAKE_AUTOUIC is ON
@@ -200,11 +201,13 @@ endif ()
 
 if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
-    if (OpenCL_FOUND)
-        target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
-    else ()
+    
+    if (NOT OpenCL_FOUND)
 	message(FATAL_ERROR "OpenCL cannot be found!")
+	return()
     endif ()
+    
+    target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 endif ()
 
 #
@@ -214,14 +217,16 @@ endif ()
 
 if (MAKEKIT_OPENGL)
     find_package(OpenGL REQUIRED)
-    if (OpenGL_FOUND)
-        if (OpenGL::OpenGL)
-			target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-        else ()
-			target_link_libraries(${PROJECT_NAME} OpenGL::GL)
-        endif ()
+    
+    if (NOT OpenGL_FOUND)
+    	message(FATAL_ERROR "OpenGL cannot be found!")
+	return()
+    endif ()
+    
+    if (OpenGL::OpenGL)
+	target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
     else ()
-	    message(FATAL_ERROR "OpenGL cannot be found!")
+	target_link_libraries(${PROJECT_NAME} OpenGL::GL)
     endif ()
 endif ()
 
@@ -246,19 +251,22 @@ if (MAKEKIT_OPENMP)
         set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
         find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
-        if (MAKEKIT_LIBOMP_LIB)
-            target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
-            makekit_deploy_libraries(${MAKEKIT_LIBOMP_LIB})
-        else ()
+        if (NOT MAKEKIT_LIBOMP_LIB)
             message(FATAL_ERROR "OpenMP (libomp) cannot be found!")
+	    return()
         endif ()
+	
+	target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
+        makekit_deploy_libraries(${MAKEKIT_LIBOMP_LIB})
     else ()
         find_package(OpenMP REQUIRED)
-        if (OpenMP_FOUND)
-            target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
-        else ()
+	
+        if (NOT OpenMP_FOUND)
             message(FATAL_ERROR "OpenMP cannot be found!")
+	    return()
         endif ()
+	
+	target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
     endif ()
 endif ()
 
@@ -269,11 +277,13 @@ endif ()
 
 if (MAKEKIT_VULKAN)
     find_package(Vulkan REQUIRED)
-    if (Vulkan_FOUND)
-        target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
-    else ()
+    
+    if (NOT Vulkan_FOUND)
 	    message(FATAL_ERROR "Vulkan cannot be found!")
+	    return()
     endif ()
+    
+    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 endif ()
 
 #
@@ -310,7 +320,7 @@ if (MAKEKIT_AUTODEPLOY)
             get_filename_component(FILE_NAME ${FILE} NAME)
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
         else ()
-            message(FATAL_ERROR "File ${FILE} cannot be found!")
+            message(ERROR "File ${FILE} cannot be found!")
         endif ()
     endforeach ()
 endif ()
