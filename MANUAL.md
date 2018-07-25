@@ -33,7 +33,7 @@ Currently the following default `BUILD_TYPE`s are available:
 - `release-debuginfo` - RelWithDebInfo, i.e. Release with debug information
 - `release-minsize` - MinSizeRel, i.e. Release with minimal binary size
 
-Custom build types are also available and can be configured in `custom_builds.cmake`.
+Custom build types are also available and can be configured in `CustomBuilds.cmake`.
 
 ## Commands
 
