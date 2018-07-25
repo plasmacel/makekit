@@ -285,7 +285,7 @@ endif ()
 #
 
 if (MAKEKIT_QT)
-    foreach (QTMODULE "${MAKEKIT_QT}")
+    foreach (QTMODULE ${MAKEKIT_QT})
         target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
         #makekit_copy_shared_library(${PROJECT_NAME} Qt5::${QTMODULE})
 	    makekit_deploy_imported_libraries(Qt5::${QTMODULE})
