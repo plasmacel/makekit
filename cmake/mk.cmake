@@ -205,6 +205,10 @@ if (CXX_SOURCES)
                 target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
             endif ()
     endif ()
+    
+    # Set C/C++ language standard of the target
+    set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
+    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 else ()
     message(STATUS "MakeKit - No C/C++ sources found.")
 endif ()
