@@ -46,11 +46,6 @@ else
 	brew upgrade llvm
 fi
 
-echo Creating required symbolic links...
-
-cd /usr/local/lib
-ln -s /usr/local/opt/llvm/lib/libomp.dylib libomp.dylib
-
 echo Creating required environment variables...
 
 export MAKEKIT_LLVM_DIR=/usr/local/opt/llvm
@@ -62,6 +57,11 @@ echo Copying files to /usr/local/bin/...
 cd ${DIR}
 sudo mkdir /usr/local/makekit
 sudo cp -r -v ${DIR}/bin /usr/local/makekit/bin
+
+echo Creating required symbolic links...
+
+ln -s /usr/local/opt/llvm/lib/libomp.dylib /usr/local/lib/libomp.dylib
+ln -s /usr/local/makekit/bin/mk /usr/local/bin/mk
 
 #sudo cp ${DIR}/mk /usr/local/bin/
 #sudo cp ${DIR}/mk_clean /usr/local/bin/
