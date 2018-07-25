@@ -61,7 +61,7 @@ sudo cp -r -v ${DIR}/integration ${MAKEKIT_DIR}/integration
 
 echo Creating required symbolic links...
 
-ln -s /usr/local/opt/llvm/lib/libomp.dylib /usr/local/lib/libomp.dylib
+ln -s ${MAKEKIT_LLVM_DIR}/lib/libomp.dylib /usr/local/lib/libomp.dylib
 ln -s ${MAKEKIT_DIR}/bin/mk /usr/local/bin/mk
 
 #sudo cp ${DIR}/mk /usr/local/bin/
