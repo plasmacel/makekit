@@ -144,6 +144,13 @@ macro(makekit_deploy_imported_libraries LIBRARIES)
     endforeach ()
 endmacro()
 
+# MODE can be STATIC, SHARED
+macro(makekit_import_library NAME MODE LOCATION)
+    add_library(${NAME} $(MODE) IMPORTED GLOBAL)
+    set_target_properties(${NAME} PROPERTIES IMPORTED_LOCATION ${LOCATION})
+    set_target_properties(${NAME} PROPERTIES IMPORTED_IMPLIB ${LOCATION})
+endmacro()
+
 #
 # Qt5
 #
@@ -259,20 +266,18 @@ endif ()
 
 if (MAKEKIT_OPENMP)
     if (TRUE) # Use LLVM libomp
-        if (MAKEKIT_OS_WINDOWS)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xclang -fopenmp")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp")
-        else ()
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp=libomp")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp=libomp")
-        endif ()
-
         set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
         find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
         if (NOT MAKEKIT_LIBOMP_LIB)
             message(FATAL_ERROR "MakeKit - OpenMP (libomp) cannot be found!")
 	    return()
+        endif ()
+	
+	if (MAKEKIT_OS_WINDOWS)
+	    target_compile_options(${PROJECT_NAME} -Xclang -fopenmp=libomp)
+        else ()
+	    target_compile_options(${PROJECT_NAME} -fopenmp=libomp)
         endif ()
 	
 	target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
