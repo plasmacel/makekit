@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -112,6 +113,26 @@ void add_set_environment_command(const std::string& arch, system_commands& cmd)
 }
 #endif
 
+std::string read_file(const std::string& filename)
+{
+	std::ifstream file(filename);
+	std::string str;
+
+	if (!file.is_open())
+	{
+		std::cerr << "ERROR File cannot be opened: " << filename << std::endl;
+		return str;
+	}
+
+	file.seekg(0, std::ios::end);
+	str.reserve(file.tellg());
+	file.seekg(0, std::ios::beg);
+
+	str.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	return str;
+}
+
 int config(const std::string& build_type, system_commands& cmd)
 {
 	std::string cmake_build_type;
@@ -176,7 +197,18 @@ int make(const std::string& build_type, system_commands& cmd)
 	if (config(build_type, cmd) != 0) return 1;
 	
 	// Add Ninja build command
+
+	std::string ninja_status = read_file("mk_status.txt");
 	
+	if (!ninja_status.empty())
+	{
+	#ifdef _WIN32
+		cmd.append("set \"NINJA_STATUS=" + ninja_status + " \"");
+	#else
+		cmd.append("export \"NINJA_STATUS=" + ninja_status + " \"");
+	#endif
+	}
+
 	cmd.append("ninja -C " + build_dir);
 	//cmd.append("cmake --build build " + build_dir + "--config " + build_type);
 	
@@ -290,7 +322,7 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			std::cout << "ERROR Invalid command: " << command << std::endl;
+			std::cerr << "ERROR Invalid command: " << command << std::endl;
 			return 1;
 		}
 	}

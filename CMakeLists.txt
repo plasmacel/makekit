@@ -5,4 +5,4 @@ project(mk)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(mk mk.cpp)
+add_executable(mk src/mk.cpp)
