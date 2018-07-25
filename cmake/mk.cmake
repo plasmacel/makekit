@@ -41,8 +41,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Language standard
 #
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_C_STANDARD 11)
+#set(CMAKE_CXX_STANDARD 17)
 
 #
 # OS Platform Detection
