@@ -1,8 +1,8 @@
 @echo off
 
-set DEFAULT_CMAKE_INSTALL=C:\Program Files\CMake
-set DEFAULT_LLVM_INSTALL=C:\Program Files\LLVM
-set DEFAULT_MAKEKIT_INSTALL=C:\Program Files\MakeKit
+set DEFAULT_CMAKE_DIR=C:\Program Files\CMake
+set DEFAULT_LLVM_DIR=C:\Program Files\LLVM
+set DEFAULT_MAKEKIT_DIR=C:\Program Files\MakeKit
 
 :: Get latest installed Windows 10 SDK version
 
@@ -11,53 +11,67 @@ call %~dp0\win10sdk_version.bat WINSDK_VER
 :: Get installation directories from user input
 
 :: set /p WINSDK_VER=Windows SDK Version (default is %WINSDK_VER%):
-set /p CMAKE_INSTALL=CMake installation directory (default is %DEFAULT_CMAKE_INSTALL%):
-if "%CMAKE_INSTALL%" == "" (
-	set CMAKE_INSTALL=%DEFAULT_CMAKE_INSTALL%
+set /p CMAKE_DIR=CMake installation directory (default is %DEFAULT_CMAKE_DIR%):
+if "%CMAKE_DIR%" == "" (
+	set CMAKE_DIR=%DEFAULT_CMAKE_DIR%
 )
-if not exist "%CMAKE_INSTALL%" (
+if not exist "%CMAKE_DIR%" (
 	echo ERROR: CMake installation directory cannot be found!
 	set /p dummy=Press ENTER...
 	@echo on
 	exit
 )
 
-set /p LLVM_INSTALL=LLVM installation directory (default is %DEFAULT_LLVM_INSTALL%):
-if "%LLVM_INSTALL%" == "" (
-	set LLVM_INSTALL=%DEFAULT_LLVM_INSTALL%
+set /p LLVM_DIR=LLVM installation directory (default is %DEFAULT_LLVM_DIR%):
+if "%LLVM_DIR%" == "" (
+	set LLVM_DIR=%DEFAULT_LLVM_DIR%
 )
-if not exist "%LLVM_INSTALL%" (
+if not exist "%LLVM_DIR%" (
 	echo ERROR: LLVM installation directory cannot be found!
 	set /p dummy=Press ENTER...
 	@echo on
 	exit
 )
 
-set /p MAKEKIT_INSTALL=MakeKit installation directory (default is %DEFAULT_MAKEKIT_INSTALL%):
-if "%MAKEKIT_INSTALL%" == "" (
-	set MAKEKIT_INSTALL=%DEFAULT_MAKEKIT_INSTALL%
+set /p MAKEKIT_DIR=MakeKit installation directory (default is %DEFAULT_MAKEKIT_DIR%):
+if "%MAKEKIT_DIR%" == "" (
+	set MAKEKIT_DIR=%DEFAULT_MAKEKIT_DIR%
 )
-if not exist "%MAKEKIT_INSTALL%" (
-	mkdir "%MAKEKIT_INSTALL%\bin"
+if not exist "%MAKEKIT_DIR%" (
+	mkdir "%MAKEKIT_DIR%\bin"
+)
+
+set /p QT_DIR=Qt installation directory:
+if "%QT_DIR%" == "" (
+	set QT_DIR=%DEFAULT_QT_DIR%
+)
+if not exist "%QT_DIR%" (
+	echo ERROR: Qt installation directory cannot be found!
+	set /p dummy=Press ENTER...
+	@echo on
+	exit
 )
 
 :: Set dependency path variables
 
 set VCVARS_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 set WINSDK_DIR=C:\Program Files (x86)\Windows Kits\10\bin\%WINSDK_VER%\x64
-set CMAKE_BIN=%CMAKE_INSTALL%\bin
-set LLVM_BIN=%LLVM_INSTALL%\bin
-set LLVM_LIB=%LLVM_INSTALL%\lib
-set MAKEKIT_BIN=%MAKEKIT_INSTALL%\bin
+
+set CMAKE_BIN=%CMAKE_DIR%\bin
+set LLVM_BIN=%LLVM_DIR%\bin
+set LLVM_LIB=%LLVM_DIR%\lib
+set MAKEKIT_BIN=%MAKEKIT_DIR%\bin
 
 :: Set environment variables
 
 echo Setting required environment variables...
 
-call %~dp0\export.bat "MAKEKIT_CMAKE_BIN" "%CMAKE_BIN:\=/%"
-call %~dp0\export.bat "MAKEKIT_LLVM_DIR" "%LLVM_INSTALL:\=/%"
-call %~dp0\export.bat "MAKEKIT_LLVM_BIN" "%LLVM_BIN:\=/%"
-call %~dp0\export.bat "MAKEKIT_LLVM_LIB" "%LLVM_LIB:\=/%"
+:: Create MAKEKIT environment variables
+call %~dp0\export.bat "MAKEKIT_DIR" "%MAKEKIT_DIR:\=/%"
+call %~dp0\export.bat "MAKEKIT_LLVM_DIR" "%LLVM_DIR:\=/%"
+call %~dp0\export.bat "MAKEKIT_QT_DIR" "%QT_DIR:\=/%"
+
+:: Add required directories to the PATH
 
 call %~dp0\export.bat "PATH" "%VCVARS_DIR%"
 call %~dp0\export.bat "PATH" "%WINSDK_DIR%"
@@ -68,17 +82,22 @@ call %~dp0\export.bat "PATH" "%MAKEKIT_BIN%"
 
 :: Copying files
 
-echo Installing LLVM OpenMP (libomp) to %LLVMDIR%...
+echo Installing LLVM OpenMP (libomp) to %LLVM_DIR%...
 
-copy "%~dp0\deps\llvm-openmp\include\omp.h" "%LLVMDIR%\lib\clang\6.0.0\include\omp.h"
-copy "%~dp0\deps\llvm-openmp\bin\libomp.dll" "%LLVMDIR%\bin\libomp.dll"
-copy "%~dp0\deps\llvm-openmp\bin\libompd.dll" "%LLVMDIR%\bin\libompd.dll"
-copy "%~dp0\deps\llvm-openmp\lib\libomp.lib" "%LLVMDIR%\lib\libomp.lib"
-copy "%~dp0\deps\llvm-openmp\lib\libompd.lib" "%LLVMDIR%\lib\libompd.lib"
+copy "%~dp0\deps\llvm-openmp\include\omp.h" "%LLVM_DIR%\lib\clang\6.0.0\include\omp.h"
 
-echo Copying files to %MAKEKIT_BIN%...
+copy "%~dp0\deps\llvm-openmp\bin\libomp.dll" "%LLVM_DIR%\bin\libomp.dll"
+copy "%~dp0\deps\llvm-openmp\bin\libompd.dll" "%LLVM_DIR%\bin\libompd.dll"
 
-xcopy /s "%~dp0\bin" "%MAKEKIT_BIN%"
+copy "%~dp0\deps\llvm-openmp\lib\libomp.lib" "%LLVM_DIR%\lib\libomp.lib"
+copy "%~dp0\deps\llvm-openmp\lib\libompd.lib" "%LLVM_DIR%\lib\libompd.lib"
+
+echo Copying files to %MAKEKIT_DIR%...
+
+mkdir "%MAKEKIT_DIR%"
+xcopy /s "%~dp0\bin" "%MAKEKIT_DIR%\bin"
+xcopy /s "%~dp0\cmake" "%MAKEKIT_DIR%\cmake"
+xcopy /s "%~dp0\integration" "%MAKEKIT_DIR%\integration"
 
 :: copy "%~dp0\mk.bat" "%MAKEKIT_BIN%\mk.bat"
 :: copy "%~dp0\mk_clean.bat" "%MAKEKIT_BIN%\mk_clean.bat"
