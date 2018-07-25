@@ -112,6 +112,12 @@ set(MAKEKIT_DEPLOY_FILES "")
 
 macro(makekit_runtime_libraries LIBRARIES)
     foreach (LIBRARY "${LIBRARIES}")
+        get_property(LIBRARY_IMPORTED TARGET ${LIBRARY} PROPERTY IMPORTED)
+        
+	if (LIBRARY_IMPORTED)
+	    get_property(LIBRARY TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
+	endif ()
+	
         if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
             string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
 	else ()
@@ -132,7 +138,7 @@ macro(makekit_deploy_imported_libraries LIBRARIES)
     foreach (LIBRARY "${LIBRARIES}")
         get_property(LIBRARY_IMPORTED_LOCATION TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
         message(STATUS "MakeKit - Adding to deploy list: ${LIBRARY_IMPORTED_LOCATION}")
-	    makekit_deploy_libraries(${LIBRARY_IMPORTED_LOCATION})
+	makekit_deploy_libraries(${LIBRARY_IMPORTED_LOCATION})
     endforeach ()
 endmacro()
 
