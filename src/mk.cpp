@@ -173,14 +173,14 @@ int config(const std::string& build_type, system_commands& cmd)
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
 	cmake_command += " -B" + build_dir;
-	//cmake_command += " -DCMAKE_ASM_COMPILER:PATH=\"" + MAKEKIT_ASM_COMPILER + "\"";
-	cmake_command += " -DCMAKE_C_COMPILER:PATH=\"" + MAKEKIT_C_COMPILER + "\"";
-	cmake_command += " -DCMAKE_CXX_COMPILER:PATH=\"" + MAKEKIT_CXX_COMPILER + "\"";
-	//cmake_command += " -DCMAKE_CUDA_COMPILER:PATH=\"" + MAKEKIT_CUDA_COMPILER + "\"";
+	//cmake_command += " -DCMAKE_ASM_COMPILER:FILEPATH=\"" + MAKEKIT_ASM_COMPILER + "\"";
+	cmake_command += " -DCMAKE_C_COMPILER:FILEPATH=\"" + MAKEKIT_C_COMPILER + "\"";
+	cmake_command += " -DCMAKE_CXX_COMPILER:FILEPATH=\"" + MAKEKIT_CXX_COMPILER + "\"";
+	//cmake_command += " -DCMAKE_CUDA_COMPILER:FILEPATH=\"" + MAKEKIT_CUDA_COMPILER + "\"";
 #ifdef _WIN32
-	cmake_command += " -DCMAKE_RC_COMPILER:PATH=\"" + MAKEKIT_RC_COMPILER + "\"";
+	cmake_command += " -DCMAKE_RC_COMPILER:FILEPATH=\"" + MAKEKIT_RC_COMPILER + "\"";
 #endif
-	cmake_command += " -DCMAKE_LINKER:PATH=\"" + MAKEKIT_LINKER + "\"";
+	cmake_command += " -DCMAKE_LINKER:FILEPATH=\"" + MAKEKIT_LINKER + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
 
 	cmd.append(cmake_command);
