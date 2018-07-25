@@ -116,6 +116,8 @@ macro(makekit_runtime_libraries LIBRARIES)
         
 	if (LIBRARY_IMPORTED)
 	    get_property(LIBRARY TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
+	    #get_property(LIBRARY TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION)
+	    #get_property(LIBRARY TARGET ${LIBRARY} PROPERTY LOCATION)
 	endif ()
 	
         if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
