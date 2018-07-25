@@ -163,23 +163,25 @@ endif ()
 #
 
 if (CXX_SOURCES)
-    if (${MAKEKIT_MODULE_MODE} EQUAL 0)
+    if (${MAKEKIT_MODULE_MODE} STREQUAL "NONE")
             # Do nothing
-    elseif (${MAKEKIT_MODULE_MODE} LESS 4)
-            if (${MAKEKIT_MODULE_MODE} EQUAL 1)
+	elseif (${MAKEKIT_MODULE_MODE} STREQUAL "EXECUTABLE")
+            add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+    else ()
+            if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
                     set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
-            elseif (${MAKEKIT_MODULE_MODE} EQUAL 2)
+            elseif (${MAKEKIT_MODULE_MODE} STREQUAL "STATIC_LIBRARY")
                     set(MAKEKIT_MODULE_VISIBILITY STATIC)
-            elseif (${MAKEKIT_MODULE_MODE} EQUAL 3)
+            elseif (${MAKEKIT_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
                     set(MAKEKIT_MODULE_VISIBILITY SHARED)
             endif()
 
             add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
             
-	    # For header-only libraries this line is required
-	    #target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
-    else ()
-            add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+			# For header-only libraries this line is required
+			if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
+				target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
+			endif ()
     endif ()
 else ()
     message(STATUS "MakeKit: No C/C++ sources found.")
