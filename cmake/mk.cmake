@@ -138,16 +138,7 @@ if (MAKEKIT_QT)
     #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-    if (MAKEKIT_OS_WINDOWS)
-        if (MSYS)
-	    # Using MSYS MinGW-w64 toolchain, CMake will automatically find the Qt5 CMake configs
-            #set(Qt5_DIR "C:/msys64/mingw64/lib/cmake/Qt5/")
-        else ()
-	    # Using Visual C++ toolchain
-            set(Qt5_DIR "C:/Qt/5.10.0/msvc2017_64/lib/cmake/Qt5/")
-        endif ()
-    endif ()
-
+	set(Qt5_DIR $ENV{MAKEKIT_QT_DIR})
     find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
 
     if (NOT Qt5_FOUND)
@@ -164,7 +155,7 @@ endif ()
 
 if (CXX_SOURCES)
     if (${MAKEKIT_MODULE_MODE} STREQUAL "NONE")
-            # Do nothing
+            return() # Do nothing
 	elseif (${MAKEKIT_MODULE_MODE} STREQUAL "EXECUTABLE")
             add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
     else ()
@@ -174,7 +165,10 @@ if (CXX_SOURCES)
                     set(MAKEKIT_MODULE_VISIBILITY STATIC)
             elseif (${MAKEKIT_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
                     set(MAKEKIT_MODULE_VISIBILITY SHARED)
-            endif()
+            else()
+				message(FATAL_ERROR "Invalid MAKEKIT_MODULE_MODE!")
+				return()
+			endif ()
 
             add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
             
