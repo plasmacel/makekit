@@ -75,6 +75,9 @@ include(CustomBuilds.cmake OPTIONAL)
 # Find source
 #
 
+#file(GLOB_RECURSE C_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.c)
+#file(GLOB_RECURSE C_HEADERS RELATIVE ${MAKEKIT_SOURCE} *.h)
+
 file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cc *.cpp *.cxx)
 file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MAKEKIT_SOURCE} *.h *.hh *.hpp *.hxx)
 file(GLOB_RECURSE CXX_INLINES RELATIVE ${MAKEKIT_SOURCE} *.inc *.inl *.ipp *.ixx *.tcc *.tpp *.txx)
@@ -92,6 +95,18 @@ endif ()
 if (MAKEKIT_CUDA)
 	file(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MAKEKIT_SOURCE} *.cu)
 endif ()
+
+#
+# Set source properties
+#
+
+foreach (CXX_HEADER ${CXX_HEADERS})
+    set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
+endforeach ()
+
+foreach (CXX_INLINE ${CXX_INLINES})
+    set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
+endforeach ()
 
 #
 # Excluding CMake generated files from source for safety
