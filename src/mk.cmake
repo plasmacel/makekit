@@ -71,7 +71,7 @@ endif ()
 
 #set(CMAKE_CXX_FLAGS "/DWIN64 /D_WINDOWS /Wall /GR /EHsc" CACHE INTERNAL "")
 #set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/CompilerOptions.cmake")
-include(custom_builds.cmake)
+include(CustomBuilds.cmake OPTIONAL)
 
 #
 # Find source
