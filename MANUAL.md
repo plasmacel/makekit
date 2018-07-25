@@ -1,3 +1,11 @@
+## Environment Variables
+
+MakeKit relies on the following environment variables, which are automatically set at its install:
+
+- MAKEKIT_DIR
+- MAKEKIT_LLVM_DIR
+- MAKEKIT_QT_DIR
+
 ## Generate `CMakeLists.txt` files
 
 MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
