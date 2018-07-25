@@ -1,8 +1,8 @@
 @echo off
 
-set DEFAULT_CMAKE_DIR=C:\Program Files\CMake
-set DEFAULT_LLVM_DIR=C:\Program Files\LLVM
-set DEFAULT_MAKEKIT_DIR=C:\Program Files\MakeKit
+set DEFAULT_CMAKE_DIR=%ProgramFiles%\CMake
+set DEFAULT_LLVM_DIR=%ProgramFiles%\LLVM
+set DEFAULT_MAKEKIT_DIR=%ProgramFiles%\MakeKit
 
 :: Get latest installed Windows 10 SDK version
 
@@ -54,8 +54,8 @@ if not exist "%QT_DIR%" (
 
 :: Set dependency path variables
 
-set VCVARS_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
-set WINSDK_DIR=C:\Program Files (x86)\Windows Kits\10\bin\%WINSDK_VER%\x64
+set VCVARS_DIR=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+set WINSDK_DIR=%ProgramFiles(x86)%\Windows Kits\10\bin\%WINSDK_VER%\x64
 
 set CMAKE_BIN=%CMAKE_DIR%\bin
 set LLVM_BIN=%LLVM_DIR%\bin
