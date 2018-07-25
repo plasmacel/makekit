@@ -244,7 +244,7 @@ if (MAKEKIT_OPENMP)
         endif ()
 
         set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
-        find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib NO_DEFAULT_PATH REQUIRED)
+        find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
         if (MAKEKIT_LIBOMP_LIB)
             target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
