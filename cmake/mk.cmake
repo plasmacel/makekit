@@ -117,7 +117,7 @@ endmacro()
 macro(makekit_deploy_imported_libraries LIBRARIES)
     foreach (LIBRARY "${LIBRARIES}")
         get_property(LIBRARY_IMPORTED_LOCATION TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
-        message(STATUS "Adding to deploy list: ${LIBRARY_IMPORTED_LOCATION}")
+        message(STATUS "MakeKit - Adding to deploy list: ${LIBRARY_IMPORTED_LOCATION}")
 	    makekit_deploy_libraries(${LIBRARY_IMPORTED_LOCATION})
     endforeach ()
 endmacro()
@@ -142,7 +142,7 @@ if (MAKEKIT_QT)
     find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
 
     if (NOT Qt5_FOUND)
-        message(FATAL_ERROR "Qt5 cannot be found!")
+        message(FATAL_ERROR "MakeKit - Qt5 cannot be found!")
 	return()
     endif ()
 
@@ -167,7 +167,7 @@ if (CXX_SOURCES)
             elseif (${MAKEKIT_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
                     set(MAKEKIT_MODULE_VISIBILITY SHARED)
             else()
-                    message(FATAL_ERROR "Invalid MAKEKIT_MODULE_MODE!")
+                    message(FATAL_ERROR "MakeKit - Invalid MAKEKIT_MODULE_MODE!")
                     return()
             endif ()
 
@@ -179,7 +179,7 @@ if (CXX_SOURCES)
             endif ()
     endif ()
 else ()
-    message(STATUS "MakeKit: No C/C++ sources found.")
+    message(STATUS "MakeKit - No C/C++ sources found.")
 endif ()
 
 #
@@ -203,7 +203,7 @@ if (MAKEKIT_OPENCL)
     find_package(OpenCL REQUIRED)
     
     if (NOT OpenCL_FOUND)
-	message(FATAL_ERROR "OpenCL cannot be found!")
+	message(FATAL_ERROR "MakeKit - OpenCL cannot be found!")
 	return()
     endif ()
     
@@ -219,7 +219,7 @@ if (MAKEKIT_OPENGL)
     find_package(OpenGL REQUIRED)
     
     if (NOT OpenGL_FOUND)
-    	message(FATAL_ERROR "OpenGL cannot be found!")
+    	message(FATAL_ERROR "MakeKit - OpenGL cannot be found!")
 	return()
     endif ()
     
@@ -252,7 +252,7 @@ if (MAKEKIT_OPENMP)
         find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
         if (NOT MAKEKIT_LIBOMP_LIB)
-            message(FATAL_ERROR "OpenMP (libomp) cannot be found!")
+            message(FATAL_ERROR "MakeKit - OpenMP (libomp) cannot be found!")
 	    return()
         endif ()
 	
@@ -262,7 +262,7 @@ if (MAKEKIT_OPENMP)
         find_package(OpenMP REQUIRED)
 	
         if (NOT OpenMP_FOUND)
-            message(FATAL_ERROR "OpenMP cannot be found!")
+            message(FATAL_ERROR "MakeKit - OpenMP cannot be found!")
 	    return()
         endif ()
 	
@@ -279,7 +279,7 @@ if (MAKEKIT_VULKAN)
     find_package(Vulkan REQUIRED)
     
     if (NOT Vulkan_FOUND)
-	    message(FATAL_ERROR "Vulkan cannot be found!")
+	    message(FATAL_ERROR "MakeKit - Vulkan cannot be found!")
 	    return()
     endif ()
     
@@ -307,7 +307,7 @@ endif ()
 #
 
 if (MAKEKIT_AUTODEPLOY)
-    message("Deploying files: ${MAKEKIT_DEPLOY_FILES}")
+    message("MakeKit - Deploying files: ${MAKEKIT_DEPLOY_FILES}")
 
     foreach (FILE ${MAKEKIT_DEPLOY_FILES})
         if (IS_ABSOLUTE ${FILE})
@@ -320,7 +320,7 @@ if (MAKEKIT_AUTODEPLOY)
             get_filename_component(FILE_NAME ${FILE} NAME)
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
         else ()
-            message(ERROR "File ${FILE} cannot be found!")
+            message(ERROR "MakeKit - File ${FILE} cannot be found!")
         endif ()
     endforeach ()
 endif ()
