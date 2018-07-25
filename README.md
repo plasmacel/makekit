@@ -7,7 +7,7 @@ MakeKit is strictly relies on the CMake build system, Ninja build generator, and
 - Support of cross-platform compilation of modern C/C++
 - Support of parallel technologies OpenMP, OpenCL and CUDA
 - Support of graphics APIs OpenGL and Vulkan
-- Support of the cross-platform windowing framework Qt
+- Support of the cross-platform windowing framework Qt 5
 
 **The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
 
