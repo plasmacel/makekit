@@ -36,13 +36,13 @@ If the source tree has been changed by adding or removing files, existing build 
 
 Currently the following default `BUILD_TYPE`s are available:
 
-| BUILD_TYPE     | Description                                    | clang flags       | clang-cl flags              |
-|:---------------|:-----------------------------------------------|:------------------|:----------------------------|
-| None           |                                                |                   |                             |
-| Debug          | Debug build, no optimization                   | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`   |
-| Release        | Release build, full optimization               | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`     |
-| RelWithDebInfo | Release build, optimization with debug symbols | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG` |
-| MinSizeRel     | Release build, optimized for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`     |
+| BUILD_TYPE     | Description                                       | clang flags       | clang-cl flags              |
+|:---------------|:--------------------------------------------------|:------------------|:----------------------------|
+| None           |                                                   |                   |                             |
+| Debug          | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`   |
+| Release        | Release build, full optimization                  | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`     |
+| RelWithDebInfo | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG` |
+| MinSizeRel     | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`     |
 
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
 
