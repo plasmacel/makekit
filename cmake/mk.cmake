@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message(FATAL_ERROR "MakeKit - Not a valid LLVM/clang compiler!
 		You are maybe using Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
+	return()
 endif ()
 
 enable_language(C)
