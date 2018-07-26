@@ -41,7 +41,7 @@ Currently the following default `BUILD_TYPE`s are available:
 | None           |                                                |                   |                             |
 | Debug          | Debug build, no optimization                   | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`   |
 | Release        | Release build, full optimization               | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`     |
-| RelWithDebInfo | Release build, optimization + debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG` |
+| RelWithDebInfo | Release build, optimization with debug symbols | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG` |
 | MinSizeRel     | Release build, optimized for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`     |
 
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
