@@ -114,6 +114,21 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 # Functions and Macros
 #
 
+# Macro to preserve source files hierarchy in the IDE
+# http://www.rtrclass.type.pl/2018-05-29-how-to-setup-opengl-project-with-cmake/
+macro(mk_group_sources ROOT)
+    file(GLOB CHILDREN RELATIVE ${PROJECT_SOURCE_DIR}/${ROOT} ${PROJECT_SOURCE_DIR}/${ROOT}/*)
+    foreach (CHILD ${CHILDREN})
+        if (IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ROOT}/${CHILD})
+            mk_group_sources(${ROOT}/${CHILD})
+        else ()
+            string(REPLACE "/" "\\" GROUP_NAME ${ROOT})
+            string(REPLACE "src" "Sources" GROUP_NAME ${GROUP_NAME})
+            source_group(${GROUP_NAME} FILES ${PROJECT_SOURCE_DIR}/${ROOT}/${CHILD})
+        endif ()
+    endforeach ()
+endmacro()
+
 function(mk_save_list FILENAME LIST)
 	string(REPLACE ";" "\n" LIST_PROCESSED "${LIST}")
 	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
