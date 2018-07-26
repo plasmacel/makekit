@@ -297,9 +297,9 @@ if (MAKEKIT_OPENMP)
         endif ()
 	
 	if (MAKEKIT_OS_WINDOWS)
-	    target_compile_options(${PROJECT_NAME} -Xclang -fopenmp=libomp)
+	    target_compile_options(${PROJECT_NAME} PRIVATE -Xclang -fopenmp=libomp)
         else ()
-	    target_compile_options(${PROJECT_NAME} -fopenmp=libomp)
+	    target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp=libomp)
         endif ()
 	
 	target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
