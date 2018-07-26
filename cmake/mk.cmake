@@ -4,11 +4,11 @@ enable_language(C)
 enable_language(CXX)
 
 if (MAKEKIT_ASM)
-    enable_language(ASM)
+	enable_language(ASM)
 endif ()
 
 if (MAKEKIT_CUDA)
-    enable_language(CUDA)
+	enable_language(CUDA)
 endif ()
 
 #
@@ -49,20 +49,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 #
 
 if (CMAKE_HOST_WIN32) # True if the host system is running Windows, including Windows 64-bit and MSYS, but false on Cygwin.
-    message(STATUS "MakeKit - Detected OS: Windows")
-    set(MAKEKIT_OS_WINDOWS 1)
-    set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dll)
+	message(STATUS "MakeKit - Detected OS: Windows")
+	set(MAKEKIT_OS_WINDOWS 1)
+	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dll)
 elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, including APPLE operation systems and Cygwin.
-    set(MAKEKIT_OS_UNIX 1)
-    if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
-        message(STATUS "MakeKit - Detected OS: macOS")
-        set(MAKEKIT_OS_MACOS 1)
-	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dylib)
-    else ()
-        message(STATUS "MakeKit - Detected OS: Unix/Linux")
-        set(MAKEKIT_OS_LINUX 1)
-	set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .so)
-    endif ()
+	set(MAKEKIT_OS_UNIX 1)
+	if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
+		message(STATUS "MakeKit - Detected OS: macOS")
+		set(MAKEKIT_OS_MACOS 1)
+		set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .dylib)
+	else ()
+		message(STATUS "MakeKit - Detected OS: Unix/Linux")
+		set(MAKEKIT_OS_LINUX 1)
+		set(MAKEKIT_RUNTIME_LIBRARY_EXTENSION .so)
+	endif ()
 endif ()
 
 #
@@ -101,11 +101,11 @@ endif ()
 #
 
 foreach (CXX_HEADER ${CXX_HEADERS})
-    set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
+	set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
 endforeach ()
 
 foreach (CXX_INLINE ${CXX_INLINES})
-    set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
+	set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
 endforeach ()
 
 #
@@ -124,49 +124,55 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 set(MAKEKIT_DEPLOY_FILES "")
 
 macro(makekit_runtime_libraries LIBRARIES)
-    foreach (LIBRARY "${LIBRARIES}")
-	if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
-	    get_target_property(LIBRARY_TYPE TARGET ${LIBRARY} PROPERTY TYPE)
-	    if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-	        get_property(LIBRARY_IMPORTED TARGET ${LIBRARY} PROPERTY IMPORTED)
-	        if (LIBRARY_IMPORTED)
-	            #get_property(LIBRARY_RUNTIME TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
-	            get_property(LIBRARY_RUNTIME TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION)
-	        else ()
-		    get_property(LIBRARY_RUNTIME TARGET ${LIBRARY} PROPERTY LOCATION)
+	foreach (LIBRARY "${LIBRARIES}")
+		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
+			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
+			message(STATUS "MakeKit - Library type: ${LIBRARY_TYPE}")
+			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
+				get_target_property(LIBRARY_IMPORTED ${LIBRARY} IMPORTED)
+				if (LIBRARY_IMPORTED)
+					message(STATUS "MakeKit - Imported library")
+					#get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
+					get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION)
+				else ()
+					message(STATUS "MakeKit - NOT imported library")
+					get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
+				endif ()
+			else ()
+				message(STATUS "MakeKit - This is not a shared library")
+			endif ()
+		else () # LIBRARY is a FILEPATH
+			if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
+				string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
+			else ()
+				set(LIBRARY_RUNTIME ${LIBRARY})
+			endif ()
 		endif ()
-	    endif ()
-	else () # LIBRARY is a FILEPATH
-	    if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
-                string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
-	    else ()
-	        set(LIBRARY_RUNTIME ${LIBRARY})
-	    endif ()
-	endif ()
-	
-        set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARY_RUNTIME})
-        #list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARY_RUNTIME})
-    endforeach ()
+
+		message(STATUS "MakeKit - Added runtime library: ${LIBRARY_RUNTIME}")
+		set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARY_RUNTIME})
+		#list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARY_RUNTIME})
+	endforeach ()
 endmacro()
 
 macro(makekit_deploy_libraries LIBRARIES)
-    set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARIES})
-    #list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARIES})
+	set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARIES})
+	#list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARIES})
 endmacro()
 
 macro(makekit_deploy_imported_libraries LIBRARIES)
-    foreach (LIBRARY "${LIBRARIES}")
-        get_property(LIBRARY_IMPORTED_LOCATION TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
-        message(STATUS "MakeKit - Adding to deploy list: ${LIBRARY_IMPORTED_LOCATION}")
-	makekit_deploy_libraries(${LIBRARY_IMPORTED_LOCATION})
-    endforeach ()
+	foreach (LIBRARY "${LIBRARIES}")
+		get_property(LIBRARY_IMPORTED_LOCATION TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
+		message(STATUS "MakeKit - Adding to deploy list: ${LIBRARY_IMPORTED_LOCATION}")
+		makekit_deploy_libraries(${LIBRARY_IMPORTED_LOCATION})
+	endforeach ()
 endmacro()
 
 # MODE can be STATIC, SHARED
 macro(makekit_import_library NAME MODE LOCATION)
-    add_library(${NAME} $(MODE) IMPORTED GLOBAL)
-    set_target_properties(${NAME} PROPERTIES IMPORTED_LOCATION ${LOCATION})
-    set_target_properties(${NAME} PROPERTIES IMPORTED_IMPLIB ${LOCATION})
+	add_library(${NAME} $(MODE) IMPORTED GLOBAL)
+	set_target_properties(${NAME} PROPERTIES IMPORTED_LOCATION ${LOCATION})
+	set_target_properties(${NAME} PROPERTIES IMPORTED_IMPLIB ${LOCATION})
 endmacro()
 
 #
@@ -174,27 +180,27 @@ endmacro()
 #
 
 if (MAKEKIT_QT)
-    file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
+	file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
  
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTORCC ON)
-    set(CMAKE_AUTOUIC ON)
+	set(CMAKE_AUTOMOC ON)
+	set(CMAKE_AUTORCC ON)
+	set(CMAKE_AUTOUIC ON)
 
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
-    #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+	set(CMAKE_INCLUDE_CURRENT_DIR ON)
+	#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-    set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
-    find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
+	set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
+	find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
 
-    if (NOT Qt5_FOUND)
-        message(FATAL_ERROR "MakeKit - Qt5 cannot be found!")
-	return()
-    endif ()
+	if (NOT Qt5_FOUND)
+		message(FATAL_ERROR "MakeKit - Qt5 cannot be found!")
+		return()
+	endif ()
 
-    # Not required when CMAKE_AUTOUIC is ON
-    #qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+	# Not required when CMAKE_AUTOUIC is ON
+	#qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
 endif ()
 
 #
@@ -202,35 +208,35 @@ endif ()
 #
 
 if (CXX_SOURCES)
-    if (${MAKEKIT_MODULE_MODE} STREQUAL "NONE")
-            return() # Do nothing
+	if (${MAKEKIT_MODULE_MODE} STREQUAL "NONE")
+		return() # Do nothing
 	elseif (${MAKEKIT_MODULE_MODE} STREQUAL "EXECUTABLE")
-            add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
-    else ()
-            if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-                    set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
-            elseif (${MAKEKIT_MODULE_MODE} STREQUAL "STATIC_LIBRARY")
-                    set(MAKEKIT_MODULE_VISIBILITY STATIC)
-            elseif (${MAKEKIT_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
-                    set(MAKEKIT_MODULE_VISIBILITY SHARED)
-            else()
-                    message(FATAL_ERROR "MakeKit - Invalid MAKEKIT_MODULE_MODE!")
-                    return()
-            endif ()
-
-            add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
-            
-            # For header-only libraries this line is required
-            if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-                target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
-            endif ()
-    endif ()
-    
-    # Set C/C++ language standard of the target
-    set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+		add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+	else ()
+		if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
+			set(MAKEKIT_MODULE_VISIBILITY INTERFACE)
+		elseif (${MAKEKIT_MODULE_MODE} STREQUAL "STATIC_LIBRARY")
+			set(MAKEKIT_MODULE_VISIBILITY STATIC)
+		elseif (${MAKEKIT_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
+			set(MAKEKIT_MODULE_VISIBILITY SHARED)
+		else()
+			message(FATAL_ERROR "MakeKit - Invalid MAKEKIT_MODULE_MODE!")
+			return()
+		endif ()
+		
+		add_library(${PROJECT_NAME} ${MAKEKIT_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+		
+		# For header-only libraries this line is required
+		if (${MAKEKIT_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
+			target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
+		endif ()
+	endif ()
+	
+	# Set C/C++ language standard of the target
+	set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 else ()
-    message(STATUS "MakeKit - No C/C++ sources found.")
+	message(STATUS "MakeKit - No C/C++ sources found.")
 endif ()
 
 #
@@ -251,14 +257,14 @@ endif ()
 #
 
 if (MAKEKIT_OPENCL)
-    find_package(OpenCL REQUIRED)
+	find_package(OpenCL REQUIRED)
     
-    if (NOT OpenCL_FOUND)
-	message(FATAL_ERROR "MakeKit - OpenCL cannot be found!")
-	return()
-    endif ()
+	if (NOT OpenCL_FOUND)
+		message(FATAL_ERROR "MakeKit - OpenCL cannot be found!")
+		return()
+	endif ()
     
-    target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
+	target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 endif ()
 
 #
@@ -267,18 +273,20 @@ endif ()
 #
 
 if (MAKEKIT_OPENGL)
-    find_package(OpenGL REQUIRED)
+	find_package(OpenGL REQUIRED)
     
-    if (NOT OpenGL_FOUND)
-    	message(FATAL_ERROR "MakeKit - OpenGL cannot be found!")
-	return()
-    endif ()
+	if (NOT OpenGL_FOUND)
+		message(FATAL_ERROR "MakeKit - OpenGL cannot be found!")
+		return()
+	endif ()
     
-    if (OpenGL::OpenGL)
-	target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-    else ()
-	target_link_libraries(${PROJECT_NAME} OpenGL::GL)
-    endif ()
+	if (OpenGL::OpenGL)
+		target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
+		makekit_runtime_libraries(OpenGL::OpenGL)
+	else ()
+		target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+		makekit_runtime_libraries(OpenGL::GL)
+	endif ()
 endif ()
 
 #
@@ -287,33 +295,33 @@ endif ()
 #
 
 if (MAKEKIT_OPENMP)
-    if (TRUE) # Use LLVM libomp
-        set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
-        find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
+	if (TRUE) # Use LLVM libomp
+		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
+		find_library(MAKEKIT_LIBOMP_LIB libomp PATHS $ENV{MAKEKIT_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
-        if (NOT MAKEKIT_LIBOMP_LIB)
-            message(FATAL_ERROR "MakeKit - OpenMP (libomp) cannot be found!")
-	    return()
-        endif ()
+		if (NOT MAKEKIT_LIBOMP_LIB)
+			message(FATAL_ERROR "MakeKit - OpenMP (libomp) cannot be found!")
+			return()
+		endif ()
 	
-	if (MAKEKIT_OS_WINDOWS)
-	    target_compile_options(${PROJECT_NAME} PRIVATE -Xclang -fopenmp=libomp)
-        else ()
-	    target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp=libomp)
-        endif ()
+		if (MAKEKIT_OS_WINDOWS)
+			target_compile_options(${PROJECT_NAME} PRIVATE -Xclang -fopenmp=libomp)
+		else ()
+			target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp=libomp)
+		endif ()
 	
-	target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
-        makekit_deploy_libraries(${MAKEKIT_LIBOMP_LIB})
-    else ()
-        find_package(OpenMP REQUIRED)
+		target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
+		makekit_deploy_libraries(${MAKEKIT_LIBOMP_LIB})
+	else ()
+		find_package(OpenMP REQUIRED)
+
+		if (NOT OpenMP_FOUND)
+			message(FATAL_ERROR "MakeKit - OpenMP cannot be found!")
+			return()
+		endif ()
 	
-        if (NOT OpenMP_FOUND)
-            message(FATAL_ERROR "MakeKit - OpenMP cannot be found!")
-	    return()
-        endif ()
-	
-	target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
-    endif ()
+		target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
+	endif ()
 endif ()
 
 #
@@ -322,14 +330,14 @@ endif ()
 #
 
 if (MAKEKIT_VULKAN)
-    find_package(Vulkan REQUIRED)
+	find_package(Vulkan REQUIRED)
     
-    if (NOT Vulkan_FOUND)
-	    message(FATAL_ERROR "MakeKit - Vulkan cannot be found!")
-	    return()
-    endif ()
+	if (NOT Vulkan_FOUND)
+		message(FATAL_ERROR "MakeKit - Vulkan cannot be found!")
+		return()
+	endif ()
     
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+	target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 endif ()
 
 #
@@ -337,11 +345,11 @@ endif ()
 #
 
 if (MAKEKIT_QT)
-    foreach (QTMODULE ${MAKEKIT_QT})
-        target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-        #makekit_copy_shared_library(${PROJECT_NAME} Qt5::${QTMODULE})
-	makekit_deploy_imported_libraries(Qt5::${QTMODULE})
-    endforeach ()
+	foreach (QTMODULE ${MAKEKIT_QT})
+		target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
+		#makekit_copy_shared_library(${PROJECT_NAME} Qt5::${QTMODULE})
+		makekit_deploy_imported_libraries(Qt5::${QTMODULE})
+	endforeach ()
 endif ()
 
 #
@@ -353,20 +361,20 @@ endif ()
 #
 
 if (MAKEKIT_AUTODEPLOY)
-    message("MakeKit - Deploying files: ${MAKEKIT_DEPLOY_FILES}")
+	message("MakeKit - Deploying files: ${MAKEKIT_DEPLOY_FILES}")
 
-    foreach (FILE ${MAKEKIT_DEPLOY_FILES})
-        if (IS_ABSOLUTE ${FILE})
-            set(FILE_ABSOLUTE_PATH ${FILE})
-        else ()
-            find_file(FILE_ABSOLUTE_PATH ${FILE})
-        endif ()
+	foreach (FILE ${MAKEKIT_DEPLOY_FILES})
+		if (IS_ABSOLUTE ${FILE})
+			set(FILE_ABSOLUTE_PATH ${FILE})
+		else ()
+			find_file(FILE_ABSOLUTE_PATH ${FILE})
+		endif ()
 
-        if (FILE_ABSOLUTE_PATH)
-            get_filename_component(FILE_NAME ${FILE} NAME)
-            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
-        else ()
-            message(ERROR "MakeKit - File ${FILE} cannot be found!")
-        endif ()
-    endforeach ()
+		if (FILE_ABSOLUTE_PATH)
+			get_filename_component(FILE_NAME ${FILE} NAME)
+			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
+		else ()
+			message(ERROR "MakeKit - File ${FILE} cannot be found!")
+		endif ()
+	endforeach ()
 endif ()
