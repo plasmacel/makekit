@@ -216,6 +216,13 @@ macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES LIBRARY_STAT
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
 		find_library(LIBRARY_STATIC_FILE ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH REQUIRED)
 	endif ()
+	
+	if (LIBRARY_STATIC_FILE)
+		message(STATUS "MakeKit - ${NAME} found: ${LIBRARY_STATIC_FILE}")
+	else ()
+		message(FATAL_ERROR "MakeKit - ${NAME} cannot be found!")
+		return()
+	endif ()
 
 	set(LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
 
