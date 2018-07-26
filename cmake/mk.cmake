@@ -370,7 +370,7 @@ if (MAKEKIT_OPENMP)
 		endif ()
 	
 		if (MAKEKIT_OS_WINDOWS)
-			target_compile_options(${PROJECT_NAME} PRIVATE -Xclang -fopenmp=libomp)
+			target_compile_options(${PROJECT_NAME} PRIVATE -Xclang -fopenmp)
 		else ()
 			target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp=libomp)
 		endif ()
