@@ -344,14 +344,17 @@ if (MAKEKIT_OPENGL)
 		message(FATAL_ERROR "MakeKit - OpenGL cannot be found!")
 		return()
 	endif ()
-    
-	if (OpenGL::OpenGL)
-		target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-		mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-	else ()
-		target_link_libraries(${PROJECT_NAME} OpenGL::GL)
-		mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
-	endif ()
+
+	target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
+
+	#if (OpenGL::OpenGL)
+	#	target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
+	#	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::OpenGL)
+	#else ()
+	#	target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+	#	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
+	#endif ()
 endif ()
 
 #
