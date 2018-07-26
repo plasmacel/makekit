@@ -34,7 +34,7 @@ If the source tree has been changed by adding or removing files, existing build 
 
 ## Build types
 
-Currently the following default `BUILD_TYPE`s are available:
+All default CMake `BUILD_TYPE`s are available:
 
 | BUILD_TYPE     | Description                                       | clang flags       | clang-cl flags                     |
 |:---------------|:--------------------------------------------------|:------------------|:-----------------------------------|
