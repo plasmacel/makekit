@@ -148,7 +148,7 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 					get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
 				endif ()
 			else ()
-				message(STATUS "MakeKit - Not a shared library: ${LIBRARY}")
+				#message(STATUS "MakeKit - Not a shared library: ${LIBRARY}")
 				continue() # Go to next iteration
 			endif ()
 		else () # LIBRARY is a FILEPATH
