@@ -118,12 +118,26 @@ list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
 list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 
 #
-# Macros
+# Functions and Macros
 #
 
+function(mk_save_list FILENAME LIST)
+	string(REPLACE ";" "\n" LIST_PROCESSED "${LIST}")
+	file(WRITE "${CMAKE_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
+endfunction()
+
+set(MAKEKIT_RUNTIME_LIBRARIES "")
 set(MAKEKIT_DEPLOY_FILES "")
 
-macro(makekit_runtime_libraries LIBRARIES)
+# This macro adds FILELIST to the list of deploy libraries
+macro(mk_deploy_files FILELIST)
+	set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${FILELIST})
+	#list(APPEND MAKEKIT_DEPLOY_FILES ${FILELIST})
+endmacro()
+
+# This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MAKEKIT_RUNTIME_LIBRARIES
+# It does nothing for non-shared libraries
+macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 	foreach (LIBRARY "${LIBRARIES}")
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
@@ -131,18 +145,21 @@ macro(makekit_runtime_libraries LIBRARIES)
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
 				get_target_property(LIBRARY_IMPORTED ${LIBRARY} IMPORTED)
 				if (LIBRARY_IMPORTED)
-					message(STATUS "MakeKit - Imported library")
-					#get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
+					#message(STATUS "MakeKit - Imported library: ${LIBRARY}")
 					get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION)
+					if (NOT LIBRARY_RUNTIME) # IMPORTED_LOCATION is undefined, try LOCATION (it is mandatory for Qt)
+						get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
+					endif ()
 				else ()
-					message(STATUS "MakeKit - NOT imported library")
+					#message(STATUS "MakeKit - Not an imported library: ${LIBRARY}")
 					get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
 				endif ()
 			else ()
-				message(STATUS "MakeKit - This is not a shared library")
+				message(STATUS "MakeKit - Not a shared library: ${LIBRARY}")
+				continue() # Go to next iteration
 			endif ()
 		else () # LIBRARY is a FILEPATH
-			if (MAKEKIT_OS_WINDOWS) # Change extension to DLL
+			if (MAKEKIT_OS_WINDOWS) # Change file extension to .dll
 				string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
 			else ()
 				set(LIBRARY_RUNTIME ${LIBRARY})
@@ -150,29 +167,41 @@ macro(makekit_runtime_libraries LIBRARIES)
 		endif ()
 
 		message(STATUS "MakeKit - Added runtime library: ${LIBRARY_RUNTIME}")
-		set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARY_RUNTIME})
-		#list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARY_RUNTIME})
+		set(MAKEKIT_RUNTIME_LIBRARIES ${MAKEKIT_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
+		#list(APPEND MAKEKIT_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
 	endforeach ()
 endmacro()
 
-macro(makekit_deploy_libraries LIBRARIES)
-	set(MAKEKIT_DEPLOY_FILES ${MAKEKIT_DEPLOY_FILES} ${LIBRARIES})
-	#list(APPEND MAKEKIT_DEPLOY_FILES ${LIBRARIES})
-endmacro()
+# This macro performs target_link_libraries(${PROJECT} ${LIBRARIES}) and mk_target_deploy_libraries(${LIBRARIES})
+# appends the runtime library (.dll; .dylib; .so) of shared libraries to MAKEKIT_RUNTIME_LIBRARIES
+macro(mk_target_link_libraries PROJECT LIBRARIES)
+	target_link_libraries(${PROJECT} ${LIBRARIES})
+	mk_target_deploy_libraries(${LIBRARIES})
 
-macro(makekit_deploy_imported_libraries LIBRARIES)
-	foreach (LIBRARY "${LIBRARIES}")
-		get_property(LIBRARY_IMPORTED_LOCATION TARGET ${LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
-		message(STATUS "MakeKit - Adding to deploy list: ${LIBRARY_IMPORTED_LOCATION}")
-		makekit_deploy_libraries(${LIBRARY_IMPORTED_LOCATION})
-	endforeach ()
+	# Add shared libraries to MAKEKIT_RUNTIME_LIBRARIES
+	#foreach (LIBRARY "${LIBRARIES}")
+	#	if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
+	#		get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
+	#		if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY") # LIBRARY is a SHARED_LIBRARY TARGET
+	#			mk_shared_libraries(${LIBRARY})
+	#		endif ()
+	#	endif ()
+	#endforeach ()
 endmacro()
 
 # MODE can be STATIC, SHARED
-macro(makekit_import_library NAME MODE LOCATION)
-	add_library(${NAME} $(MODE) IMPORTED GLOBAL)
-	set_target_properties(${NAME} PROPERTIES IMPORTED_LOCATION ${LOCATION})
-	set_target_properties(${NAME} PROPERTIES IMPORTED_IMPLIB ${LOCATION})
+macro(mk_import_shared_library NAME SHARED_IMPORT_PATH STATIC_IMPORT_PATH)
+	add_library(${NAME} SHARED IMPORTED GLOBAL)
+	
+	if (NOT STATIC_IMPORT_PATH) # In case of macOS and Linux, .dylib and .so files are needed for linking
+		set(STATIC_IMPORT_PATH ${SHARED_IMPORT_PATH})
+	endif ()
+
+	set_target_properties(
+		${NAME} PROPERTIES
+		IMPORTED_LOCATION ${SHARED_IMPORT_PATH}
+		IMPORTED_IMPLIB ${STATIC_IMPORT_PATH}
+	)
 endmacro()
 
 #
@@ -237,6 +266,7 @@ if (CXX_SOURCES)
 	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 else ()
 	message(STATUS "MakeKit - No C/C++ sources found.")
+	return()
 endif ()
 
 #
@@ -265,6 +295,7 @@ if (MAKEKIT_OPENCL)
 	endif ()
     
 	target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
+	mk_target_deploy_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 endif ()
 
 #
@@ -282,10 +313,10 @@ if (MAKEKIT_OPENGL)
     
 	if (OpenGL::OpenGL)
 		target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-		makekit_runtime_libraries(OpenGL::OpenGL)
+		mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::OpenGL)
 	else ()
 		target_link_libraries(${PROJECT_NAME} OpenGL::GL)
-		makekit_runtime_libraries(OpenGL::GL)
+		mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
 	endif ()
 endif ()
 
@@ -309,9 +340,9 @@ if (MAKEKIT_OPENMP)
 		else ()
 			target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp=libomp)
 		endif ()
-	
+		
 		target_link_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
-		makekit_deploy_libraries(${MAKEKIT_LIBOMP_LIB})
+		mk_target_deploy_libraries(${PROJECT_NAME} ${MAKEKIT_LIBOMP_LIB})
 	else ()
 		find_package(OpenMP REQUIRED)
 
@@ -319,8 +350,9 @@ if (MAKEKIT_OPENMP)
 			message(FATAL_ERROR "MakeKit - OpenMP cannot be found!")
 			return()
 		endif ()
-	
+		
 		target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
+		mk_target_deploy_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
 	endif ()
 endif ()
 
@@ -338,6 +370,7 @@ if (MAKEKIT_VULKAN)
 	endif ()
     
 	target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+	mk_target_deploy_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 endif ()
 
 #
@@ -347,8 +380,7 @@ endif ()
 if (MAKEKIT_QT)
 	foreach (QTMODULE ${MAKEKIT_QT})
 		target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		#makekit_copy_shared_library(${PROJECT_NAME} Qt5::${QTMODULE})
-		makekit_deploy_imported_libraries(Qt5::${QTMODULE})
+		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QTMODULE})
 	endforeach ()
 endif ()
 
@@ -356,14 +388,16 @@ endif ()
 # Custom pre-build commands
 #
 
+mk_save_list("DeployLists.txt" "${MAKEKIT_RUNTIME_LIBRARIES}")
+
 #
 # Post-build deploy
 #
 
 if (MAKEKIT_AUTODEPLOY)
-	message("MakeKit - Deploying files: ${MAKEKIT_DEPLOY_FILES}")
+	message("MakeKit - Deploying files: ${MAKEKIT_RUNTIME_LIBRARIES}")
 
-	foreach (FILE ${MAKEKIT_DEPLOY_FILES})
+	foreach (FILE ${MAKEKIT_RUNTIME_LIBRARIES})
 		if (IS_ABSOLUTE ${FILE})
 			set(FILE_ABSOLUTE_PATH ${FILE})
 		else ()
