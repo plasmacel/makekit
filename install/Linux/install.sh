@@ -1,4 +1,9 @@
 #!/bin/bash
+if ! [ "$0" == "bash" ] ; then
+    echo "Usage:"
+    echo "  source ${BASH_SOURCE[0]}"
+    exit 1
+fi
 
 # Find the path to the root of makekit
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd | xargs dirname | xargs dirname)
@@ -86,9 +91,9 @@ export MAKEKIT_QT_DIR=""
 sed -i '/# MakeKit/d' ${HOME}/.profile
 sed -i '/MAKEKIT_/d' ${HOME}/.profile
 echo "# MakeKit" >> ${HOME}/.profile
-echo "MAKEKIT_DIR=${MAKEKIT_DIR}" >> ${HOME}/.profile
-echo "MAKEKIT_LLVM_DIR=${MAKEKIT_LLVM_DIR}" >> ${HOME}/.profile
-echo "MAKEKIT_QT_DIR=${MAKEKIT_QT_DIR}" >> ${HOME}/.profile
+echo "export MAKEKIT_DIR=${MAKEKIT_DIR}" >> ${HOME}/.profile
+echo "export MAKEKIT_LLVM_DIR=${MAKEKIT_LLVM_DIR}" >> ${HOME}/.profile
+echo "export MAKEKIT_QT_DIR=${MAKEKIT_QT_DIR}" >> ${HOME}/.profile
 
 if [ -d ${MAKEKIT_DIR} ] ; then
     echo "Removing existing MakeKit installation..."
