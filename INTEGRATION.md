@@ -54,13 +54,15 @@ This section is still incomplete, TODO
 
 TODO
 
-### Eclipse (Windows, macOS, Linux)
+### Eclipse CDT (Windows, macOS, Linux)
 
 TODO
 
 ### Sublime Text (Windows, macOS, Linux)
 
 TODO
+
+https://nurpax.github.io/posts/2017-01-06-cmake-sublime-text-3.html
 
 ### Xcode (macOS)
 
