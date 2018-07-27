@@ -262,6 +262,8 @@ TODO
 `xpressive`
 `yap`
 
+More info: https://www.boost.org/doc/libs/1_67_0/
+
 **Type `QT_LIST`**
 
 `OFF`, or a list of the following values:
