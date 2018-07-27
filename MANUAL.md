@@ -12,17 +12,17 @@ MakeKit automatically generates `CMakeLists.txt` files for your project using a 
 
 TODO
 
-| VARIABLE             | Description    | Value type          |
-|:---------------------|:---------------|:--------------------|
-| `MAKEKIT_ASM`        | ASM support    | `BOOL`              |
-| `MAKEKIT_AUTODEPLOY` | Auto-deploy    | `BOOL`              |
-| `MAKEKIT_CUDA`       | CUDA support   | `BOOL`              |
-| `MAKEKIT_OPENCL`     | OpenCL support | `BOOL`              |
-| `MAKEKIT_OPENGL`     | OpenGL support | `BOOL`              |
-| `MAKEKIT_OPENMP`     | OpenMP support | `BOOL`              |
-| `MAKEKIT_VULKAN`     | Vulkan support | `BOOL`              |
-| `MAKEKIT_QT`         | Qt 5 support   | `QT_LIST`           |
-| `MAKEKIT_MODULE_MODE` | Target mode   | `TARGET`            |
+| VARIABLE              | Description    | Value type          |
+|:----------------------|:---------------|:--------------------|
+| `MAKEKIT_ASM`         | ASM support    | `BOOL`              |
+| `MAKEKIT_AUTODEPLOY`  | Auto-deploy    | `BOOL`              |
+| `MAKEKIT_CUDA`        | CUDA support   | `BOOL`              |
+| `MAKEKIT_OPENCL`      | OpenCL support | `BOOL`              |
+| `MAKEKIT_OPENGL`      | OpenGL support | `BOOL`              |
+| `MAKEKIT_OPENMP`      | OpenMP support | `BOOL`              |
+| `MAKEKIT_VULKAN`      | Vulkan support | `BOOL`              |
+| `MAKEKIT_QT`          | Qt 5 support   | `QT_LIST`           |
+| `MAKEKIT_MODULE_MODE` | Target type    | `TARGET`            |
 
 For the `BOOL` type, the following values are accepted:
 
