@@ -24,6 +24,74 @@ TODO
 | `MAKEKIT_QT`         | Qt 5 support   | `OFF` `Core` `Gui` `OpenGL` `Widgets` `Network`    |
 | `MAKEKIT_MODULE_MODE` | Target mode   | `NONE` `EXECUTABLE` `STATIC_LIBRARY` `SHARED_LIBRARY` |
 
+The following Qt 5 modules are available:
+
+`Bluetooth`
+`Charts`
+`Concurrent`
+`Core`
+`DataVisualization`
+`DBus`
+`Designer`
+`Gamepad`
+`Gui`
+`Help`
+`LinguistTools`
+`Location`
+`MacExtras`
+`Multimedia`
+`MultimediaWidgets`
+`Network`
+`NetworkAuth`
+`Nfc`
+`OpenGL`
+`OpenGLExtensions`
+`Positioning`
+`PositioningQuick`
+`PrintSupport`
+`Purchasing`
+`Qml`
+`Quick`
+`QuickCompiler`
+`QuickControls2`
+`QuickTest`
+`QuickWidgets`
+`RemoteObjects`
+`RepParser`
+`Script`
+`ScriptTools`
+`Scxml`
+`Sensors`
+`SerialBus`
+`SerialPort`
+`Sql`
+`Svg`
+`Test`
+`TextToSpeech`
+`UiPlugin`
+`UiTools`
+`WebChannel`
+`WebEngine`
+`WebEngineCore`
+`WebEngineWidgets`
+`WebSockets`
+`WebView`
+`Widgets`
+`Xml`
+`XmlPatterns`
+`3DAnimation`
+`3DCore`
+`3DExtras`
+`3DInput`
+`3DLogic`
+`3DQuick`
+`3DQuickAnimation`
+`3DQuickExtras`
+`3DQuickInput`
+`3DQuickRender`
+`3DQuickScene2D`
+`3DRender`
+
 ## Create a build system configuration (and execute it)
 
 The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM C/C++ compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. If required, all generated files, including the build system and the built binaries can be permanently removed (`mk clean`).
