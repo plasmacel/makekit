@@ -36,9 +36,8 @@ For the `TARGET` type, the following values are accepted:
 `STATIC_LIBRARY`
 `SHARED_LIBRARY`
 
-For the `QT_LIST` type, a list of the following values are accepted:
+For the `QT_LIST` type, `OFF` or a list of the following values are accepted:
 
-`OFF`
 `Bluetooth`
 `Charts`
 `Concurrent`
