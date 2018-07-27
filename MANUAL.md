@@ -40,7 +40,7 @@ MakeKit relies on the following environment variables, which are automatically c
 - `MAKEKIT_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MAKEKIT_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
 
-## III. Generate and customize `CMakeLists.txt` files
+## III. Generate and customize `CMakeLists.txt`
 
 MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
 
