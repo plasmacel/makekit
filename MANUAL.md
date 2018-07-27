@@ -36,12 +36,8 @@
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
-2. (Optional) Download and install Qt for your compiler infrastructure
-    https://www.qt.io/download
 
-### Alternative installations
-
-##### III/A Visual C++ development environment with LLVM/clang on Windows
+##### I/A Visual C++ development environment with LLVM/clang on Windows
 
 1. If you already have Visual Studio 2017 installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
    It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE:
@@ -49,7 +45,7 @@
 2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
    http://releases.llvm.org
 
-##### III/B MSYS2 MinGW-w64 development environment with LLVM/clang on Windows
+##### I/B MSYS2 MinGW-w64 development environment with LLVM/clang on Windows
 
 1. Download and install the **x86_64 MSYS2** toolchain package of **MinGW-w64**:
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
@@ -75,14 +71,14 @@
 10. (Optional) Install Qt 5 if required with command:
    `pacman -Sy mingw-w64-x86_64-qt5`
     
-##### III/C LLVM/clang for macOS using Homebrew
+##### I/C LLVM/clang for macOS using Homebrew
 1. Update Homebrew
     `brew update`
     `brew upgrade`
 2. Install the latest version of LLVM/clang
     `brew install --with-toolchain llvm`
     
-##### III/D LLVM/clang for Linux using command line
+##### I/D LLVM/clang for Linux using command line
 1. Update the package and dependency list:
     `sudo apt update`
     `sudo apt upgrade`
