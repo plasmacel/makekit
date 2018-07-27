@@ -13,7 +13,7 @@
 
 **The project is at an early stage, so if you find any issue or you could simply add something, please contribute.**
 
-For usage informations, read the [manual](https://github.com/plasmacel/makekit/blob/master/MANUAL.md).
+For usage informations, read the [**manual**](https://github.com/plasmacel/makekit/blob/master/MANUAL.md).
 
 - More info
 https://www.gnu.org/software/make/manual/html_node/Options-Summary.html
