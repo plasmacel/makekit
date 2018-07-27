@@ -1,3 +1,5 @@
+# Manual
+
 ## Environment Variables
 
 MakeKit relies on the following environment variables, which are automatically created at its install:
