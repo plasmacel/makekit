@@ -15,7 +15,6 @@ TODO
 | VARIABLE              | Description    | Value type          |
 |:----------------------|:---------------|:--------------------|
 | `MAKEKIT_ASM`         | ASM support    | `BOOL`              |
-| `MAKEKIT_AUTODEPLOY`  | Auto-deploy    | `BOOL`              |
 | `MAKEKIT_CUDA`        | CUDA support   | `BOOL`              |
 | `MAKEKIT_OPENCL`      | OpenCL support | `BOOL`              |
 | `MAKEKIT_OPENGL`      | OpenGL support | `BOOL`              |
