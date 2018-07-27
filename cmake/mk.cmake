@@ -435,10 +435,17 @@ endif ()
 # Qt
 #
 
+set(MAKEKIT_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
+
 if (MAKEKIT_QT)
-	foreach (QTMODULE ${MAKEKIT_QT})
-		target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QTMODULE})
+	foreach (QT_MODULE ${MAKEKIT_QT})
+		if (NOT ${QT_MODULE} IN_LIST MAKEKIT_QT_MODULES)
+			message(ERROR "MakeKit - Skipping invalid Qt module: ${QT_MODULE}")
+			continue()
+		endif ()
+	
+		target_link_libraries(${PROJECT_NAME} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
+		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QT_MODULE})
 	endforeach ()
 endif ()
 
