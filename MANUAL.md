@@ -1,3 +1,5 @@
+# Manual
+
 ## Environment Variables
 
 MakeKit relies on the following environment variables, which are automatically created at its install:
@@ -12,33 +14,35 @@ MakeKit automatically generates `CMakeLists.txt` files for your project using a 
 
 TODO
 
-| VARIABLE              | Description    | Value type          |
-|:----------------------|:---------------|:--------------------|
-| `MAKEKIT_ASM`         | ASM support    | `BOOL`              |
-| `MAKEKIT_AUTODEPLOY`  | Auto-deploy    | `BOOL`              |
-| `MAKEKIT_CUDA`        | CUDA support   | `BOOL`              |
-| `MAKEKIT_OPENCL`      | OpenCL support | `BOOL`              |
-| `MAKEKIT_OPENGL`      | OpenGL support | `BOOL`              |
-| `MAKEKIT_OPENMP`      | OpenMP support | `BOOL`              |
-| `MAKEKIT_VULKAN`      | Vulkan support | `BOOL`              |
-| `MAKEKIT_QT`          | Qt 5 support   | `QT_LIST`           |
-| `MAKEKIT_MODULE_MODE` | Target type    | `TARGET`            |
+| VARIABLE         | Description    | Value type          |
+|:-----------------|:---------------|:--------------------|
+| `MK_ASM`         | ASM support    | `BOOL`              |
+| `MK_CUDA`        | CUDA support   | `BOOL`              |
+| `MK_OPENCL`      | OpenCL support | `BOOL`              |
+| `MK_OPENGL`      | OpenGL support | `BOOL`              |
+| `MK_OPENMP`      | OpenMP support | `BOOL`              |
+| `MK_VULKAN`      | Vulkan support | `BOOL`              |
+| `MK_QT`          | Qt 5 support   | `QT_LIST`           |
+| `MK_MODULE_MODE` | Target type    | `TARGET`            |
 
-For the `BOOL` type, the following values are accepted:
+#### Accepted values
+
+**Type `BOOL`**
 
 `TRUE` (or alternatively `ON` `YES` `Yes` `yes` `Y` `y` `1`)
 `FALSE` (or alternatively `OFF` `NO` `No` `no` `N` `n` `0`)
 
-For the `TARGET` type, the following values are accepted:
+**Type `TARGET`**
 
 `NONE`
 `EXECUTABLE`
 `STATIC_LIBRARY`
 `SHARED_LIBRARY`
 
-For the `QT_LIST` type, a list of the following values are accepted:
+**Type `QT_LIST`**
 
-`OFF`
+`OFF`, or a list of the following values:
+
 `Bluetooth`
 `Charts`
 `Concurrent`
@@ -107,6 +111,20 @@ For the `QT_LIST` type, a list of the following values are accepted:
 
 More info: http://doc.qt.io/qt-5/qtmodules.html
 
+### CMakeLists.txt commands
+
+**`mk_add_imported_library(NAME MODE INCLUDE_DIRECTORY STATIC_IMPORT SHARED_IMPORT)`**
+
+Add an imported library using the name `NAME`.
+
+**`mk_deploy()`**
+
+Perform post-build deploy to the runtime output directory (`bin`).
+
+**`mk_deploy_list()`**
+
+Generate a `.txt` file containing the required deploy files into the target build directories.
+
 ## Create a build system configuration (and execute it)
 
 The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM C/C++ compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. If required, all generated files, including the build system and the built binaries can be permanently removed (`mk clean`).
@@ -131,13 +149,13 @@ If the source tree has been changed by adding or removing files, existing build 
 
 All default CMake `BUILD_TYPE`s are available:
 
-| BUILD_TYPE     | Description                                       | clang flags       | clang-cl flags                     |
-|:---------------|:--------------------------------------------------|:------------------|:-----------------------------------|
-| None           |                                                   |                   | `/DWIN32 /D_WINDOWS /W3 /GR /EHsc` |
-| Debug          | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`          |
-| Release        | Release build, full optimization                  | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`            |
-| RelWithDebInfo | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
-| MinSizeRel     | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
+| BUILD_TYPE                         | Description                                       | clang flags       | clang-cl flags                     |
+|:-----------------------------------|:--------------------------------------------------|:------------------|:-----------------------------------|
+| None                               |                                                   |                   | `/DWIN32 /D_WINDOWS /W3 /GR /EHsc` |
+| Debug (debug)                      | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`          |
+| Release (release)                  | Release build, full optimization                  | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`            |
+| RelWithDebInfo (release-debuginfo) | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
+| MinSizeRel (release-minsize)       | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
 
 
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
