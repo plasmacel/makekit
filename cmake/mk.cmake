@@ -319,6 +319,21 @@ if (CXX_SOURCES)
 	# Set C/C++ language standard of the target
 	set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
 	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
+	# Add pthreads on macOS and Linux
+	# This is to avoid an issue when the compiler and/or the dependent libraries don't do this automatically
+	# https://cmake.org/cmake/help/v3.12/module/FindThreads.html
+	if (NOT MK_OS_WINDOWS)
+		set(THREADS_PREFER_PTHREAD_FLAG ON)
+		find_package(Threads REQUIRED)
+
+		if (NOT Threads_FOUND)
+			mk_message(FATAL_ERROR "POSIX Threads (pthreads) cannot be found!")
+			return()
+		endif ()
+
+		target_link_libraries(${PROJECT_NAME} Threads::Threads)
+	endif ()
 else ()
 	mk_message(STATUS "No C/C++ sources found.")
 	return()
