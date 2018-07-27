@@ -1,16 +1,17 @@
 # MakeKit
 
-MakeKit is a collection of CMake files, integration tools and step-by-step guides to make the cross-platform compilation of modern C/C++ simple. With the proper CMake files you can build your project on wide variety of platforms and compilers, while using an arbitrary IDE. MakeKit also helps to integrate your IDE with the CMake build system.
+MakeKit is a tool to make the cross-platform compilation of modern C/C++ simple. It relies on the CMake build system generator, the Ninja build system, and the LLVM/clang compiler infrastructure to achieve:
 
-MakeKit is strictly relies on the CMake build system generator, the Ninja build system, and the LLVM/clang compiler infrastructure to achieve:
-
+- Cross-platform, uniform, out-of-the-box behavior
+- Providing simple, low-maintenance build configurations
+- Integration with popular integrated development environments (IDEs)
 - Support of cross-platform compilation of modern C/C++
 - Support of parallel technologies OpenMP, OpenCL and CUDA
 - Support of graphics APIs OpenGL and Vulkan
 - Support of the cross-platform windowing framework Qt 5
 - Support of the swiss army knife library Boost
 
-**The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
+**The project is at an early stage, so if you find any issue or you could simply add something, please contribute.**
 
 # I. Installation
 
