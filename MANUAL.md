@@ -26,19 +26,19 @@ TODO
 
 #### Accepted values
 
-**`BOOL`**
+**Type `BOOL`**
 
 `TRUE` (or alternatively `ON` `YES` `Yes` `yes` `Y` `y` `1`)
 `FALSE` (or alternatively `OFF` `NO` `No` `no` `N` `n` `0`)
 
-**`TARGET`**
+**Type `TARGET`**
 
 `NONE`
 `EXECUTABLE`
 `STATIC_LIBRARY`
 `SHARED_LIBRARY`
 
-**`QT_LIST`**
+**Type `QT_LIST`**
 
 `OFF`, or a list of the following values:
 
