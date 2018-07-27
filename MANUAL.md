@@ -129,6 +129,8 @@ TODO
 
 **Type `BOOST_LIST`**
 
+`OFF`, or a list of the following values:
+
 `accumulators`
 `algorithm`
 `align`
