@@ -12,20 +12,33 @@ MakeKit automatically generates `CMakeLists.txt` files for your project using a 
 
 TODO
 
-| VARIABLE             | Description    | Possible Values   |
-|:---------------------|:---------------|:------------------|
-| `MAKEKIT_ASM`        | ASM support    | `OFF` `ON`        |
-| `MAKEKIT_AUTODEPLOY` | Auto-deploy    | `OFF` `ON`        |
-| `MAKEKIT_CUDA`       | CUDA support   | `OFF` `ON`        |
-| `MAKEKIT_OPENCL`     | OpenCL support | `OFF` `ON`        |
-| `MAKEKIT_OPENGL`     | OpenGL support | `OFF` `ON`        |
-| `MAKEKIT_OPENMP`     | OpenMP support | `OFF` `ON`        |
-| `MAKEKIT_VULKAN`     | Vulkan support | `OFF` `ON`        |
-| `MAKEKIT_QT`         | Qt 5 support   | `OFF` `Core` `Gui` `OpenGL` `Widgets` `Network`    |
-| `MAKEKIT_MODULE_MODE` | Target mode   | `NONE` `EXECUTABLE` `STATIC_LIBRARY` `SHARED_LIBRARY` |
+| VARIABLE             | Description    | Value type          |
+|:---------------------|:---------------|:--------------------|
+| `MAKEKIT_ASM`        | ASM support    | `BOOL`              |
+| `MAKEKIT_AUTODEPLOY` | Auto-deploy    | `BOOL`              |
+| `MAKEKIT_CUDA`       | CUDA support   | `BOOL`              |
+| `MAKEKIT_OPENCL`     | OpenCL support | `BOOL`              |
+| `MAKEKIT_OPENGL`     | OpenGL support | `BOOL`              |
+| `MAKEKIT_OPENMP`     | OpenMP support | `BOOL`              |
+| `MAKEKIT_VULKAN`     | Vulkan support | `BOOL`              |
+| `MAKEKIT_QT`         | Qt 5 support   | `QT_LIST`           |
+| `MAKEKIT_MODULE_MODE` | Target mode   | `TARGET`            |
 
-The following Qt 5 modules are available:
+For the `BOOL` type, the following values are accepted:
 
+`TRUE` `ON` `YES` `Yes` `yes` `Y` `y` `1`
+`FALSE` `OFF` `NO` `No` `no` `N` `n` `0`
+
+For the `TARGET` type, the following values are accepted:
+
+`NONE`
+`EXECUTABLE`
+`STATIC_LIBRARY`
+`SHARED_LIBRARY`
+
+For the `QT_LIST` type, a list of the following values are accepted:
+
+`OFF`
 `Bluetooth`
 `Charts`
 `Concurrent`
@@ -91,6 +104,8 @@ The following Qt 5 modules are available:
 `3DQuickRender`
 `3DQuickScene2D`
 `3DRender`
+
+More info: http://doc.qt.io/qt-5/qtmodules.html
 
 ## Create a build system configuration (and execute it)
 
