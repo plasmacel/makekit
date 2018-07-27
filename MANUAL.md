@@ -109,6 +109,20 @@ TODO
 
 More info: http://doc.qt.io/qt-5/qtmodules.html
 
+### CMakeLists.txt commands
+
+**`mk_add_imported_library(NAME MODE INCLUDE_DIRECTORY STATIC_IMPORT SHARED_IMPORT)`**
+
+Add an imported library using the name `NAME`.
+
+**`mk_deploy()`**
+
+Perform post-build deploy to the runtime output directory (`bin`).
+
+**`mk_deploy_list()`**
+
+Generate a `.txt` file containing the required deploy files into the target build directories.
+
 ## Create a build system configuration (and execute it)
 
 The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM C/C++ compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. If required, all generated files, including the build system and the built binaries can be permanently removed (`mk clean`).
