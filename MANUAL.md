@@ -30,7 +30,7 @@ Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh
 - assembler files (`.asm`, `.s`)
 - CUDA source files (`.cu`)
 
-If the source tree has been changed by adding or removing files, existing build configurations should be updated to correctly reflect the changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
+If the source tree has been changed by adding or removing files, existing build configurations should be updated to reflect these changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
 
 ## Build types
 
