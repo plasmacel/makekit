@@ -283,8 +283,7 @@ if (MAKEKIT_QT)
 		return()
 	endif ()
 
-	# Not required when CMAKE_AUTOUIC is ON
-	#qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+	# Note that qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES}) is NOT required when CMAKE_AUTOUIC is ON
 endif ()
 
 #
