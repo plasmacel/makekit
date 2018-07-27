@@ -8,7 +8,7 @@ MakeKit is strictly relies on the CMake build system generator, the Ninja build 
 - Support of parallel technologies OpenMP, OpenCL and CUDA
 - Support of graphics APIs OpenGL and Vulkan
 - Support of the cross-platform windowing framework Qt 5
-- Support the swiss army knife library Boost
+- Support of the swiss army knife library Boost
 
 **The project is at a very early stage, so if you find any issue or you could simply add something, please contribute.**
 
