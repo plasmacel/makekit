@@ -1,20 +1,115 @@
 ## Environment Variables
 
-MakeKit relies on the following environment variables, which are automatically set at its install:
+MakeKit relies on the following environment variables, which are automatically created at its install:
 
 - `MAKEKIT_DIR` - The installation directory of MakeKit, where its `bin` folder can be found
 - `MAKEKIT_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MAKEKIT_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
 
-## Generate `CMakeLists.txt` files
+## Generate and customize `CMakeLists.txt` files
 
 MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
 
 TODO
 
+| VARIABLE              | Description    | Value type          |
+|:----------------------|:---------------|:--------------------|
+| `MAKEKIT_ASM`         | ASM support    | `BOOL`              |
+| `MAKEKIT_AUTODEPLOY`  | Auto-deploy    | `BOOL`              |
+| `MAKEKIT_CUDA`        | CUDA support   | `BOOL`              |
+| `MAKEKIT_OPENCL`      | OpenCL support | `BOOL`              |
+| `MAKEKIT_OPENGL`      | OpenGL support | `BOOL`              |
+| `MAKEKIT_OPENMP`      | OpenMP support | `BOOL`              |
+| `MAKEKIT_VULKAN`      | Vulkan support | `BOOL`              |
+| `MAKEKIT_QT`          | Qt 5 support   | `QT_LIST`           |
+| `MAKEKIT_MODULE_MODE` | Target type    | `TARGET`            |
+
+For the `BOOL` type, the following values are accepted:
+
+`TRUE` (or alternatively `ON` `YES` `Yes` `yes` `Y` `y` `1`)
+`FALSE` (or alternatively `OFF` `NO` `No` `no` `N` `n` `0`)
+
+For the `TARGET` type, the following values are accepted:
+
+`NONE`
+`EXECUTABLE`
+`STATIC_LIBRARY`
+`SHARED_LIBRARY`
+
+For the `QT_LIST` type, a list of the following values are accepted:
+
+`OFF`
+`Bluetooth`
+`Charts`
+`Concurrent`
+`Core`
+`DataVisualization`
+`DBus`
+`Designer`
+`Gamepad`
+`Gui`
+`Help`
+`LinguistTools`
+`Location`
+`MacExtras`
+`Multimedia`
+`MultimediaWidgets`
+`Network`
+`NetworkAuth`
+`Nfc`
+`OpenGL`
+`OpenGLExtensions`
+`Positioning`
+`PositioningQuick`
+`PrintSupport`
+`Purchasing`
+`Qml`
+`Quick`
+`QuickCompiler`
+`QuickControls2`
+`QuickTest`
+`QuickWidgets`
+`RemoteObjects`
+`RepParser`
+`Script`
+`ScriptTools`
+`Scxml`
+`Sensors`
+`SerialBus`
+`SerialPort`
+`Sql`
+`Svg`
+`Test`
+`TextToSpeech`
+`UiPlugin`
+`UiTools`
+`WebChannel`
+`WebEngine`
+`WebEngineCore`
+`WebEngineWidgets`
+`WebSockets`
+`WebView`
+`Widgets`
+`Xml`
+`XmlPatterns`
+`3DAnimation`
+`3DCore`
+`3DExtras`
+`3DInput`
+`3DLogic`
+`3DQuick`
+`3DQuickAnimation`
+`3DQuickExtras`
+`3DQuickInput`
+`3DQuickRender`
+`3DQuickScene2D`
+`3DRender`
+
+More info: http://doc.qt.io/qt-5/qtmodules.html
+
 ## Create a build system configuration (and execute it)
 
-The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. Also, if required, all generated files, including the build system and the built binaries can be removed (`mk clean`). 
+The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM C/C++ compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. If required, all generated files, including the build system and the built binaries can be permanently removed (`mk clean`).
 
 To build a source with the pre-generated `CMakeLists.txt` file(s), open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE` instead. Later, you can execute it by `mk make BUILD_TYPE`.
 
@@ -30,16 +125,20 @@ Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh
 - assembler files (`.asm`, `.s`)
 - CUDA source files (`.cu`)
 
-If the source tree has been changed by adding or removing files, existing build configurations should be updated to correctly reflect the changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
+If the source tree has been changed by adding or removing files, existing build configurations should be updated to reflect these changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
 
 ## Build types
 
-Currently the following default `BUILD_TYPE`s are available:
+All default CMake `BUILD_TYPE`s are available:
 
-- `debug` - Debug
-- `release` - Release
-- `release-debuginfo` - RelWithDebInfo, i.e. Release with debug information
-- `release-minsize` - MinSizeRel, i.e. Release with minimal binary size
+| BUILD_TYPE     | Description                                       | clang flags       | clang-cl flags                     |
+|:---------------|:--------------------------------------------------|:------------------|:-----------------------------------|
+| None           |                                                   |                   | `/DWIN32 /D_WINDOWS /W3 /GR /EHsc` |
+| Debug          | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`          |
+| Release        | Release build, full optimization                  | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`            |
+| RelWithDebInfo | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
+| MinSizeRel     | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
+
 
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
 

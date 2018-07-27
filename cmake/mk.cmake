@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	message(FATAL_ERROR "MakeKit - Not a valid LLVM/clang compiler!
+		You are maybe using Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
+	return()
+endif ()
+
 enable_language(C)
 enable_language(CXX)
 
@@ -36,13 +42,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # The executable file (e.g. .exe) of an executable target created by the add_executable() command.
 # On DLL platforms: the executable file (e.g. .dll) of a shared library target created by the add_library() command with the SHARED option.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-#
-# Language standard
-#
-
-#set(CMAKE_C_STANDARD 11)
-#set(CMAKE_CXX_STANDARD 17)
 
 #
 # OS Platform Detection
@@ -121,9 +120,24 @@ list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
 # Functions and Macros
 #
 
+# Macro to preserve source files hierarchy in the IDE
+# http://www.rtrclass.type.pl/2018-05-29-how-to-setup-opengl-project-with-cmake/
+macro(mk_group_sources ROOT)
+    file(GLOB CHILDREN RELATIVE ${PROJECT_SOURCE_DIR}/${ROOT} ${PROJECT_SOURCE_DIR}/${ROOT}/*)
+    foreach (CHILD ${CHILDREN})
+        if (IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ROOT}/${CHILD})
+            mk_group_sources(${ROOT}/${CHILD})
+        else ()
+            string(REPLACE "/" "\\" GROUP_NAME ${ROOT})
+            string(REPLACE "src" "Sources" GROUP_NAME ${GROUP_NAME})
+            source_group(${GROUP_NAME} FILES ${PROJECT_SOURCE_DIR}/${ROOT}/${CHILD})
+        endif ()
+    endforeach ()
+endmacro()
+
 function(mk_save_list FILENAME LIST)
 	string(REPLACE ";" "\n" LIST_PROCESSED "${LIST}")
-	file(WRITE "${CMAKE_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
+	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
 endfunction()
 
 set(MAKEKIT_RUNTIME_LIBRARIES "")
@@ -155,7 +169,7 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 					get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
 				endif ()
 			else ()
-				message(STATUS "MakeKit - Not a shared library: ${LIBRARY}")
+				#message(STATUS "MakeKit - Not a shared library: ${LIBRARY}")
 				continue() # Go to next iteration
 			endif ()
 		else () # LIBRARY is a FILEPATH
@@ -223,6 +237,13 @@ macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES LIBRARY_STAT
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
 		find_library(LIBRARY_STATIC_FILE ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH REQUIRED)
 	endif ()
+	
+	if (LIBRARY_STATIC_FILE)
+		message(STATUS "MakeKit - ${NAME} found: ${LIBRARY_STATIC_FILE}")
+	else ()
+		message(FATAL_ERROR "MakeKit - ${NAME} cannot be found!")
+		return()
+	endif ()
 
 	set(LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
 
@@ -262,8 +283,7 @@ if (MAKEKIT_QT)
 		return()
 	endif ()
 
-	# Not required when CMAKE_AUTOUIC is ON
-	#qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES})
+	# Note that qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES}) is NOT required when CMAKE_AUTOUIC is ON
 endif ()
 
 #
@@ -412,12 +432,22 @@ endif ()
 
 #
 # Qt
+# http://doc.qt.io/qt-5/qtmodules.html
+# http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
+# List of Qt5 modules
+set(MAKEKIT_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
+
 if (MAKEKIT_QT)
-	foreach (QTMODULE ${MAKEKIT_QT})
-		target_link_libraries(${PROJECT_NAME} Qt5::${QTMODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QTMODULE})
+	foreach (QT_MODULE ${MAKEKIT_QT})
+		if (NOT ${QT_MODULE} IN_LIST MAKEKIT_QT_MODULES)
+			message(ERROR "MakeKit - Skipping invalid Qt module: ${QT_MODULE}")
+			continue()
+		endif ()
+	
+		target_link_libraries(${PROJECT_NAME} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
+		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QT_MODULE})
 	endforeach ()
 endif ()
 
