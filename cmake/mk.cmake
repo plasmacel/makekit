@@ -260,33 +260,6 @@ macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES LIBRARY_STAT
 endmacro()
 
 #
-# Qt5
-#
-
-if (MAKEKIT_QT)
-	file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
- 
-	set(CMAKE_AUTOMOC ON)
-	set(CMAKE_AUTORCC ON)
-	set(CMAKE_AUTOUIC ON)
-
-	set(CMAKE_INCLUDE_CURRENT_DIR ON)
-	#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-	#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
-
-	set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
-	find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
-
-	if (NOT Qt5_FOUND)
-		message(FATAL_ERROR "MakeKit - Qt5 cannot be found!")
-		return()
-	endif ()
-
-	# Note that qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES}) is NOT required when CMAKE_AUTOUIC is ON
-endif ()
-
-#
 # Add target
 #
 
@@ -436,10 +409,35 @@ endif ()
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
-# List of Qt5 modules
-set(MAKEKIT_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
+#
+# Qt5
+#
 
 if (MAKEKIT_QT)
+	file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MAKEKIT_SOURCE} *.ui)
+ 
+	set(CMAKE_AUTOMOC ON)
+	set(CMAKE_AUTORCC ON)
+	set(CMAKE_AUTOUIC ON)
+
+	set(CMAKE_INCLUDE_CURRENT_DIR ON)
+	#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+
+	set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
+	find_package(Qt5 COMPONENTS ${MAKEKIT_QT} REQUIRED)
+
+	if (NOT Qt5_FOUND)
+		message(FATAL_ERROR "MakeKit - Qt5 cannot be found!")
+		return()
+	endif ()
+
+	# Note that qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES}) is NOT required when CMAKE_AUTOUIC is ON
+
+	# List of Qt5 modules
+	set(MAKEKIT_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
+
 	foreach (QT_MODULE ${MAKEKIT_QT})
 		if (NOT ${QT_MODULE} IN_LIST MAKEKIT_QT_MODULES)
 			message(ERROR "MakeKit - Skipping invalid Qt module: ${QT_MODULE}")
