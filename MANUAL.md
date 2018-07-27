@@ -411,7 +411,17 @@ Alias for `mk config BUILD_TYPE`.
 
 Removes all prebuilt binaries of the build configuration specified by `BUILD_TYPE` and rebuilds them.
 
-## VIII. Misc
+## VIII. Troubleshooting
+
+TODO
+
+1. Check the required applications and their versions.
+2. Check the required environment variables and `PATH`.
+3. Check the source tree whether it is free of in-source build files.
+4. Check the required libraries of your project and their location.
+5. Check the required user and access permissions.
+
+## IX. Misc
 
 - https://www.gnu.org/software/make/manual/html_node/Options-Summary.html
 - https://gitlab.kitware.com/cmake/community/wikis/FAQ
