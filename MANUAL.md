@@ -1,6 +1,8 @@
-# Installation
+# Manual
 
-## Windows
+## I. Installation
+
+### Windows
 
 1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org/download
@@ -8,13 +10,13 @@
    https://github.com/ninja-build/ninja/releases
 3. Run `install.bat` as administrator, or open command prompt as administrator, navigate to its directory and use command `install`.
    
- ## macOS
+ ### macOS
  
  1. Download and install the latest version (3.10 or above is required) of CMake
    https://cmake.org/download
  2. Run `install`.
    
- ## Linux
+ ### Linux
  
  *Currently only Debian Linux is supported!*
  
@@ -30,7 +32,7 @@
     `sudo apt install cmake`
     `sudo apt install ninja-build`
 
-# Environment Variables
+## II. Environment Variables
 
 MakeKit relies on the following environment variables, which are automatically created at its install:
 
@@ -38,7 +40,7 @@ MakeKit relies on the following environment variables, which are automatically c
 - `MAKEKIT_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MAKEKIT_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
 
-## Generate and customize `CMakeLists.txt` files
+## III. Generate and customize `CMakeLists.txt` files
 
 MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
 
@@ -160,13 +162,13 @@ Perform post-build deploy to the runtime output directory (`bin`).
 
 Generate a `.txt` file containing the required deploy files into the target build directories.
 
-## Create a build system configuration (and execute it)
+## IV. Create a build system configuration (and execute it)
 
 The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM C/C++ compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. If required, all generated files, including the build system and the built binaries can be permanently removed (`mk clean`).
 
 To build a source with the pre-generated `CMakeLists.txt` file(s), open the command line terminal, navigate to the source directory and use `mk make BUILD_TYPE`. If you want to create a build system configuration without executing it, use `mk config BUILD_TYPE` instead. Later, you can execute it by `mk make BUILD_TYPE`.
 
-## Adding/removing files from the source
+## V. Adding/removing files from the source
 
 Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh a build configuration, CMake will automatically find and register files in your source directory, including:
 
@@ -180,7 +182,7 @@ Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh
 
 If the source tree has been changed by adding or removing files, existing build configurations should be updated to reflect these changes by `mk config BUILD_TYPE` or `mk refresh BUILD_TYPE`. Note, that `mk make BUILD_TYPE` automatically performs this refresh.
 
-## Build types
+## VI. Build types
 
 All default CMake `BUILD_TYPE`s are available:
 
@@ -195,7 +197,7 @@ All default CMake `BUILD_TYPE`s are available:
 
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
 
-## Commands
+## VII. Commands
 
 #### `mk clean BUILD_TYPE`
 
