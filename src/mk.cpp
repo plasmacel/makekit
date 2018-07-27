@@ -103,7 +103,7 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("call vcvars64.bat");
+		cmd.append("call %MK_VCVARS_DIR%\vcvars64.bat"); // vcvars.bat "x64"
 	}
 }
 
