@@ -17,6 +17,7 @@ TODO
 | VARIABLE         | Description    | Value type          |
 |:-----------------|:---------------|:--------------------|
 | `MK_ASM`         | ASM support    | `BOOL`              |
+| `MK_BOOST`       | Boost support  | `BOOST_LIST`        |
 | `MK_CUDA`        | CUDA support   | `BOOL`              |
 | `MK_OPENCL`      | OpenCL support | `BOOL`              |
 | `MK_OPENGL`      | OpenGL support | `BOOL`              |
@@ -38,6 +39,10 @@ TODO
 `EXECUTABLE`
 `STATIC_LIBRARY`
 `SHARED_LIBRARY`
+
+**Type `BOOST_LIST`**
+
+TODO
 
 **Type `QT_LIST`**
 
