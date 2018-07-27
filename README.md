@@ -14,3 +14,7 @@
 **The project is at an early stage, so if you find any issue or you could simply add something, please contribute.**
 
 For usage informations, read the [**manual**](https://github.com/plasmacel/makekit/blob/master/MANUAL.md).
+
+## License
+
+MakeKit is distributed under the [MIT License](https://github.com/plasmacel/makekit/blob/master/LICENSE.txt).
