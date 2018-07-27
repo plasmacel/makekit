@@ -26,8 +26,8 @@ TODO
 
 For the `BOOL` type, the following values are accepted:
 
-`TRUE` `ON` `YES` `Yes` `yes` `Y` `y` `1`
-`FALSE` `OFF` `NO` `No` `no` `N` `n` `0`
+`TRUE` (or alternatively `ON` `YES` `Yes` `yes` `Y` `y` `1`)
+`FALSE` (or alternatively `OFF` `NO` `No` `no` `N` `n` `0`)
 
 For the `TARGET` type, the following values are accepted:
 
