@@ -25,8 +25,9 @@ elif [ -f /etc/SuSe-release ] ; then
 elif [ -f /etc/debian_version ] ; then
     echo "Debian found"
     PACKAGE_MANAGER=apt-get
+    sudo ${PACKAGE_MANAGER} update
 else
-    echo "ERROR: Unknown Operating System"
+    echo "ERROR: Unknown distribution"
     exit 1
 fi
 
@@ -70,6 +71,9 @@ if [ -d ${MAKEKIT_DIR} ] ; then
     echo "Removing existing MakeKit installation..."
     sudo rm -rf ${MAKEKIT_DIR}
 fi
+
+echo "Compiling MakeKit executable..."
+clang++ -o ${DIR}/bin/mk ${DIR}/src/mk.cpp
 
 echo "Copying files to '${MAKEKIT_DIR}'..."
 
