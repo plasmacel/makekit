@@ -6,11 +6,23 @@ MakeKit relies on the following environment variables, which are automatically c
 - `MAKEKIT_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MAKEKIT_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
 
-## Generate `CMakeLists.txt` files
+## Generate and customize `CMakeLists.txt` files
 
 MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
 
 TODO
+
+| VARIABLE             | Description    | Possible Values   |
+|:---------------------|:---------------|:------------------|
+| `MAKEKIT_ASM`        |                | `OFF` `ON`        |
+| `MAKEKIT_AUTODEPLOY` | Auto-deploy    | `OFF` `ON`        |
+| `MAKEKIT_CUDA`       | CUDA support   | `OFF` `ON`        |
+| `MAKEKIT_OPENCL`     | OpenCL support | `OFF` `ON`        |
+| `MAKEKIT_OPENGL`     | OpenGL support | `OFF` `ON`        |
+| `MAKEKIT_OPENMP`     | OpenMP support | `OFF` `ON`        |
+| `MAKEKIT_VULKAN`     | Vulkan support | `OFF` `ON`        |
+| `MAKEKIT_QT`         | Qt 5 support   | `OFF` `Core` `Gui` `OpenGL` `Widgets` `Network`    |
+| `MAKEKIT_MODULE_MODE` | Target mode   | `NONE` `EXECUTABLE` `STATIC_LIBRARY` `SHARED_LIBRARY` |
 
 ## Create a build system configuration (and execute it)
 
