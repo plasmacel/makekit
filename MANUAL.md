@@ -227,9 +227,9 @@ To build a source with the pre-generated `CMakeLists.txt` file(s), open the comm
 
 Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh a build configuration, CMake will automatically find and register files in your source directory, including:
 
-- header files (`.h`, `.hh`, `.hpp`, `.hxx`)
+- header files (`.h`, `.h++`, `.hh`, `.hpp`, `.hxx`)
 - inline files (`.inc`, `.inl`, `.ipp`, `.ixx`, `.tcc`, `.tpp`, `.txx`)
-- source files (`.c`, `.cc`, `.cpp`, `.cxx`)
+- source files (`.c`, `.c++`, `.cc`, `.cpp`, `.cxx`)
 - Qt user interface files (`.ui`)
 - pre-built binary object files (`.o` on macOS & Linux, `.obj` on Windows)
 - assembler files (`.asm`, `.s`)
