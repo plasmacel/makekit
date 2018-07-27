@@ -1,4 +1,4 @@
-    #!/bin/bash
+#!/bin/bash
 if ! [ "$0" == "bash" ] ; then
     echo "Usage:"
     echo "  source ${BASH_SOURCE[0]}"
