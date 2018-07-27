@@ -280,14 +280,14 @@ Removes all prebuilt binaries of the build configuration specified by `BUILD_TYP
 
 ## VIII. Misc
 
-https://www.gnu.org/software/make/manual/html_node/Options-Summary.html
-https://gitlab.kitware.com/cmake/community/wikis/FAQ
-https://www.johnlamp.net/cmake-tutorial.html
-http://lektiondestages.blogspot.com/2017/09/setting-up-qt-5-cmake-project-for.html
-https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
-https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
+- https://www.gnu.org/software/make/manual/html_node/Options-Summary.html
+- https://gitlab.kitware.com/cmake/community/wikis/FAQ
+- https://www.johnlamp.net/cmake-tutorial.html
+- http://lektiondestages.blogspot.com/2017/09/setting-up-qt-5-cmake-project-for.html
+- https://github.com/boostorg/hana/wiki/Setting-up-Clang-on-Windows
+- https://metricpanda.com/rival-fortress-update-27-compiling-with-clang-on-windows
 
-http://mariobadr.com/creating-a-header-only-library-with-cmake.html
-https://rix0r.nl/blog/2015/08/13/cmake-guide/
-https://gist.github.com/mbinna/c61dbb39bca0e4fb7d1f73b0d66a4fd1
-http://blog.audio-tk.com/2015/09/01/sorting-source-files-and-projects-in-folders-with-cmake-and-visual-studioxcode/
+- http://mariobadr.com/creating-a-header-only-library-with-cmake.html
+- https://rix0r.nl/blog/2015/08/13/cmake-guide/
+- https://gist.github.com/mbinna/c61dbb39bca0e4fb7d1f73b0d66a4fd1
+- http://blog.audio-tk.com/2015/09/01/sorting-source-files-and-projects-in-folders-with-cmake-and-visual-studioxcode/
