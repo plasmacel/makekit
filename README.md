@@ -34,7 +34,9 @@ For usage informations, read the [manual](https://github.com/plasmacel/makekit/b
    
  ## Linux
  
- TODO
+ 1. Download and install the latest version (3.10 or above is required) of CMake
+   https://cmake.org
+ 2. Run `install`. It will detect and install Ninja and LLVM.
 
 ##### Install CMake and Ninja for Ubuntu/Debian using command line
 1. Update the package and dependency list:
