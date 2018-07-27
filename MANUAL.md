@@ -32,7 +32,7 @@
     `sudo apt install cmake`
     `sudo apt install ninja-build`
     
-# I. Development environments and compilers
+## I. Development environments and compilers
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
