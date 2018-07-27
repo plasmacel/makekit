@@ -1,6 +1,6 @@
 ## Environment Variables
 
-MakeKit relies on the following environment variables, which are automatically set at its install:
+MakeKit relies on the following environment variables, which are automatically created at its install:
 
 - `MAKEKIT_DIR` - The installation directory of MakeKit, where its `bin` folder can be found
 - `MAKEKIT_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
