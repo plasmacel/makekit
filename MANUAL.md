@@ -12,16 +12,16 @@ MakeKit automatically generates `CMakeLists.txt` files for your project using a 
 
 TODO
 
-| VARIABLE              | Description    | Value type          |
-|:----------------------|:---------------|:--------------------|
-| `MAKEKIT_ASM`         | ASM support    | `BOOL`              |
-| `MAKEKIT_CUDA`        | CUDA support   | `BOOL`              |
-| `MAKEKIT_OPENCL`      | OpenCL support | `BOOL`              |
-| `MAKEKIT_OPENGL`      | OpenGL support | `BOOL`              |
-| `MAKEKIT_OPENMP`      | OpenMP support | `BOOL`              |
-| `MAKEKIT_VULKAN`      | Vulkan support | `BOOL`              |
-| `MAKEKIT_QT`          | Qt 5 support   | `QT_LIST`           |
-| `MAKEKIT_MODULE_MODE` | Target type    | `TARGET`            |
+| VARIABLE         | Description    | Value type          |
+|:-----------------|:---------------|:--------------------|
+| `MK_ASM`         | ASM support    | `BOOL`              |
+| `MK_CUDA`        | CUDA support   | `BOOL`              |
+| `MK_OPENCL`      | OpenCL support | `BOOL`              |
+| `MK_OPENGL`      | OpenGL support | `BOOL`              |
+| `MK_OPENMP`      | OpenMP support | `BOOL`              |
+| `MK_VULKAN`      | Vulkan support | `BOOL`              |
+| `MK_QT`          | Qt 5 support   | `QT_LIST`           |
+| `MK_MODULE_MODE` | Target type    | `TARGET`            |
 
 #### Accepted values
 
