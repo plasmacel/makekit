@@ -328,7 +328,7 @@ if (CXX_SOURCES)
 		find_package(Threads REQUIRED)
 
 		if (NOT Threads_FOUND)
-			mk_message(FATAL_ERROR "POSIX Threads (pthreads) cannot be found!")
+			mk_message(FATAL_ERROR "POSIX Threads (pthreads) libraries cannot be found!")
 			return()
 		endif ()
 
