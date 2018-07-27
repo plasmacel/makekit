@@ -14,7 +14,7 @@ TODO
 
 | VARIABLE             | Description    | Possible Values   |
 |:---------------------|:---------------|:------------------|
-| `MAKEKIT_ASM`        |                | `OFF` `ON`        |
+| `MAKEKIT_ASM`        | ASM support    | `OFF` `ON`        |
 | `MAKEKIT_AUTODEPLOY` | Auto-deploy    | `OFF` `ON`        |
 | `MAKEKIT_CUDA`       | CUDA support   | `OFF` `ON`        |
 | `MAKEKIT_OPENCL`     | OpenCL support | `OFF` `ON`        |
