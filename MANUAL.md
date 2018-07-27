@@ -30,7 +30,7 @@
     `sudo apt install cmake`
     `sudo apt install ninja-build`
 
-## Environment Variables
+# Environment Variables
 
 MakeKit relies on the following environment variables, which are automatically created at its install:
 
