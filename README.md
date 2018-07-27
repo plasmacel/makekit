@@ -1,6 +1,6 @@
 # MakeKit
 
-**MakeKit is a tool to make the cross-platform compilation of modern C/C++ simple.** It relies on the CMake build system generator, the Ninja build system, and the LLVM/clang compiler infrastructure to achieve:
+**MakeKit is a tool to make the cross-platform compilation of modern C/C++ simple.** It relies on the [CMake](https://cmake.org) build system generator, the [Ninja](https://ninja-build.org) build system, and the [LLVM/clang](http://llvm.org) compiler infrastructure to achieve:
 
 - Cross-platform, uniform, out of the box behavior :sparkles:
 - Providing simple, low-maintenance build configurations
@@ -20,24 +20,23 @@ For usage informations, read the [manual](https://github.com/plasmacel/makekit/b
 ## Windows
 
 1. Download and install the latest version (3.10 or above is required) of CMake
-   https://cmake.org
+   https://cmake.org/download
 2. Download the binary distribution of Ninja (if unavailable, then build it from the source)
-   https://ninja-build.org
    https://github.com/ninja-build/ninja/releases
 3. Run `install.bat` as administrator, or open command prompt as administrator, navigate to its directory and use command `install`.
    
  ## macOS
  
  1. Download and install the latest version (3.10 or above is required) of CMake
-   https://cmake.org
- 2. Run `install`. It will detect and install Homebrew if needed, followed by the installation of Ninja and LLVM.
+   https://cmake.org/download
+ 2. Run `install`.
    
  ## Linux
  
- Currently only Debian Linux is supported!
+ *Currently only Debian Linux is supported!*
  
  1. Download and install the latest version (3.10 or above is required) of CMake
-   https://cmake.org
+   https://cmake.org/download
  2. Run `install`. It will detect and install Ninja and LLVM.
 
 ##### Install CMake and Ninja for Ubuntu/Debian using command line
