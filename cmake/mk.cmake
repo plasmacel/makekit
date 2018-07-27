@@ -158,7 +158,7 @@ function(mk_save_list FILENAME LIST)
 	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
 endfunction()
 
-set(MK_RUNTIME_LIBRARIES "")
+set(MK_${PROJECT}_RUNTIME_LIBRARIES "")
 set(MK_DEPLOY_FILES "")
 
 # This macro adds FILELIST to the list of deploy libraries
@@ -199,7 +199,7 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 		endif ()
 
 		mk_message(STATUS "Added runtime library: ${LIBRARY_RUNTIME}")
-		set(MK_RUNTIME_LIBRARIES ${MK_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
+		set(MK_${PROJECT}_RUNTIME_LIBRARIES ${MK_${PROJECT}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
 		#list(APPEND MK_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
 	endforeach ()
 endmacro()
@@ -341,19 +341,21 @@ include($ENV{MAKEKIT_DIR}/cmake/libraries/Qt.cmake)
 include($ENV{MAKEKIT_DIR}/cmake/libraries/Vulkan.cmake)
 
 #
-# Custom pre-build commands
+# Pre-build commands
 #
-
-mk_save_list("DeployLists.txt" "${MK_RUNTIME_LIBRARIES}")
 
 #
 # Post-build deploy
 #
 
-if (MK_AUTODEPLOY)
-	mk_message(STATUS "Deploying files: ${MK_RUNTIME_LIBRARIES}")
+macro(mk_deploy_list)
+	mk_save_list("DeployLists.txt" "${MK_${PROJECT_NAME}_RUNTIME_LIBRARIES}")
+endmacro()
 
-	foreach (FILE ${MK_RUNTIME_LIBRARIES})
+macro(mk_deploy)
+	mk_message(STATUS "Deploying files: ${MK_${PROJECT_NAME}_RUNTIME_LIBRARIES}")
+
+	foreach (FILE ${MK_${PROJECT_NAME}_RUNTIME_LIBRARIES})
 		if (IS_ABSOLUTE ${FILE})
 			set(FILE_ABSOLUTE_PATH ${FILE})
 		else ()
@@ -367,4 +369,4 @@ if (MK_AUTODEPLOY)
 			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
 		endif ()
 	endforeach ()
-endif ()
+endmacro()
