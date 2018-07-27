@@ -191,16 +191,23 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 				continue() # Go to next iteration
 			endif ()
 		else () # LIBRARY is a FILEPATH
-			if (MK_OS_WINDOWS) # Change file extension to .dll
-				string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_RUNTIME ${LIBRARY})
-			else ()
-				set(LIBRARY_RUNTIME ${LIBRARY})
+			if (MK_OS_WINDOWS) # Find corresponding .dll in ${LIBRARY_DIRECTORY} or ${LIBRARY_DIRECTORY}/../bin
+				get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
+				get_filename_component(LIBRARY_NAME ${LIBRARY} NAME_WE)
+				find_file(LIBRARY_RUNTIME ${LIBRARY_NAME}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
+			else () # The corresponding ruintime library is the library itself
+				get_filename_component(LIBRARY_EXT ${LIBRARY} EXT)
+				if (LIBRARY_EXT IN_LIST ".dylib;.so")
+					set(LIBRARY_RUNTIME ${LIBRARY})
+				endif ()
 			endif ()
 		endif ()
 
-		mk_message(STATUS "Added runtime library: ${LIBRARY_RUNTIME}")
-		set(MK_${PROJECT}_RUNTIME_LIBRARIES ${MK_${PROJECT}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
-		#list(APPEND MK_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
+		if (LIBRARY_RUNTIME)
+			#mk_message(STATUS "Added runtime library: ${LIBRARY_RUNTIME}")
+			set(MK_${PROJECT}_RUNTIME_LIBRARIES ${MK_${PROJECT}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
+			#list(APPEND MK_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
+		endif ()
 	endforeach ()
 endmacro()
 
@@ -265,7 +272,7 @@ macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES LIBRARY_STAT
 
 	set(LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
 
-	if (MK_OS_WINDOWS AND MODE STREQUAL "SHARED")
+	if (MK_OS_WINDOWS AND ${MODE} STREQUAL "SHARED")
 		string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
 	endif ()
 
