@@ -24,19 +24,23 @@ TODO
 | `MAKEKIT_QT`          | Qt 5 support   | `QT_LIST`           |
 | `MAKEKIT_MODULE_MODE` | Target type    | `TARGET`            |
 
-For the `BOOL` type, the following values are accepted:
+#### Accepted values
+
+**`BOOL`**
 
 `TRUE` (or alternatively `ON` `YES` `Yes` `yes` `Y` `y` `1`)
 `FALSE` (or alternatively `OFF` `NO` `No` `no` `N` `n` `0`)
 
-For the `TARGET` type, the following values are accepted:
+**`TARGET`**
 
 `NONE`
 `EXECUTABLE`
 `STATIC_LIBRARY`
 `SHARED_LIBRARY`
 
-For the `QT_LIST` type, `OFF` or a list of the following values are accepted:
+**`QT_LIST`**
+
+`OFF`, or a list of the following values:
 
 `Bluetooth`
 `Charts`
