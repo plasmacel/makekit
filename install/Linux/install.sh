@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 if ! [ "$0" == "bash" ] ; then
     echo "Usage:"
     echo "  source ${BASH_SOURCE[0]}"
@@ -59,22 +59,31 @@ else
     echo "LLVM version ${CLANG_VERSION} found, trying to update to latest"
 fi
 
-CLANG_LATEST_VERSION=`wget -O - http://apt.llvm.org/${DIST}/dists/ 2>/dev/null | gunzip -c | grep -Po "${DIST}-\K[0-9]+.[0-9]+" | sort | tail -n 1`
+CLANG_LATEST_VERSION=`wget -O - http://apt.llvm.org/${DIST}/dists/ 2>/dev/null | gunzip -c 2>/dev/null | grep -Po "${DIST}-\K[0-9]+.[0-9]+" | sort | tail -n 1`
 
-if ! [ "${CLANG_VERSION}" == "${CLANG_LATEST_VERSION}" ] ; then
-    echo "Installing LLVM ${CLANG_LATEST_VERSION}..."
-    sudo apt-add-repository "deb http://apt.llvm.org/${DIST}/ llvm-toolchain-${DIST}-${CLANG_LATEST_VERSION} main"
-    sudo ${PACKAGE_MANAGER} update
-    sudo ${PACKAGE_MANAGER} install -y clang-${CLANG_LATEST_VERSION} lldb-${CLANG_LATEST_VERSION} lld-${CLANG_LATEST_VERSION}
-    sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_LATEST_VERSION} 1000
-    sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_LATEST_VERSION} 1000
-    sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${CLANG_LATEST_VERSION} 1000
+if [ "${CLANG_LATEST_VERSION}" == "" ] ; then
+    CLANG_LATEST_VERSION=`wget -O - http://apt.llvm.org/${DIST}/dists/ 2>/dev/null | grep -Po "${DIST}-\K[0-9]+.[0-9]+" | sort | tail -n 1`
+fi
 
-    sudo update-alternatives --config clang
-    sudo update-alternatives --config clang++
-    sudo update-alternatives --config ld.lld
+if [ "${CLANG_LATEST_VERSION}" == "" ] ; then
+    echo "WARNING: Could not request latest LLVM version from 'http://apt.llvm.org' for ${DIST}"
+    echo "         Latest LLVM is not being istalled!"
 else
-    echo "LLVM already at the latest version"
+    if ! [ "${CLANG_VERSION}" == "${CLANG_LATEST_VERSION}" ] ; then
+        echo "Installing LLVM ${CLANG_LATEST_VERSION}..."
+        sudo apt-add-repository "deb http://apt.llvm.org/${DIST}/ llvm-toolchain-${DIST}-${CLANG_LATEST_VERSION} main"
+        sudo ${PACKAGE_MANAGER} update
+        sudo ${PACKAGE_MANAGER} install -y clang-${CLANG_LATEST_VERSION} lldb-${CLANG_LATEST_VERSION} lld-${CLANG_LATEST_VERSION}
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_LATEST_VERSION} 1000
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_LATEST_VERSION} 1000
+        sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${CLANG_LATEST_VERSION} 1000
+
+        sudo update-alternatives --config clang
+        sudo update-alternatives --config clang++
+        sudo update-alternatives --config ld.lld
+    else
+        echo "LLVM already at the latest version"
+    fi
 fi
 
 echo "installing LLVM OpenMP"
