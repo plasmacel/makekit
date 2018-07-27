@@ -1,22 +1,20 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-
 project(untitled)
 
 #
-# Variables
+# MK Variables
 #
 
-set(MAKEKIT_ASM OFF)
-set(MAKEKIT_AUTODEPLOY OFF)
-set(MAKEKIT_CUDA OFF)
-set(MAKEKIT_OPENCL OFF)
-set(MAKEKIT_OPENGL OFF)
-set(MAKEKIT_OPENMP OFF) # system default or LLVM libomp
-set(MAKEKIT_VULKAN OFF)
-set(MAKEKIT_QT OFF) # like Core Gui OpenGL Widgets Network
+set(MK_ASM OFF)
+set(MK_AUTODEPLOY OFF)
+set(MK_CUDA OFF)
+set(MK_OPENCL OFF)
+set(MK_OPENGL OFF)
+set(MK_OPENMP OFF)
+set(MK_VULKAN OFF)
+set(MK_QT OFF)
 
-set(MAKEKIT_MODULE_MODE 4)
-set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
+set(MK_MODULE_MODE EXECUTABLE)
+set(MK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 
 #
 # Include MakeKit
@@ -25,7 +23,25 @@ set(MAKEKIT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 include($ENV{MAKEKIT_DIR}/cmake/mk.cmake)
 
 #
-# Custom libraries
+# Additional imported libraries
 #
 
-#target_link_libraries(${PROJECT_NAME} mylib.lib)
+
+
+#
+# Additional include directories
+#
+
+
+
+#
+# Additional link libraries
+#
+
+
+
+#
+# Deploy
+#
+
+
