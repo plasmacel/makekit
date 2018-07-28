@@ -118,19 +118,19 @@ TODO
 
 #### Accepted values
 
-**Type `BOOL`**
+- **Type `BOOL`**
 
 `TRUE` (or alternatively `ON` `YES` `Yes` `yes` `Y` `y` `1`)
 `FALSE` (or alternatively `OFF` `NO` `No` `no` `N` `n` `0`)
 
-**Type `TARGET`**
+- **Type `TARGET`**
 
 `NONE`
 `EXECUTABLE`
 `STATIC_LIBRARY`
 `SHARED_LIBRARY`
 
-**Type `BOOST_LIST`**
+- **Type `BOOST_LIST`**
 
 `OFF`, or a list of the following values:
 
@@ -267,7 +267,7 @@ TODO
 
 More info: https://www.boost.org/doc/libs/1_67_0
 
-**Type `QT_LIST`**
+- **Type `QT_LIST`**
 
 `OFF`, or a list of the following values:
 
