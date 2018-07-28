@@ -92,32 +92,34 @@ sudo ${PACKAGE_MANAGER} install -y libomp5
 
 echo "Creating required environment variables..."
 
-export MAKEKIT_DIR=/usr/local/makekit
-export MAKEKIT_LLVM_DIR=`command -v clang-${CLANG_LATEST_VERSION} | xargs readlink -f | xargs dirname | xargs dirname`
-export MAKEKIT_QT_DIR=""
+export MK_DIR=/usr/local/makekit
+export MK_LLVM_DIR=`command -v clang-${CLANG_LATEST_VERSION} | xargs readlink -f | xargs dirname | xargs dirname`
+export MK_QT_DIR=""
 
 # Update also in user profile, making them permanent
 sed -i '/# MakeKit/d' ${HOME}/.profile
-sed -i '/MAKEKIT_/d' ${HOME}/.profile
-echo "# MakeKit" >> ${HOME}/.profile
-echo "export MAKEKIT_DIR=${MAKEKIT_DIR}" >> ${HOME}/.profile
-echo "export MAKEKIT_LLVM_DIR=${MAKEKIT_LLVM_DIR}" >> ${HOME}/.profile
-echo "export MAKEKIT_QT_DIR=${MAKEKIT_QT_DIR}" >> ${HOME}/.profile
+sed -i '/MK_/d' ${HOME}/.profile
 
-if [ -d ${MAKEKIT_DIR} ] ; then
+echo "# MakeKit" >> ${HOME}/.profile
+echo "export MK_DIR=${MK_DIR}" >> ${HOME}/.profile
+echo "export MK_LLVM_DIR=${MK_LLVM_DIR}" >> ${HOME}/.profile
+echo "export MK_QT_DIR=${MK_QT_DIR}" >> ${HOME}/.profile
+
+if [ -d ${MK_DIR} ] ; then
     echo "Removing existing MakeKit installation..."
-    sudo rm -rf ${MAKEKIT_DIR}
+    sudo rm -rf ${MK_DIR}
 fi
 
 echo "Compiling MakeKit executable..."
+
 clang++ -o ${DIR}/bin/mk ${DIR}/src/mk.cpp
 
-echo "Copying files to '${MAKEKIT_DIR}'..."
+echo "Copying files to '${MK_DIR}'..."
 
-sudo mkdir -p ${MAKEKIT_DIR}
-sudo cp -rv ${DIR}/bin ${MAKEKIT_DIR}/bin
-sudo cp -rv ${DIR}/cmake ${MAKEKIT_DIR}/cmake
-sudo cp -rv ${DIR}/integration ${MAKEKIT_DIR}/integration
+sudo mkdir -p ${MK_DIR}
+sudo cp -rv ${DIR}/bin ${MK_DIR}/bin
+sudo cp -rv ${DIR}/cmake ${MK_DIR}/cmake
+sudo cp -rv ${DIR}/integration ${MK_DIR}/integration
 
 echo "Creating required symbolic links..."
 
@@ -125,5 +127,5 @@ if [ -f /usr/local/bin/mk ] ; then
     sudo rm -f /usr/local/bin/mk
 fi
 
-sudo ln -s ${MAKEKIT_DIR}/bin/mk /usr/local/bin/mk
+sudo ln -s ${MK_DIR}/bin/mk /usr/local/bin/mk
 
