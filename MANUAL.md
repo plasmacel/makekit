@@ -39,7 +39,7 @@
 
 ##### I/A Visual C++ development environment with LLVM/clang on Windows
 
-1. If you already have Visual Studio 2017 installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
+1. If you already have **Visual Studio 2017** installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
    It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE:
    https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
 2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
@@ -77,6 +77,8 @@
     `brew upgrade`
 2. Install the latest version of LLVM/clang
     `brew install --with-toolchain llvm`
+3. Export the `bin` directory of LLVM to `PATH`
+   `echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile`
     
 ##### I/D LLVM/clang for Linux using command line
 1. Update the package and dependency list:
