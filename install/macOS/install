@@ -48,9 +48,9 @@ fi
 
 echo Creating required environment variables...
 
-export MAKEKIT_DIR=/usr/local/makekit
-export MAKEKIT_LLVM_DIR=/usr/local/opt/llvm
-export MAKEKIT_QT_DIR=""
+export MAKEKIT_DIR=/usr/local/makekit >> ~/.bash_profile
+export MAKEKIT_LLVM_DIR=/usr/local/opt/llvm >> ~/.bash_profile
+export MAKEKIT_QT_DIR="" >> ~/.bash_profile
 
 echo Copying files to ${MAKEKIT_DIR}...
 
