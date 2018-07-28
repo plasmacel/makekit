@@ -1,3 +1,5 @@
+# Cross compile
+
 The triple has the general format `<arch><sub>-<vendor>-<sys>-<abi>`, where:
 - `arch` = x86_64, i386, arm, thumb, mips, etc.
 - `sub` = for ex. on ARM: v5, v6m, v7a, v7m, etc.
