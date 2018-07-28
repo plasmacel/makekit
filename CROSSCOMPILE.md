@@ -13,6 +13,14 @@ More info
 - https://clang.llvm.org/docs/CrossCompilation.html
 - 
 
+### Toolchains
+
+MakeKit provides pre-defined toolchains compiling for Windows, macOS and Linux:
+
+- `toolchain_windows_x86_64.cmake`
+- `toolchain_macos_x86_64.cmake`
+- `toolchain_linux_x86_64.cmake`
+
 ### Processor (`arch`)
 
 - `arm`            : ARM (little endian): arm, armv.*, xscale
