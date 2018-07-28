@@ -7,6 +7,8 @@ The triple has the general format `<arch><sub>-<vendor>-<sys>-<abi>`, where:
 - `sys` = none, linux, win32, darwin, cuda, etc.
 - `abi` = eabi, gnu, android, macho, elf, etc.
 
+You can find out your system's triplet using the command `clang -dumpmachine`
+
 More info
 - https://clang.llvm.org/docs/CrossCompilation.html
 - 
