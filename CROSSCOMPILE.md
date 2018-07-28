@@ -21,7 +21,7 @@ You can find out your host platform triplet using the command `clang -dumpmachin
 
 More info
 - https://clang.llvm.org/docs/CrossCompilation.html
-- 
+- https://cmake.org/cmake/help/v3.12/manual/cmake-toolchains.7.html#cross-compiling-using-clang
 
 ### Processor (`arch`)
 
