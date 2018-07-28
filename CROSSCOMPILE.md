@@ -83,37 +83,37 @@ More info
 
 ### Operation system (`sys`)
 
-- Ananas
-- CloudABI
-- Darwin
-- DragonFly
-- FreeBSD
-- Fuchsia
-- IOS
-- KFreeBSD
-- Linux
-- Lv2        : PS3
-- MacOSX
-- NetBSD
-- OpenBSD
-- Solaris
-- Win32
-- Haiku
-- Minix
-- RTEMS
-- NaCl       : Native Client
-- CNK        : BG/P Compute-Node Kernel
-- AIX
-- CUDA       : NVIDIA CUDA
-- NVCL       : NVIDIA OpenCL
-- AMDHSA     : AMD HSA Runtime
-- PS4
-- ELFIAMCU
-- TvOS       : Apple tvOS
-- WatchOS    : Apple watchOS
-- Mesa3D
-- Contiki
-- AMDPAL     : AMD PAL Runtime
+- `ananas`
+- `cloudabi`
+- `darwin`
+- `dragonfly`
+- `freebsd`
+- `fuchsia`
+- `ios`
+- `kfreebsd`
+- `linux`
+- `lv2`        : PS3
+- `macosx`
+- `netbsd`
+- `openbsd`
+- `solaris`
+- `win32`
+- `haiku`
+- `minix`
+- `rtems`
+- `nacl`       : Native Client
+- `cnk`        : BG/P Compute-Node Kernel
+- `aix`
+- `cuda`       : NVIDIA CUDA
+- `nvcl`       : NVIDIA OpenCL
+- `amdhsa`     : AMD HSA Runtime
+- `ps4`
+- `elfiamcu`
+- `tvos`       : Apple tvOS
+- `watchos`    : Apple watchOS
+- `mesa3d`
+- `contiki`
+- `amdpal`     : AMD PAL Runtime
 
 ### ABI Environment (`abi`)
 
