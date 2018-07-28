@@ -6,7 +6,6 @@
 
 if (MK_QT)
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
 	# Setting Qt related target properties (AUTOMOC, AUTORCC, AUTOUIC)
 	# https://cmake.org/cmake/help/latest/prop_tgt/AUTOMOC.html
@@ -31,9 +30,11 @@ if (MK_QT)
 		return()
 	endif ()
 
-	# Note that qt5_wrap_ui(CXX_QT_GENS ${CXX_UIFILES}) is NOT required when CMAKE_AUTOUIC is ON
+	# This is not required, since target_link_libraries does this automatically
+	#compile_options(${PROJECT_NAME} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS})
 
-	# List of Qt5 modules
+	# Link and deploy required Qt libraries
+
 	set(MK_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
 
 	foreach (QT_MODULE ${MK_QT})
