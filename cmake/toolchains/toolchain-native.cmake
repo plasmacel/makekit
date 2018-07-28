@@ -1,5 +1,5 @@
 #
-# CMake toolchain file for Windows x86_64 compile using LLVM/clang
+# CMake toolchain file for native compile using LLVM/clang
 # https://clang.llvm.org/docs/CrossCompilation.html
 #
 
