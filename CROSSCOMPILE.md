@@ -5,6 +5,10 @@ The triple has the general format `<arch><sub>-<vendor>-<sys>-<abi>`, where:
 - `sys` = none, linux, win32, darwin, cuda, etc.
 - `abi` = eabi, gnu, android, macho, elf, etc.
 
+More info
+- https://clang.llvm.org/docs/CrossCompilation.html
+- 
+
 ### Processor
 
 - `arm`            : ARM (little endian): arm, armv.*, xscale
