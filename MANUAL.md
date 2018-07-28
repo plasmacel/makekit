@@ -4,25 +4,25 @@
 
 ### Windows
 
-1. Download and install the latest version (3.10 or above is required) of CMake
+1. Download and install the latest version (3.10 or above is required) of CMake:
    https://cmake.org/download
-2. Download the binary distribution of Ninja (if unavailable, then build it from source)
+2. Download the binary distribution of Ninja (if unavailable, then build it from source):
    https://github.com/ninja-build/ninja/releases
 3. Run `install.bat` as administrator, or open command prompt as administrator, navigate to its directory and use command `install`.
    
  ### macOS
  
- 1. Download and install the latest version (3.10 or above is required) of CMake
+ 1. Download and install the latest version (3.10 or above is required) of CMake:
    https://cmake.org/download
- 2. Run `install`.
+ 2. Run `install`. This will install all up-to-date required packages.
    
  ### Linux
  
- *Currently only Debian Linux is supported!*
+ *Currently only Debian is supported!*
  
- 1. Download and install the latest version (3.10 or above is required) of CMake
+ 1. Download and install the latest version (3.10 or above is required) of CMake:
    https://cmake.org/download
- 2. Run `install`.
+ 2. Run `install`. This will install all up-to-date required packages.
 
 ##### Install CMake and Ninja for Ubuntu/Debian using command line
 1. Update the package and dependency list:
