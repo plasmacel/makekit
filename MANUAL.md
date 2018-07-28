@@ -18,7 +18,7 @@
    
  ### Linux
  
- *Currently only Debian is supported!*
+ *Currently only Debian and its distributions (Ubuntu, Raspbian) are supported!*
  
  1. Download and install the latest version (3.10 or above is required) of CMake:
    https://cmake.org/download
