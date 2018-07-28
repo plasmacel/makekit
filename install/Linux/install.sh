@@ -128,4 +128,3 @@ if [ -f /usr/local/bin/mk ] ; then
 fi
 
 sudo ln -s ${MK_DIR}/bin/mk /usr/local/bin/mk
-
