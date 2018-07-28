@@ -111,23 +111,22 @@ The triple has the general format <arch><sub>-<vendor>-<sys>-<abi>, where:
 
 ### ABI Environment
 
-- GNU
-- GNUABIN32
-- GNUABI64
-- GNUEABI
-- GNUEABIHF
-- GNUX32
-- CODE16
-- EABI
-- EABIHF
-- Android
-- Musl
-- MuslEABI
-- MuslEABIHF
-
-- MSVC
-- Itanium
-- Cygnus
-- CoreCLR
-- Simulator // Simulator variants of other systems, e.g., Apple's iOS
+- `gnu`
+- `gnuabin32`
+- `gnuabi64`
+- `gnueabi`
+- `gnueabihf`
+- `gnux32`
+- `code16`
+- `eabi`
+- `eabihf`
+- `android`
+- `musl`
+- `musleabi`
+- `musleabihf`
+- `msvc`
+- `itanium`
+- `cygnus`
+- `coreclr`
+- `simulator` - simulator variants of other systems, e.g., apple's ios
 
