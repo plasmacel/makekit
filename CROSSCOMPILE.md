@@ -1,5 +1,15 @@
 # Cross compile
 
+### Toolchains
+
+MakeKit provides pre-defined toolchains compiling for Windows, macOS and Linux:
+
+- `toolchain_windows_x86_64.cmake`
+- `toolchain_macos_x86_64.cmake`
+- `toolchain_linux_x86_64.cmake`
+
+### Clang
+
 The triple has the general format `<arch><sub>-<vendor>-<sys>-<abi>`, where:
 - `arch` = x86_64, i386, arm, thumb, mips, etc.
 - `sub` = for ex. on ARM: v5, v6m, v7a, v7m, etc.
@@ -12,14 +22,6 @@ You can find out your host platform triplet using the command `clang -dumpmachin
 More info
 - https://clang.llvm.org/docs/CrossCompilation.html
 - 
-
-### Toolchains
-
-MakeKit provides pre-defined toolchains compiling for Windows, macOS and Linux:
-
-- `toolchain_windows_x86_64.cmake`
-- `toolchain_macos_x86_64.cmake`
-- `toolchain_linux_x86_64.cmake`
 
 ### Processor (`arch`)
 
