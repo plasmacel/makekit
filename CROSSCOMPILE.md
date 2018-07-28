@@ -11,7 +11,7 @@ More info
 - https://clang.llvm.org/docs/CrossCompilation.html
 - 
 
-### Processor
+### Processor (`arch`)
 
 - `arm`            : ARM (little endian): arm, armv.*, xscale
 - `armeb`          : ARM (big endian): armeb
@@ -62,7 +62,7 @@ More info
 - `wasm32`         : WebAssembly with 32-bit pointers
 - `wasm64`         : WebAssembly with 64-bit pointers
 
-### Vendor
+### Vendor (`vendor`)
 
 - `Apple`
 - `PC`
@@ -81,7 +81,7 @@ More info
 - `SUSE`
 - `OpenEmbedded`
 
-### OS
+### Operation system (`sys`)
 
 - Ananas
 - CloudABI
@@ -115,7 +115,7 @@ More info
 - Contiki
 - AMDPAL     : AMD PAL Runtime
 
-### ABI Environment
+### ABI Environment (`abi`)
 
 - `gnu`
 - `gnuabin32`
