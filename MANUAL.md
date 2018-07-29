@@ -26,6 +26,9 @@
     
 ## I. LLVM toolchain development environments
 
+C/C++ compiler [clang](http://clang.llvm.org/)
+LLVM Linker [lld](https://lld.llvm.org/)
+
 **Darwin / macOS**
 
 On Darwin based systems (including macOS) LLVM completely replaces the Apple LLVM (Apple's fork or LLVM) and GNU C/C++ toolchains. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
