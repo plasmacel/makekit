@@ -23,14 +23,6 @@
  1. Download and install the latest version (3.10 or above is required) of CMake:
    https://cmake.org/download
  2. Run `install`. This will install all up-to-date required packages.
-
-##### Install CMake and Ninja for Ubuntu/Debian using command line
-1. Update the package and dependency list:
-    `sudo apt update`
-    `sudo apt upgrade`
-2. Install CMake and Ninja
-    `sudo apt install cmake`
-    `sudo apt install ninja-build`
     
 ## I. Development environments and compilers
 
