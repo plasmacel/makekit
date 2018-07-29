@@ -30,14 +30,16 @@
 On Unix and Unix-like systems (including macOS and Linux) LLVM completely replaces the GCC (GNU Compiler Collection) toolchain.  To achieve this, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
 
 **Windows**
-On Windows systems LLVM almost completely replaces the Visual C++ tolchain, but still requires the Microsoft Resource Compiler (`rc.exe`) from the Windows SDK. To achieve this, `clang` should be ran with argument `--driver-mode=cl` both for C and C++ compilation.
+On Windows systems LLVM almost completely replaces the Visual C++ tolchain, but still requires the Microsoft Resource Compiler (`rc.exe`) from the Windows SDK. To achieve this, `clang` should be ran with argument `--driver-mode=cl` both for C and C++ compilation. LLVM also provides an alternative executable `clang-cl` for this behavior.
+
+More info: https://clang.llvm.org/docs/UsersManual.html#clang-cl
 
 Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to seamlessly integrate with it (**I/B**). In this case `clang` can be used just like on Unix/Linux systems, i.e. use it like `clang --driver-mode=gcc` for C, and `clang --driver-mode=g++` for C++ compilation.
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
 
-##### I/A Visual C++ development environment with LLVM/clang on Windows
+##### I/A Visual C++ development environment toolchain using LLVM/clang (Windows)
 
 1. If you already have **Visual Studio 2017** installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
    It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE. Don't forget to check the latest Windows SDK at the installation options.
@@ -45,7 +47,7 @@ Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to 
 2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
    http://releases.llvm.org
 
-##### I/B MSYS2 MinGW-w64 development environment with LLVM/clang on Windows
+##### I/B MSYS2 MinGW-w64 (GNU for Windows) development environment with LLVM/clang toolchain
 
 1. Download and install the **x86_64 MSYS2** toolchain package of **MinGW-w64**:
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
