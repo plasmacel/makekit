@@ -63,22 +63,6 @@
 10. (Optional) Install the required libraries using the package manager:
    `pacman -Sy mingw-w64-x86_64-boost`
    `pacman -Sy mingw-w64-x86_64-qt5`
-    
-##### I/C LLVM/clang for macOS using Homebrew
-1. Update Homebrew
-    `brew update`
-    `brew upgrade`
-2. Install the latest version of LLVM/clang
-    `brew install --with-toolchain llvm`
-3. Export the `bin` directory of LLVM to `PATH`
-   `echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile`
-    
-##### I/D LLVM/clang for Linux using command line
-1. Update the package and dependency list:
-    `sudo apt update`
-    `sudo apt upgrade`
-2. Install the latest version of LLVM/clang
-    `sudo apt install clang`
 
 - More info https://medium.com/audelabs/c-development-using-visual-studio-code-cmake-and-lldb-d0f13d38c563
 
