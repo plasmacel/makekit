@@ -27,10 +27,10 @@
 ## I. LLVM toolchain development environments
 
 **Unix/Linux**
-On Unix and Unix-like systems (including macOS and Linux) LLVM completely replaces the GCC (GNU Compiler Collection) toolchain.  To achieve this, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
+On Unix and Unix-like systems (including macOS and Linux) LLVM completely replaces the GCC (GNU Compiler Collection) toolchain.  Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
 
 **Windows**
-On Windows systems LLVM almost completely replaces the Visual C++ tolchain, but still requires the [Microsoft Resource Compiler (RC)](https://docs.microsoft.com/en-us/windows/desktop/menurc/resource-compiler) `rc.exe` from the Windows SDK, and [Microsoft Assembler (MASM)](https://docs.microsoft.com/en-us/cpp/assembler/masm/masm-for-x64-ml64-exe) `ml64.exe` from the Visual Studio Build Tools. To achieve this, `clang` should be ran with argument `--driver-mode=cl` both for C and C++ compilation. LLVM also provides an alternative executable `clang-cl` for this behavior.
+On Windows systems LLVM almost completely replaces the Visual C++ tolchain, but still requires the [Microsoft Resource Compiler (RC)](https://docs.microsoft.com/en-us/windows/desktop/menurc/resource-compiler) `rc.exe` from the Windows SDK, and the [Microsoft Assembler (MASM)](https://docs.microsoft.com/en-us/cpp/assembler/masm/masm-for-x64-ml64-exe) `ml64.exe` from the Visual Studio Build Tools. Targeting native platform, `clang` should be ran with argument `--driver-mode=cl` both for C and C++ compilation. LLVM also provides an alternative executable `clang-cl` for this behavior.
 
 More info: https://clang.llvm.org/docs/UsersManual.html#clang-cl
 
