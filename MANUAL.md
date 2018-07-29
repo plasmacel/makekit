@@ -400,7 +400,7 @@ Creates a build system configuration for the specified `BUILD_TYPE`. If it has b
 
 #### `mk host`
 
-Outputs the *target triplet* of the host machine.
+Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
 #### `mk make BUILD_TYPE`
 
