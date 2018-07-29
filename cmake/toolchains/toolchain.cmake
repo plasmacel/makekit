@@ -44,9 +44,26 @@ set(CMAKE_CXX_COMPILER clang)
 if (CMAKE_WIN32) // True when the target system is Windows, including Win64.
 	set(CMAKE_C_FLAGS_INIT --driver-mode=cl ${CMAKE_C_FLAGS_INIT})
 	set(CMAKE_CXX_FLAGS_INIT --driver-mode=cl ${CMAKE_CXX_FLAGS_INIT})
+
+	set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor link)
+	set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor link)
+	set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor link)
+	set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor link)
 else ()
 	set(CMAKE_C_FLAGS_INIT --driver-mode=gcc ${CMAKE_C_FLAGS_INIT})
 	set(CMAKE_CXX_FLAGS_INIT --driver-mode=g++ ${CMAKE_CXX_FLAGS_INIT})
+
+	if (CMAKE_APPLE)
+		set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor darwin)
+		set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor darwin)
+		set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor darwin)
+		set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor darwin)
+	else ()
+		set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor gnu)
+		set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor gnu)
+		set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor gnu)
+		set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor gnu)
+	endif()
 endif()
 
 # Set target system and processor
