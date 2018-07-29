@@ -402,6 +402,10 @@ Creates a build system configuration for the specified `BUILD_TYPE`. If it has b
 
 Creates or refreshes the build configuration specified by `BUILD_TYPE` and executes it, i.e. it starts the build process.
 
+#### `mk platform`
+
+Outputs the platform of the host machine as a target triplet.
+
 #### `mk reconfig BUILD_TYPE`
 
 Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. This command is recommended if `CMakeLists.txt` has been changed.
@@ -413,6 +417,10 @@ Alias for `mk config BUILD_TYPE`.
 #### `mk remake BUILD_TYPE`
 
 Removes all prebuilt binaries of the build configuration specified by `BUILD_TYPE` and rebuilds them.
+
+#### `mk version`
+
+Outputs the current version.
 
 ## VIII. Troubleshooting
 
