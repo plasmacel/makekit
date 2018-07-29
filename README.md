@@ -5,7 +5,7 @@
 - Cross-platform, uniform, out of the box behavior :sparkles:
 - Providing simple, low-maintenance build configurations
 - Integration with popular integrated development environments (IDEs)
-- Support of cross-platform compilation of modern C/C++
+- Support of cross-platform native and cross compilation of modern C/C++
 - Support of parallel technologies OpenMP, OpenCL and CUDA
 - Support of graphics APIs OpenGL and Vulkan
 - Support of the cross-platform windowing framework Qt 5
