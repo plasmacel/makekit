@@ -28,7 +28,7 @@
 
 **Darwin / macOS**
 
-On Darwin based systems (including macOS) LLVM completely replaces the Apple LLVM (Apple's fork or LLVM) and GCC (GNU Compiler Collection) toolchains. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
+On Darwin based systems (including macOS) LLVM completely replaces the Apple LLVM (Apple's fork or LLVM) and GNU C/C++ toolchains. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
 
 - Assembler: `llvm-as`
 - C Compiler: `clang --driver-mode=gcc` or simply `clang`
@@ -38,7 +38,7 @@ On Darwin based systems (including macOS) LLVM completely replaces the Apple LLV
 
 **Linux**
 
-On Linux systems LLVM completely replaces the GCC (GNU Compiler Collection) toolchain.  Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
+On Linux systems LLVM completely replaces the GNU C/C++ toolchain. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
 
 - Assembler: `llvm-as`
 - C Compiler: `clang --driver-mode=gcc` or simply `clang`
