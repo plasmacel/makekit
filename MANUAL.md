@@ -18,34 +18,64 @@
    
  ### Linux
  
- *Currently only Debian and its distributions (Ubuntu, Raspbian) are supported!*
+ *Currently only Debian based systems (like Debian, Raspbian, Ubuntu) are supported!*
  
  1. Download and install the latest version (3.10 or above is required) of CMake:
    https://cmake.org/download
  2. Run `install`. This will install all up-to-date required packages.
-
-##### Install CMake and Ninja for Ubuntu/Debian using command line
-1. Update the package and dependency list:
-    `sudo apt update`
-    `sudo apt upgrade`
-2. Install CMake and Ninja
-    `sudo apt install cmake`
-    `sudo apt install ninja-build`
     
-## I. Development environments and compilers
+## I. LLVM toolchain development environments
+
+C/C++ compiler [clang](http://clang.llvm.org/)
+LLVM Linker [lld](https://lld.llvm.org/)
+
+**Darwin / macOS**
+
+On Darwin based systems (including macOS) LLVM completely replaces the Apple LLVM (Apple's fork or LLVM) and GNU C/C++ toolchains. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
+
+- Assembler: `llvm-as`
+- C Compiler: `clang --driver-mode=gcc` or simply `clang`
+- C++ compiler: `clang --driver-mode=g++` or simply `clang++`
+- Library tool: `llvm-lib`
+- Linker: `lld -flavor darwin`, or simply `ld`
+
+**Linux**
+
+On Linux systems LLVM completely replaces the GNU C/C++ toolchain. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
+
+- Assembler: `llvm-as`
+- C Compiler: `clang --driver-mode=gcc` or simply `clang`
+- C++ compiler: `clang --driver-mode=g++` or simply `clang++`
+- Library tool: `llvm-lib`
+- Linker: `lld -flavor gnu`, or simply `lld`
+- Resource Compiler: `rc`
+
+**Windows**
+
+On Windows systems LLVM almost completely replaces the Visual C++ tolchain, but still requires the [Microsoft Resource Compiler (RC)](https://docs.microsoft.com/en-us/windows/desktop/menurc/resource-compiler) `rc.exe` from the Windows SDK, and the [Microsoft Assembler (MASM)](https://docs.microsoft.com/en-us/cpp/assembler/masm/masm-for-x64-ml64-exe) `ml64.exe` from the Visual Studio Build Tools. Targeting native platform, `clang` should be ran with argument `--driver-mode=cl` both for C and C++ compilation. LLVM also provides an alternative executable `clang-cl` for this behavior.
+
+- Assembler: `ml64`
+- Compiler: `clang --driver-mode=cl`, or equivalently `clang-cl`, or alternatively `cl`
+- Library tool: `llvm-lib`, or alternatively `lib`
+- Linker: `lld -flavor link`, or equivalently `lld-link.exe`, or alternatively `link`
+- Resource Compiler: `rc`
+
+More info: https://clang.llvm.org/docs/UsersManual.html#clang-cl
+
+Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to seamlessly integrate with it (**I/B**). In this case `clang` can be used just like on Unix/Linux systems, i.e. use it like `clang --driver-mode=gcc` for C, and `clang --driver-mode=g++` for C++ compilation.
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
 
-##### I/A Visual C++ development environment with LLVM/clang on Windows
+##### I/A Visual C++ development environment toolchain using LLVM/clang (Windows)
 
 1. If you already have **Visual Studio 2017** installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
-   It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE:
+   It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE. Don't forget to check the latest Windows SDK at the installation options.
    https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
 2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
    http://releases.llvm.org
 
-##### I/B MSYS2 MinGW-w64 development environment with LLVM/clang on Windows
+##### I/B MSYS2 MinGW-w64 (GNU for Windows) development environment with LLVM/clang toolchain
 
 1. Download and install the **x86_64 MSYS2** toolchain package of **MinGW-w64**:
    MSYS2: http://www.msys2.org, mingw-64: http://mingw-w64.org/doku.php
@@ -68,24 +98,9 @@
    `pacman -S mingw-w64-x86_64-llvm mingw-w64-x86_64-clang`
 9. Install the preferred toolchain with command:
    `pacman -S mingw-w64-x86_64-toolchain`
-10. (Optional) Install Qt 5 if required with command:
+10. (Optional) Install the required libraries using the package manager:
+   `pacman -Sy mingw-w64-x86_64-boost`
    `pacman -Sy mingw-w64-x86_64-qt5`
-    
-##### I/C LLVM/clang for macOS using Homebrew
-1. Update Homebrew
-    `brew update`
-    `brew upgrade`
-2. Install the latest version of LLVM/clang
-    `brew install --with-toolchain llvm`
-3. Export the `bin` directory of LLVM to `PATH`
-   `echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile`
-    
-##### I/D LLVM/clang for Linux using command line
-1. Update the package and dependency list:
-    `sudo apt update`
-    `sudo apt upgrade`
-2. Install the latest version of LLVM/clang
-    `sudo apt install clang`
 
 - More info https://medium.com/audelabs/c-development-using-visual-studio-code-cmake-and-lldb-d0f13d38c563
 
