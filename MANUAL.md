@@ -24,7 +24,9 @@
    https://cmake.org/download
  2. Run `install`. This will install all up-to-date required packages.
     
-## I. Development environments and compilers
+## I. LLVM toolchain development environments
+
+On Unix and Unix-like systems (including macOS and Linux) LLVM completely replaces the GCC (GNU Compiler Collection) toolchain. On Windows systems LLVM almost completely replaces the Visual C++ and MinGW/MinGW-w64 tolchains, but still requires the Microsoft Resource Compiler (`rc.exe`) from the Windows SDK. Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to seamlessly integrate with it (**I/B**).
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
