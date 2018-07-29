@@ -60,7 +60,8 @@
    `pacman -S mingw-w64-x86_64-llvm mingw-w64-x86_64-clang`
 9. Install the preferred toolchain with command:
    `pacman -S mingw-w64-x86_64-toolchain`
-10. (Optional) Install Qt 5 if required with command:
+10. (Optional) Install the required libraries using the package manager:
+   `pacman -Sy mingw-w64-x86_64-boost`
    `pacman -Sy mingw-w64-x86_64-qt5`
     
 ##### I/C LLVM/clang for macOS using Homebrew
