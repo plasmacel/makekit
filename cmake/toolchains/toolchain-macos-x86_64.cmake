@@ -1,5 +1,5 @@
 #
-# CMake toolchain file for targeting Apple Darwin x86_64 using LLVM/clang
+# CMake toolchain file for targeting Apple Darwin (macOS, iOS, tvOS, watchOS, audioOS) x86_64 using LLVM/clang
 # https://clang.llvm.org/docs/CrossCompilation.html
 #
 
@@ -15,5 +15,5 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif ()
 
 if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-	message(FATAL_ERROR "Using the x86_64 toolchain while the target procssor is not x86_64!")
+	message(FATAL_ERROR "Using the x86_64 toolchain while the target processor is not x86_64!")
 endif ()

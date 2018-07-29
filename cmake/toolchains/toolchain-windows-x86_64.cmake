@@ -15,5 +15,5 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif ()
 
 if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-	message(FATAL_ERROR "Using the x86_64 toolchain while the target procssor is not x86_64!")
+	message(FATAL_ERROR "Using the x86_64 toolchain while the target processor is not x86_64!")
 endif ()
