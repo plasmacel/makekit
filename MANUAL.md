@@ -26,7 +26,13 @@
     
 ## I. LLVM toolchain development environments
 
-On Unix and Unix-like systems (including macOS and Linux) LLVM completely replaces the GCC (GNU Compiler Collection) toolchain. On Windows systems LLVM almost completely replaces the Visual C++ and MinGW/MinGW-w64 tolchains, but still requires the Microsoft Resource Compiler (`rc.exe`) from the Windows SDK. Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to seamlessly integrate with it (**I/B**).
+**Unix/Linux**
+On Unix and Unix-like systems (including macOS and Linux) LLVM completely replaces the GCC (GNU Compiler Collection) toolchain.  To achieve this, clang should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
+
+**Windows**
+On Windows systems LLVM almost completely replaces the Visual C++ and MinGW/MinGW-w64 tolchains, but still requires the Microsoft Resource Compiler (`rc.exe`) from the Windows SDK. To achieve this, clang should be ran with argument `--driver-mode=cl` both for C and C++ compilation.
+
+Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to seamlessly integrate with it (**I/B**).
 
 1. Download and install the latest stable binary distribution of LLVM/clang for your OS:
     http://releases.llvm.org
