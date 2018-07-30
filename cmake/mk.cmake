@@ -140,7 +140,7 @@ macro(mk_library LIBRARY)
 	string(TOUPPER ${LIBRARY} LIBRARY_UPPERCASE)
 
 	set(MK_${LIBRARY_UPPERCASE} ${ARGN})
-	include($ENV{MAKEKIT_DIR}/cmake/libraries/${LIBRARY}.cmake)
+	include($ENV{MK_DIR}/cmake/libraries/${LIBRARY}.cmake)
 endmacro()
 
 # Macro to preserve source files hierarchy in the IDE
@@ -361,11 +361,11 @@ endif ()
 #endif()
 #set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINKER_LANGUAGE CXX)
 
-include($ENV{MAKEKIT_DIR}/cmake/libraries/OpenCL.cmake)
-include($ENV{MAKEKIT_DIR}/cmake/libraries/OpenGL.cmake)
-include($ENV{MAKEKIT_DIR}/cmake/libraries/OpenMP.cmake)
-include($ENV{MAKEKIT_DIR}/cmake/libraries/Qt.cmake)
-include($ENV{MAKEKIT_DIR}/cmake/libraries/Vulkan.cmake)
+include($ENV{MK_DIR}/cmake/libraries/OpenCL.cmake)
+include($ENV{MK_DIR}/cmake/libraries/OpenGL.cmake)
+include($ENV{MK_DIR}/cmake/libraries/OpenMP.cmake)
+include($ENV{MK_DIR}/cmake/libraries/Qt.cmake)
+include($ENV{MK_DIR}/cmake/libraries/Vulkan.cmake)
 
 #
 # Pre-build commands
