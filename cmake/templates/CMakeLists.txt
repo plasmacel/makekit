@@ -20,7 +20,7 @@ set(MK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 # Include MakeKit
 #
 
-include($ENV{MAKEKIT_DIR}/cmake/mk.cmake)
+include($ENV{MK_DIR}/cmake/mk.cmake)
 
 #
 # Additional imported libraries
