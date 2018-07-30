@@ -13,5 +13,3 @@ echo Detected Windows 10 SDK Version: %WINSDK_VER%
 
 :: Return value
 endlocal&set %~1=%WINSDK_VER%
-
-@echo on

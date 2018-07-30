@@ -103,7 +103,7 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("call vcvars64.bat");
+		cmd.append("call %MK_VCVARS_DIR%\vcvars64.bat"); // vcvars.bat "x64"
 	}
 }
 
@@ -210,6 +210,11 @@ int make(const std::string& build_type, system_commands& cmd)
 	}
 
 	cmd.append("ninja -C " + build_dir);
+#ifdef _WIN32
+	cmd.append("if %ERRORLEVEL% == 0 ( echo Build succeeded. ) else ( echo Build failed. )");
+#else
+	cmd.append("if [ $? -eq 0 ]; then echo Build succeeded.; else echo Build failed.; fi");
+#endif
 	//cmd.append("cmake --build " + build_dir + " --target " + build_target + " --config " + build_type);
 	return 0;
 }

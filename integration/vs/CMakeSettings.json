@@ -8,7 +8,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -20,7 +20,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -32,7 +32,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -44,7 +44,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []

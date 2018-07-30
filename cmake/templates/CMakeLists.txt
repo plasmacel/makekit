@@ -5,6 +5,7 @@ project(untitled)
 #
 
 set(MK_ASM OFF)
+set(MK_BOOST OFF)
 set(MK_CUDA OFF)
 set(MK_OPENCL OFF)
 set(MK_OPENGL OFF)

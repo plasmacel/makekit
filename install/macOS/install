@@ -48,26 +48,18 @@ fi
 
 echo Creating required environment variables...
 
-export MAKEKIT_DIR=/usr/local/makekit
-export MAKEKIT_LLVM_DIR=/usr/local/opt/llvm
-export MAKEKIT_QT_DIR=""
+echo 'export MK_DIR="/usr/local/makekit"' >> ~/.bash_profile
+echo 'export MK_LLVM_DIR="/usr/local/opt/llvm"' >> ~/.bash_profile
+echo 'export MK_QT_DIR=""' >> ~/.bash_profile
 
-echo Copying files to ${MAKEKIT_DIR}...
+echo Copying files to ${MK_DIR}...
 
-sudo mkdir ${MAKEKIT_DIR}
-sudo cp -r -v ${DIR}/bin ${MAKEKIT_DIR}/bin
-sudo cp -r -v ${DIR}/cmake ${MAKEKIT_DIR}/cmake
-sudo cp -r -v ${DIR}/integration ${MAKEKIT_DIR}/integration
+sudo mkdir ${MK_DIR}
+sudo cp -r -v ${DIR}/bin ${MK_DIR}/bin
+sudo cp -r -v ${DIR}/cmake ${MK_DIR}/cmake
+sudo cp -r -v ${DIR}/integration ${MK_DIR}/integration
 
 echo Creating required symbolic links...
 
-ln -s ${MAKEKIT_LLVM_DIR}/lib/libomp.dylib /usr/local/lib/libomp.dylib
-ln -s ${MAKEKIT_DIR}/bin/mk /usr/local/bin/mk
-
-#sudo cp ${DIR}/mk /usr/local/bin/
-#sudo cp ${DIR}/mk_clean /usr/local/bin/
-#sudo cp ${DIR}/mk_config /usr/local/bin/
-#sudo cp ${DIR}/mk_make /usr/local/bin/
-#sudo cp ${DIR}/mk_reconfig /usr/local/bin/
-#sudo cp ${DIR}/mk_refresh /usr/local/bin/
-#sudo cp ${DIR}/mk_remake /usr/local/bin/
+ln -s ${MK_LLVM_DIR}/lib/libomp.dylib /usr/local/lib/libomp.dylib
+ln -s ${MK_DIR}/bin/mk /usr/local/bin/mk

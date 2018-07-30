@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
+message(STATUS "MakeKit - Configuring project ${PROJECT_NAME}...")
+
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message(FATAL_ERROR "MakeKit - Not a valid LLVM/clang compiler!
 		You are maybe using Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
@@ -77,9 +79,9 @@ include(CustomBuilds.cmake OPTIONAL)
 #file(GLOB_RECURSE C_SOURCES RELATIVE ${MK_SOURCE} *.c)
 #file(GLOB_RECURSE C_HEADERS RELATIVE ${MK_SOURCE} *.h)
 
-file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MK_SOURCE} *.cc *.cpp *.cxx)
-file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MK_SOURCE} *.h *.hh *.hpp *.hxx)
-file(GLOB_RECURSE CXX_INLINES RELATIVE ${MK_SOURCE} *.inc *.inl *.ipp *.ixx *.tcc *.tpp *.txx)
+file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MK_SOURCE} *.cc *.c++ *.cpp *.cxx)
+file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MK_SOURCE} *.h *.hh *.h++ *.hpp *.hxx)
+file(GLOB_RECURSE CXX_INLINES RELATIVE ${MK_SOURCE} *.inc *.inl *.ipp *.ixx *.tpp *.txx)
 #file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} *.${CMAKE_CXX_OUTPUT_EXTENSION})
 if (MK_OS_WINDOWS)
 	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} *.obj)
