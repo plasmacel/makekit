@@ -2,7 +2,7 @@
 
 set DEFAULT_CMAKE_DIR=%ProgramFiles%\CMake
 set DEFAULT_LLVM_DIR=%ProgramFiles%\LLVM
-set DEFAULT_MAKEKIT_DIR=%ProgramFiles%\MakeKit
+set DEFAULT_MK_DIR=%ProgramFiles%\MakeKit
 
 :: Get latest installed Windows 10 SDK version
 
@@ -33,9 +33,9 @@ if not exist "%MK_LLVM_INSTALL_DIR%" (
 	exit
 )
 
-set /p MK_INSTALL_DIR=MakeKit installation directory (default is %DEFAULT_MAKEKIT_DIR%):
+set /p MK_INSTALL_DIR=MakeKit installation directory (default is %DEFAULT_MK_DIR%):
 if "%MK_INSTALL_DIR%" == "" (
-	set MK_INSTALL_DIR=%DEFAULT_MAKEKIT_DIR%
+	set MK_INSTALL_DIR=%DEFAULT_MK_DIR%
 )
 if not exist "%MK_INSTALL_DIR%" (
 	mkdir "%MK_INSTALL_DIR%\bin"

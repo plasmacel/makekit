@@ -22,7 +22,7 @@ if (MK_QT)
 
 	# Find Qt5
 
-	set(Qt5_DIR $ENV{MAKEKIT_QT_DIR}/lib/cmake/Qt5)
+	set(Qt5_DIR $ENV{MK_QT_DIR}/lib/cmake/Qt5)
 	find_package(Qt5 COMPONENTS ${MK_QT} REQUIRED)
 
 	if (NOT Qt5_FOUND)

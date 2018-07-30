@@ -7,19 +7,19 @@ static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_BUILD_TYPE = "release";
 
 #ifdef _WIN32
-static const std::string MAKEKIT_ASM_COMPILER = "ml64.exe";
-static const std::string MAKEKIT_C_COMPILER = "clang-cl.exe";
-static const std::string MAKEKIT_CXX_COMPILER = "clang-cl.exe";
-static const std::string MAKEKIT_CUDA_COMPILER = "nvcc.exe";
-static const std::string MAKEKIT_RC_COMPILER = "rc.exe";
-static const std::string MAKEKIT_LINKER = "lld-link.exe";
+static const std::string MK_ASM_COMPILER = "ml64.exe";
+static const std::string MK_C_COMPILER = "clang-cl.exe";
+static const std::string MK_CXX_COMPILER = "clang-cl.exe";
+static const std::string MK_CUDA_COMPILER = "nvcc.exe";
+static const std::string MK_RC_COMPILER = "rc.exe";
+static const std::string MK_LINKER = "lld-link.exe";
 #else
-static const std::string MAKEKIT_ASM_COMPILER = "llvm-as";
-static const std::string MAKEKIT_C_COMPILER = "clang";
-static const std::string MAKEKIT_CXX_COMPILER = "clang++";
-static const std::string MAKEKIT_CUDA_COMPILER = "nvcc";
-static const std::string MAKEKIT_RC_COMPILER = "";
-static const std::string MAKEKIT_LINKER = "lld";
+static const std::string MK_ASM_COMPILER = "llvm-as";
+static const std::string MK_C_COMPILER = "clang";
+static const std::string MK_CXX_COMPILER = "clang++";
+static const std::string MK_CUDA_COMPILER = "nvcc";
+static const std::string MK_RC_COMPILER = "";
+static const std::string MK_LINKER = "lld";
 #endif
 
 struct system_commands
@@ -173,14 +173,14 @@ int config(const std::string& build_type, system_commands& cmd)
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
 	cmake_command += " -B" + build_dir;
-	//cmake_command += " -DCMAKE_ASM_COMPILER:FILEPATH=\"" + MAKEKIT_ASM_COMPILER + "\"";
-	cmake_command += " -DCMAKE_C_COMPILER:FILEPATH=\"" + MAKEKIT_C_COMPILER + "\"";
-	cmake_command += " -DCMAKE_CXX_COMPILER:FILEPATH=\"" + MAKEKIT_CXX_COMPILER + "\"";
-	//cmake_command += " -DCMAKE_CUDA_COMPILER:FILEPATH=\"" + MAKEKIT_CUDA_COMPILER + "\"";
+	//cmake_command += " -DCMAKE_ASM_COMPILER:FILEPATH=\"" + MK_ASM_COMPILER + "\"";
+	cmake_command += " -DCMAKE_C_COMPILER:FILEPATH=\"" + MK_C_COMPILER + "\"";
+	cmake_command += " -DCMAKE_CXX_COMPILER:FILEPATH=\"" + MK_CXX_COMPILER + "\"";
+	//cmake_command += " -DCMAKE_CUDA_COMPILER:FILEPATH=\"" + MK_CUDA_COMPILER + "\"";
 #ifdef _WIN32
-	cmake_command += " -DCMAKE_RC_COMPILER:FILEPATH=\"" + MAKEKIT_RC_COMPILER + "\"";
+	cmake_command += " -DCMAKE_RC_COMPILER:FILEPATH=\"" + MK_RC_COMPILER + "\"";
 #endif
-	cmake_command += " -DCMAKE_LINKER:FILEPATH=\"" + MAKEKIT_LINKER + "\"";
+	cmake_command += " -DCMAKE_LINKER:FILEPATH=\"" + MK_LINKER + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
 
 	cmd.append(cmake_command);
