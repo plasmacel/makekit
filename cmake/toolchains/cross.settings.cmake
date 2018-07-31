@@ -1,5 +1,5 @@
 #
-# CMake toolchain file for native or cross compilation using LLVM/clang
+# CMake toolchain file for cross compilation using LLVM/clang
 # https://clang.llvm.org/docs/CrossCompilation.html
 #
 # MK_TARGET_TRIPLE

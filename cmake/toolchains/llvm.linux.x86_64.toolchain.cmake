@@ -16,7 +16,7 @@ set(MK_TARGET_PROCESSOR "x86_64")
 set(MK_TARGET_TRIPLE "x86_64-pc-linux-gnu")
 
 include(llvm.toolchain.cmake)
-include(cross.toolchain.cmake)
+include(cross.settings.cmake)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	message(FATAL_ERROR "Using the Linux toolchain while the target platform is not Linux!")

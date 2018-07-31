@@ -10,13 +10,13 @@ if (NOT MK_TOOLCHAIN_PARSED)
 	set(MK_TOOLCHAIN_PARSED TRUE)
 endif ()
 
-# Variables
+# MK Settings
 set(MK_TARGET_SYSTEM "Darwin")
 set(MK_TARGET_PROCESSOR "x86_64")
 set(MK_TARGET_TRIPLE "x86_64-apple-darwin")
 
 include(llvm.toolchain.cmake)
-include(cross.toolchain.cmake)
+include(cross.settings.cmake)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	message(FATAL_ERROR "Using the macOS toolchain while the target platform is not macOS!")
