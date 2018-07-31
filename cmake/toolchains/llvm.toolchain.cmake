@@ -16,16 +16,6 @@ if (CMAKE_HOST_WIN32) # True when the target system is Windows, including Win64.
 	set(CMAKE_CXX_COMPILER "clang-cl" CACHE FILEPATH "" FORCE)
 	set(CMAKE_RC_COMPILER "llvm-rc" CACHE FILEPATH "" FORCE)
 	set(CMAKE_LINKER "lld-link" CACHE FILEPATH "" FORCE)
-
-	string(REPLACE " /D" " /D " CMAKE_RC_FLAGS ${CMAKE_RC_FLAGS})
-	string(REPLACE " -D" " -D " CMAKE_RC_FLAGS ${CMAKE_RC_FLAGS})
-	string(REPLACE " /I" " /I " CMAKE_RC_FLAGS ${CMAKE_RC_FLAGS})
-	string(REPLACE " -I" " -I " CMAKE_RC_FLAGS ${CMAKE_RC_FLAGS})
-
-	string(REPLACE " /D" " /D " CMAKE_RC_FLAGS_INIT ${CMAKE_RC_FLAGS_INIT})
-	string(REPLACE " -D" " -D " CMAKE_RC_FLAGS_INIT ${CMAKE_RC_FLAGS_INIT})
-	string(REPLACE " /I" " /I " CMAKE_RC_FLAGS_INIT ${CMAKE_RC_FLAGS_INIT})
-	string(REPLACE " -I" " -I " CMAKE_RC_FLAGS_INIT ${CMAKE_RC_FLAGS_INIT})
 	
 	#set(CMAKE_C_FLAGS_INIT --driver-mode=cl ${CMAKE_C_FLAGS_INIT})
 	#set(CMAKE_CXX_FLAGS_INIT --driver-mode=cl ${CMAKE_CXX_FLAGS_INIT})
