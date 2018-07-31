@@ -25,7 +25,7 @@ if (WIN32) # True when the target system is Windows, including Win64.
 	#set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor link)
 	#set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor link)
 
-else ()
+elseif (UNIX) # True when the target system is Unix or Unix-like, including Apple Darwin and Linux.
 
 	set(CMAKE_ASM_COMPILER "llvm-as" CACHE FILEPATH "" FORCE)
 	set(CMAKE_C_COMPILER "clang" CACHE FILEPATH "" FORCE)
@@ -50,8 +50,11 @@ else ()
 		#set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor gnu)
 	endif()
 
-endif()
+else()
+	message(FATAL_ERROR "This system is unsupported by the current toolchain!")
+endif ()
 
+# Set static libary tools
 set(CMAKE_AR "llvm-ar" CACHE FILEPATH "" FORCE)
 set(CMAKE_RANLIB "llvm-ranlib" CACHE FILEPATH "" FORCE)
 
