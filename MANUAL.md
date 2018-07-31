@@ -448,7 +448,7 @@ Creates a build system configuration for the specified `BUILD_TYPE`. If it has b
 
 #### `mk help`
 
-Outputs the list of available commands and basic descriptions of them.
+Outputs the list of available commands and their basic descriptions.
 
 #### `mk host`
 
