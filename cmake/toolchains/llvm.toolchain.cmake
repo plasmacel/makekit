@@ -36,7 +36,7 @@ else ()
 	#set(CMAKE_C_FLAGS_INIT --driver-mode=gcc ${CMAKE_C_FLAGS_INIT})
 	#set(CMAKE_CXX_FLAGS_INIT --driver-mode=g++ ${CMAKE_CXX_FLAGS_INIT})
 
-	if (APPLE)
+	if (APPLE) # True when the target system is Apple Darwin, including macOS.
 		set(CMAKE_LINKER "ld" CACHE FILEPATH "" FORCE)
 		#set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor darwin)
 		#set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor darwin)
