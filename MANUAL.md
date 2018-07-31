@@ -26,9 +26,6 @@
     
 ## I. LLVM toolchain development environments
 
-C/C++ compiler [clang](http://clang.llvm.org/)
-LLVM Linker [lld](https://lld.llvm.org/)
-
 **Darwin / macOS**
 
 On Darwin based systems (including macOS) LLVM completely replaces the Apple LLVM (Apple's fork or LLVM) and GNU C/C++ toolchains. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
@@ -85,13 +82,20 @@ MSVC Toolchain
 
 LLVM Toolchain
 
-- Assembler/Disassembler: integrated, can be invoked as standalone by`llvm-mc`
+- Assembler/Disassembler: integrated, can be invoked as standalone by `llvm-mc`
 - Compiler: `clang --driver-mode=cl`, or equivalently `clang-cl`
 - Library tool: `llvm-lib`
 - Linker: `lld -flavor link`, or equivalently `lld-link`
 - Manifest tool: `llvm-mt`
 - Resource Compiler: `llvm-rc`
 
+Static library tools
+- Archiver tool: `llvm-ar`
+- Indexer tool: `llvm-ranlib`
+
+Binary object tools
+- Diff tool: `llvm-diff`
+- Viewer tool: `llvm-nm`
 
 More info: https://clang.llvm.org/docs/UsersManual.html#clang-cl
 
@@ -103,7 +107,7 @@ Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to 
 ##### I/A Visual C++ development environment toolchain using LLVM/clang (Windows)
 
 1. If you already have **Visual Studio 2017** installed on your computer, then go to the next step. Otherwise, download and install Microsoft's **Build Tools for Visual Studio 2017**.
-   It will install all the required tools to build applications, including the `cl` compiler, but without the Visual Studio IDE. Don't forget to check the latest Windows SDK at the installation options.
+   It will install all the required tools to build applications, but without the Visual Studio IDE. At the installer options don't forget to check-in the option to also install the latest Windows 10 SDK.
    https://go.microsoft.com/fwlink/?linkid=840931 or https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017
 2. Download and install the latest stable binary distribution of LLVM/clang for your OS:
    http://releases.llvm.org
@@ -144,7 +148,6 @@ MakeKit relies on the following environment variables, which are automatically c
 - `MK_DIR` - The installation directory of MakeKit, where its `bin` folder can be found
 - `MK_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MK_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
-- `MK_VCVARS_DIR` - This is defined only on Windows and points to the directory of `vcvars64.bat`.
 
 ## III. Generate and customize `CMakeLists.txt`
 
