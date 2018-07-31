@@ -310,7 +310,7 @@ if (CXX_SOURCES)
 			return()
 		endif ()
 		
-		add_library(${PROJECT_NAME} ${MK_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
+		add_library(${PROJECT_NAME} ${MK_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
 		
 		# For header-only libraries this line is required
 		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
