@@ -169,7 +169,7 @@ int config(const std::string& build_type, system_commands& cmd)
 #ifdef _WIN32
 	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/llvm.native.toolchain.cmake\"";
 #else
-	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/toolchains/llvm.native.toolchain.cmake\"";
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/cmake/toolchains/llvm.native.toolchain.cmake\"";
 #endif
 
 #ifdef _WIN32
