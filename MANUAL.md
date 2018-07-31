@@ -85,7 +85,7 @@ MSVC Toolchain
 
 LLVM Toolchain
 
-- Assembler/Disassembler: `llvm-mc`
+- Assembler/Disassembler: integrated, can be invoked as standalone by`llvm-mc`
 - Compiler: `clang --driver-mode=cl`, or equivalently `clang-cl`
 - Library tool: `llvm-lib`
 - Linker: `lld -flavor link`, or equivalently `lld-link`
