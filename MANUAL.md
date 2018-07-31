@@ -37,7 +37,7 @@ On Darwin based systems (including macOS) LLVM completely replaces the Apple LLV
 - C Compiler: `clang --driver-mode=gcc` or simply `clang`
 - C++ compiler: `clang --driver-mode=g++` or simply `clang++`
 - Library tool: `llvm-lib`
-- Linker: `lld -flavor darwin`, or simply `ld`
+- Linker: `lld -flavor darwin`, or simply `ld.lld`
 
 **Linux**
 
