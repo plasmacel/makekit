@@ -3,24 +3,10 @@
 #include <iostream>
 #include <string>
 
+static const std::string VERSION = "0.1";
+
 static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_BUILD_TYPE = "release";
-
-#ifdef _WIN32
-static const std::string MK_ASM_COMPILER = "ml64.exe";
-static const std::string MK_C_COMPILER = "clang-cl.exe";
-static const std::string MK_CXX_COMPILER = "clang-cl.exe";
-static const std::string MK_CUDA_COMPILER = "nvcc.exe";
-static const std::string MK_RC_COMPILER = "rc.exe";
-static const std::string MK_LINKER = "lld-link.exe";
-#else
-static const std::string MK_ASM_COMPILER = "llvm-as";
-static const std::string MK_C_COMPILER = "clang";
-static const std::string MK_CXX_COMPILER = "clang++";
-static const std::string MK_CUDA_COMPILER = "nvcc";
-static const std::string MK_RC_COMPILER = "";
-static const std::string MK_LINKER = "lld";
-#endif
 
 struct system_commands
 {
@@ -103,7 +89,10 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("call %MK_VCVARS_DIR%\vcvars64.bat"); // vcvars.bat "x64"
+		cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
+		cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
+		cmd.append("del vsdevcmd_dir.txt");
+		cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
 	}
 }
 
@@ -166,6 +155,9 @@ int config(const std::string& build_type, system_commands& cmd)
 
 #ifdef _WIN32
 	add_set_environment_command("x64", cmd);
+	//cmd.append("set MK_CURRENT_DIR=%cd%");
+	//cmd.append("pushd \"%MK_CURRENT_DIR%\"");
+	//cmd.append("echo good so far");
 #endif
 
 	// Append run CMake command
@@ -173,15 +165,16 @@ int config(const std::string& build_type, system_commands& cmd)
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
 	cmake_command += " -B" + build_dir;
-	//cmake_command += " -DCMAKE_ASM_COMPILER:FILEPATH=\"" + MK_ASM_COMPILER + "\"";
-	cmake_command += " -DCMAKE_C_COMPILER:FILEPATH=\"" + MK_C_COMPILER + "\"";
-	cmake_command += " -DCMAKE_CXX_COMPILER:FILEPATH=\"" + MK_CXX_COMPILER + "\"";
-	//cmake_command += " -DCMAKE_CUDA_COMPILER:FILEPATH=\"" + MK_CUDA_COMPILER + "\"";
-#ifdef _WIN32
-	cmake_command += " -DCMAKE_RC_COMPILER:FILEPATH=\"" + MK_RC_COMPILER + "\"";
-#endif
-	cmake_command += " -DCMAKE_LINKER:FILEPATH=\"" + MK_LINKER + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
+#ifdef _WIN32
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/llvm.native.toolchain.cmake\"";
+#else
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/toolchains/llvm.native.toolchain.cmake\"";
+#endif
+
+#ifdef _WIN32
+	//cmd.append("popd");
+#endif
 
 	cmd.append(cmake_command);
 
@@ -251,6 +244,18 @@ int clean_make(const std::string& build_type, system_commands& cmd)
 	return 0;
 }
 
+int help(system_commands& cmd)
+{
+	cmd.append("echo God helps those who help themselves.");
+	return 0;
+}
+
+int hostinfo(system_commands& cmd)
+{
+	cmd.append("clang -dumpmachine");
+	return 0;
+}
+
 int refresh(const std::string& build_type, system_commands& cmd)
 {
 	return config(build_type, cmd);
@@ -268,20 +273,44 @@ int remake(const std::string& build_type, system_commands& cmd)
 	return make(build_type, cmd);
 }
 
+int version(system_commands& cmd)
+{
+	std::cout << VERSION << std::endl;
+	return 0;
+}
+
 int main(int argc, char** argv)
 {
 	std::string command;
 	std::string build_type;
+
+	system_commands cmd;
+	int retval;
 
 	if (argc > 1) command = argv[1];
 	if (argc > 2) build_type = argv[2];
 
 	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
 
-	system_commands cmd;
-	int retval;
-
-	if (command == "clean")
+	if (command == "help")
+	{
+		if (argc > 2) return 1;
+		retval = help(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "host")
+	{
+		if (argc > 2) return 1;
+		retval = hostinfo(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "version")
+	{
+		if (argc > 2) return 1;
+		retval = version(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "clean")
 	{
 		retval = clean_all(build_type, cmd);
 		if (retval != 0) return retval;

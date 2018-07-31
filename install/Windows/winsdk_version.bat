@@ -12,4 +12,4 @@ for /f %%G in ('dir /b') do set WINSDK_VER=%%~G
 echo Detected Windows 10 SDK Version: %WINSDK_VER%
 
 :: Return value
-endlocal&set %~1=%WINSDK_VER%
+endlocal
