@@ -4,13 +4,8 @@ set DEFAULT_CMAKE_DIR=%ProgramFiles%\CMake
 set DEFAULT_LLVM_DIR=%ProgramFiles%\LLVM
 set DEFAULT_MK_DIR=%ProgramFiles%\MakeKit
 
-:: Get latest installed Windows 10 SDK version
-
-call %~dp0\win10sdk_version.bat WINSDK_VER
-
 :: Get installation directories from user input
 
-:: set /p WINSDK_VER=Windows SDK Version (default is %WINSDK_VER%):
 set /p MK_CMAKE_INSTALL_DIR=CMake installation directory (default is %DEFAULT_CMAKE_DIR%):
 if "%MK_CMAKE_INSTALL_DIR%" == "" (
 	set MK_CMAKE_INSTALL_DIR=%DEFAULT_CMAKE_DIR%
@@ -19,7 +14,7 @@ if not exist "%MK_CMAKE_INSTALL_DIR%" (
 	echo ERROR: CMake installation directory cannot be found!
 	set /p dummy=Press ENTER...
 	@echo on
-	exit
+	exit /b 1
 )
 
 set /p MK_LLVM_INSTALL_DIR=LLVM installation directory (default is %DEFAULT_LLVM_DIR%):
@@ -30,7 +25,7 @@ if not exist "%MK_LLVM_INSTALL_DIR%" (
 	echo ERROR: LLVM installation directory cannot be found!
 	set /p dummy=Press ENTER...
 	@echo on
-	exit
+	exit /b 1
 )
 
 set /p MK_INSTALL_DIR=MakeKit installation directory (default is %DEFAULT_MK_DIR%):
@@ -49,7 +44,7 @@ if not exist "%MK_QT_INSTALL_DIR%" (
 	echo ERROR: Qt installation directory cannot be found!
 	set /p dummy=Press ENTER...
 	@echo on
-	exit
+	exit /b 1
 )
 
 :: Install Visual Studio 2017 Build Tools
@@ -62,11 +57,6 @@ if not exist "%MK_QT_INSTALL_DIR%" (
 set MK_CMAKE_BIN=%MK_CMAKE_INSTALL_DIR%\bin
 set MK_LLVM_BIN=%MK_LLVM_INSTALL_DIR%\bin
 set MK_BIN=%MK_INSTALL_DIR%\bin
-:: set WINSDK_DIR=%ProgramFiles(x86)%\Windows Kits\10\bin\%WINSDK_VER%\x64
-
-echo.
-echo Creating environment variable MK_VCVARS_DIR...
-setx MK_VCVARS_DIR "%VSAPPIDDIR%/../Tools/vsdevcmd/ext"
 
 echo.
 echo Creating environment variable MK_DIR...
@@ -88,17 +78,31 @@ PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK_LLVM_BIN%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK_BIN%"
 
-:: Compile MK
+:: Check required components
 
-::where /q clang-cl
-::if %ERRORLEVEL% NEQ 0 (
-::	echo Error: clang-cl cannot be found in PATH!
-::	exit
-::)
+echo.
+echo Checking the presence of CMake...
+where /q cmake
+if %ERRORLEVEL% == 0 (
+	echo CMake is OK!
+) else (
+	echo Error: CMake cannot be found in PATH!
+	exit /b 1
+)
 
-::echo.
-::echo Making mk.exe...
+echo Checking the presence of Ninja...
+where /q ninja
+if %ERRORLEVEL% == 0 (
+	echo Ninja is OK!
+) else (
+	echo Error: Ninja cannot be found in PATH!
+	exit /b 1
+)
 
+echo.
+echo Making mk.exe...
+
+cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
 ::cmake . -G "Ninja" -Bbuild -DCMAKE_C_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_LINKER:FILEPATH="lld-link.exe" -DCMAKE_RC_COMPILER:FILEPATH="rc.exe" -DCMAKE_BUILD_TYPE="Release"
 ::cmake --build --config Release
 ::clang-cl /nologo /EHsc /MD src/mk.cpp
@@ -106,20 +110,9 @@ PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK
 :: Copying files
 
 echo.
-echo Installing LLVM OpenMP (libomp) to %MK_LLVM_INSTALL_DIR%...
-
-xcopy /F /Y /R "%~dp0\deps\llvm-openmp\include\omp.h" "%MK_LLVM_INSTALL_DIR%\lib\clang\6.0.0\include\omp.h"
-
-xcopy /F /Y /R "%~dp0\deps\llvm-openmp\bin\libomp.dll" "%MK_LLVM_INSTALL_DIR%\bin\libomp.dll"
-xcopy /F /Y /R "%~dp0\deps\llvm-openmp\bin\libompd.dll" "%MK_LLVM_INSTALL_DIR%\bin\libompd.dll"
-
-xcopy /F /Y /R "%~dp0\deps\llvm-openmp\lib\libomp.lib" "%MK_LLVM_INSTALL_DIR%\lib\libomp.lib"
-xcopy /F /Y /R "%~dp0\deps\llvm-openmp\lib\libompd.lib" "%MK_LLVM_INSTALL_DIR%\lib\libompd.lib"
-
-echo.
 echo Copying files to %MK_INSTALL_DIR%...
 
-xcopy /E /F /Y /R "%~dp0\..\..\bin" "%MK_INSTALL_DIR%\bin"
+xcopy /E /F /Y /R "%~dp0\..\..\build\bin" "%MK_INSTALL_DIR%\bin"
 xcopy /E /F /Y /R "%~dp0\..\..\cmake" "%MK_INSTALL_DIR%\cmake"
 xcopy /E /F /Y /R "%~dp0\..\..\integration" "%MK_INSTALL_DIR%\integration"
 xcopy    /F /Y /R "%~dp0\..\..\LICENSE.txt" "%MK_INSTALL_DIR%\LICENSE.txt"
