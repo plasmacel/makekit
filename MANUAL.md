@@ -85,7 +85,7 @@ MSVC Toolchain
 
 LLVM Toolchain
 
-- Assembler: `llvm-as`
+- Assembler/Disassembler: `llvm-mc`
 - Compiler: `clang --driver-mode=cl`, or equivalently `clang-cl`
 - Library tool: `llvm-lib`
 - Linker: `lld -flavor link`, or equivalently `lld-link`
