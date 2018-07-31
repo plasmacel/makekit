@@ -3,24 +3,10 @@
 #include <iostream>
 #include <string>
 
+static const std::string VERSION = "0.1";
+
 static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_BUILD_TYPE = "release";
-
-#ifdef _WIN32
-static const std::string MAKEKIT_ASM_COMPILER = "ml64.exe";
-static const std::string MAKEKIT_C_COMPILER = "clang-cl.exe";
-static const std::string MAKEKIT_CXX_COMPILER = "clang-cl.exe";
-static const std::string MAKEKIT_CUDA_COMPILER = "nvcc.exe";
-static const std::string MAKEKIT_RC_COMPILER = "rc.exe";
-static const std::string MAKEKIT_LINKER = "lld-link.exe";
-#else
-static const std::string MAKEKIT_ASM_COMPILER = "llvm-as";
-static const std::string MAKEKIT_C_COMPILER = "clang";
-static const std::string MAKEKIT_CXX_COMPILER = "clang++";
-static const std::string MAKEKIT_CUDA_COMPILER = "nvcc";
-static const std::string MAKEKIT_RC_COMPILER = "";
-static const std::string MAKEKIT_LINKER = "lld";
-#endif
 
 struct system_commands
 {
@@ -103,7 +89,7 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("call %MK_VCVARS_DIR%\vcvars64.bat"); // vcvars.bat "x64"
+		cmd.append("call vsdevcmd.bat -arch=x64 -host_arch=x64"); // vcvars.bat "x64"
 	}
 }
 
@@ -173,15 +159,8 @@ int config(const std::string& build_type, system_commands& cmd)
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
 	cmake_command += " -B" + build_dir;
-	//cmake_command += " -DCMAKE_ASM_COMPILER:FILEPATH=\"" + MAKEKIT_ASM_COMPILER + "\"";
-	cmake_command += " -DCMAKE_C_COMPILER:FILEPATH=\"" + MAKEKIT_C_COMPILER + "\"";
-	cmake_command += " -DCMAKE_CXX_COMPILER:FILEPATH=\"" + MAKEKIT_CXX_COMPILER + "\"";
-	//cmake_command += " -DCMAKE_CUDA_COMPILER:FILEPATH=\"" + MAKEKIT_CUDA_COMPILER + "\"";
-#ifdef _WIN32
-	cmake_command += " -DCMAKE_RC_COMPILER:FILEPATH=\"" + MAKEKIT_RC_COMPILER + "\"";
-#endif
-	cmake_command += " -DCMAKE_LINKER:FILEPATH=\"" + MAKEKIT_LINKER + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%\"/toolchains/native.clang.toolchain.cmake";
 
 	cmd.append(cmake_command);
 
@@ -251,6 +230,12 @@ int clean_make(const std::string& build_type, system_commands& cmd)
 	return 0;
 }
 
+int hostinfo(system_commands& cmd)
+{
+	cmd.append("clang -dumpmachine");
+	return 0;
+}
+
 int refresh(const std::string& build_type, system_commands& cmd)
 {
 	return config(build_type, cmd);
@@ -268,18 +253,38 @@ int remake(const std::string& build_type, system_commands& cmd)
 	return make(build_type, cmd);
 }
 
+int version(system_commands& cmd)
+{
+	std::cout << VERSION << std::endl;
+	return 0;
+}
+
 int main(int argc, char** argv)
 {
 	std::string command;
 	std::string build_type;
 
+	system_commands cmd;
+	int retval;
+
 	if (argc > 1) command = argv[1];
+
+	if (command == "hostinfo")
+	{
+		if (argc > 2) return 1;
+		retval = hostinfo(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "version")
+	{
+		if (argc > 2) return 1;
+		retval = version(cmd);
+		if (retval != 0) return retval;
+	}
+
 	if (argc > 2) build_type = argv[2];
 
 	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
-
-	system_commands cmd;
-	int retval;
 
 	if (command == "clean")
 	{
