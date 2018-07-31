@@ -413,6 +413,10 @@ Removes the directory (including all associated files) of the build configuratio
 
 Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
 
+#### `mk help`
+
+Outputs the list of available commands and basic descriptions of them.
+
 #### `mk host`
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
