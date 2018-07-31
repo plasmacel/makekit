@@ -427,7 +427,7 @@ Creates or refreshes the build configuration specified by `BUILD_TYPE` and execu
 
 #### `mk reconfig BUILD_TYPE`
 
-Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. This command is recommended if `CMakeLists.txt` has been changed.
+Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. The built binaries remain unchanged. This command is recommended if `CMakeLists.txt` has been changed.
 
 #### `mk refresh BUILD_TYPE`
 
