@@ -89,7 +89,10 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("call vsdevcmd.bat -arch=x64 -host_arch=x64"); // vcvars.bat "x64"
+		cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
+		cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
+		cmd.append("del vsdevcmd_dir.txt");
+		cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
 	}
 }
 
@@ -152,6 +155,9 @@ int config(const std::string& build_type, system_commands& cmd)
 
 #ifdef _WIN32
 	add_set_environment_command("x64", cmd);
+	//cmd.append("set MK_CURRENT_DIR=%cd%");
+	//cmd.append("pushd \"%MK_CURRENT_DIR%\"");
+	//cmd.append("echo good so far");
 #endif
 
 	// Append run CMake command
@@ -160,7 +166,15 @@ int config(const std::string& build_type, system_commands& cmd)
 	cmake_command += " -GNinja";
 	cmake_command += " -B" + build_dir;
 	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
-	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%\"/toolchains/native.clang.toolchain.cmake";
+#ifdef _WIN32
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/llvm.native.toolchain.cmake\"";
+#else
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/toolchains/llvm.native.toolchain.cmake\"";
+#endif
+
+#ifdef _WIN32
+	//cmd.append("popd");
+#endif
 
 	cmd.append(cmake_command);
 
@@ -230,6 +244,12 @@ int clean_make(const std::string& build_type, system_commands& cmd)
 	return 0;
 }
 
+int help(system_commands& cmd)
+{
+	cmd.append("echo God helps those who help themselves.");
+	return 0;
+}
+
 int hostinfo(system_commands& cmd)
 {
 	cmd.append("clang -dumpmachine");
@@ -268,8 +288,17 @@ int main(int argc, char** argv)
 	int retval;
 
 	if (argc > 1) command = argv[1];
+	if (argc > 2) build_type = argv[2];
 
-	if (command == "hostinfo")
+	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
+
+	if (command == "help")
+	{
+		if (argc > 2) return 1;
+		retval = help(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "host")
 	{
 		if (argc > 2) return 1;
 		retval = hostinfo(cmd);
@@ -281,12 +310,7 @@ int main(int argc, char** argv)
 		retval = version(cmd);
 		if (retval != 0) return retval;
 	}
-
-	if (argc > 2) build_type = argv[2];
-
-	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
-
-	if (command == "clean")
+	else if (command == "clean")
 	{
 		retval = clean_all(build_type, cmd);
 		if (retval != 0) return retval;
