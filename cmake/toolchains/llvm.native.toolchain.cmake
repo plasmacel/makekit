@@ -12,7 +12,7 @@ endif ()
 
 # Set target system name and processor
 set(CMAKE_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
-set(CMAKE_SYSTEM_VERSION set(CMAKE_HOST_SYSTEM_VERSION)
+set(CMAKE_SYSTEM_VERSION ${CMAKE_HOST_SYSTEM_VERSION})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 # Set forced compiler flags (optional)
