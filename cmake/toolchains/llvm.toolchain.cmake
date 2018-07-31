@@ -9,7 +9,7 @@
 # https://cmake.org/cmake/help/latest/variable/CMAKE_AR.html
 # https://cmake.org/cmake/help/latest/variable/CMAKE_RANLIB.html
 
-if (CMAKE_HOST_WIN32) # True when the target system is Windows, including Win64.
+if (CMAKE_HOST_WIN32) # True when the host system is Windows, including Win64.
 
 	set(CMAKE_ASM_COMPILER "llvm-as" CACHE FILEPATH "" FORCE)
 	set(CMAKE_C_COMPILER "clang-cl" CACHE FILEPATH "" FORCE)
