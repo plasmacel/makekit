@@ -8,6 +8,25 @@ set(MK_TARGET_SYSTEM_NAME "Linux")
 set(MK_TARGET_PROCESSOR_NAME "x86_64")
 set(MK_TARGET_TRIPLE x86_64-pc-linux-gnu)
 
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_LINKER lld)
+
+#set(CMAKE_C_COMPILER clang)
+#set(CMAKE_CXX_COMPILER clang)
+#set(CMAKE_LINKER lld)
+
+set(CMAKE_AR llvm-ar)
+set(CMAKE_RANLIB llvm-ranlib)
+
+set(CMAKE_C_FLAGS_INIT --driver-mode=gcc ${CMAKE_C_FLAGS_INIT})
+set(CMAKE_CXX_FLAGS_INIT --driver-mode=g++ ${CMAKE_CXX_FLAGS_INIT})
+
+set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor gnu)
+set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor gnu)
+set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor gnu)
+set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor gnu)
+
 include(toolchain.cmake)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
