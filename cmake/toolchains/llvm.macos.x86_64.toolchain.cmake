@@ -3,30 +3,35 @@
 # https://clang.llvm.org/docs/CrossCompilation.html
 #
 
-# Variables
-set(MK_TARGET_SYSTEM_NAME "Darwin")
-set(MK_TARGET_PROCESSOR_NAME "x86_64")
-set(MK_TARGET_TRIPLE x86_64-apple-darwin)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_LINKER ld)
+if (NOT MK_TOOLCHAIN_PARSED)
+	message(STATUS "Configuring using the LLVM x86_64 macOS toolchain")
+	set(MK_TOOLCHAIN_PARSED TRUE)
+endif ()
 
-#set(CMAKE_C_COMPILER clang)
-#set(CMAKE_CXX_COMPILER clang)
-#set(CMAKE_LINKER lld)
+# MK Settings
+set(MK_TARGET_SYSTEM "Darwin")
+set(MK_TARGET_PROCESSOR "x86_64")
+set(MK_TARGET_TRIPLE "x86_64-apple-darwin")
 
-#set(CMAKE_C_FLAGS_INIT --driver-mode=gcc ${CMAKE_C_FLAGS_INIT})
-#set(CMAKE_CXX_FLAGS_INIT --driver-mode=g++ ${CMAKE_CXX_FLAGS_INIT})
-
-#set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor darwin)
-#set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor darwin)
-#set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor darwin)
-#set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor darwin)
-
+# Set macOS and iOS specific settings
 # https://cmake.org/cmake/help/latest/variable/CMAKE_FRAMEWORK_PATH.html
+# https://cmake.org/cmake/help/latest/variable/CMAKE_MACOSX_BUNDLE.html
+# https://cmake.org/cmake/help/latest/variable/CMAKE_MACOSX_RPATH.html
+# https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_ARCHITECTURES.html
+# https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
+# https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_SYSROOT.html
 
-include(toolchain.cmake)
+set(CMAKE_FRAMEWORK_PATH "")
+set(CMAKE_MACOSX_BUNDLE "")
+set(CMAKE_MACOSX_RPATH "")
+set(CMAKE_OSX_ARCHITECTURES "")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "")
+set(CMAKE_OSX_SYSROOT "")
+
+include(llvm.toolchain.cmake)
+include(cross.settings.cmake)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	message(FATAL_ERROR "Using the macOS toolchain while the target platform is not macOS!")
