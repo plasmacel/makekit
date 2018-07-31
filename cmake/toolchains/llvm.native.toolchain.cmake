@@ -20,7 +20,7 @@ set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 #set(CMAKE_CXX_COMPILER_FORCED TRUE)
 
 # Include LLVM toolchain
-include(llvm.toolchain.cmake)
+include($ENV{MK_DIR}/cmake/toolchains/llvm.toolchain.cmake)
 
 set(CMAKE_CROSSCOMPILING FALSE)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)

@@ -11,12 +11,13 @@ if (NOT MK_TOOLCHAIN_PARSED)
 endif ()
 
 # MK Settings
+set(MK_SYSROOT_PATH "")
 set(MK_TARGET_SYSTEM "Linux")
 set(MK_TARGET_PROCESSOR "x86_64")
 set(MK_TARGET_TRIPLE "x86_64-pc-linux-gnu")
 
-include(llvm.toolchain.cmake)
-include(cross.settings.cmake)
+include($ENV{MK_DIR}/cmake/toolchains/llvm.toolchain.cmake)
+include($ENV{MK_DIR}/cmake/toolchains/cross.settings.cmake)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	message(FATAL_ERROR "Using the Linux toolchain while the target platform is not Linux!")

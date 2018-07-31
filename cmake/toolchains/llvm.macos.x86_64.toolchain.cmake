@@ -11,6 +11,7 @@ if (NOT MK_TOOLCHAIN_PARSED)
 endif ()
 
 # MK Settings
+set(MK_SYSROOT_PATH "")
 set(MK_TARGET_SYSTEM "Darwin")
 set(MK_TARGET_PROCESSOR "x86_64")
 set(MK_TARGET_TRIPLE "x86_64-apple-darwin")
@@ -30,8 +31,8 @@ set(CMAKE_OSX_ARCHITECTURES "")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "")
 set(CMAKE_OSX_SYSROOT "")
 
-include(llvm.toolchain.cmake)
-include(cross.settings.cmake)
+include($ENV{MK_DIR}/cmake/toolchains/llvm.toolchain.cmake)
+include($ENV{MK_DIR}/cmake/toolchains/cross.settings.cmake)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	message(FATAL_ERROR "Using the macOS toolchain while the target platform is not macOS!")
