@@ -37,10 +37,10 @@ if "%MK_INSTALL_DIR%" == "" (
 	set MK_INSTALL_DIR=%DEFAULT_MK_DIR%
 )
 if exist "%MK_INSTALL_DIR%" (
-	echo ERROR: MakeKit is already installed. Removing previous version...
+	echo MakeKit is already installed. Removing previous version...
 	rd /s /q "%MK_INSTALL_DIR%"
 ) else (
-	mkdir %MK_INSTALL_DIR%
+	mkdir "%MK_INSTALL_DIR%""
 )
 
 :: Get Qt installation directory
@@ -48,8 +48,7 @@ if exist "%MK_INSTALL_DIR%" (
 set /p MK_QT_INSTALL_DIR=Qt installation directory (optional):
 if "%MK_QT_INSTALL_DIR%" == "" (
 	echo Qt support disabled.
-)
-if not exist "%MK_QT_INSTALL_DIR%" (
+) else if not exist "%MK_QT_INSTALL_DIR%" (
 	echo ERROR: Qt installation directory cannot be found!
 	set /p dummy=Press ENTER...
 	@echo on
@@ -63,9 +62,9 @@ if not exist "%MK_QT_INSTALL_DIR%" (
 
 :: Set MK environment variables
 
-set MK_CMAKE_BIN=%MK_CMAKE_INSTALL_DIR%\bin
-set MK_LLVM_BIN=%MK_LLVM_INSTALL_DIR%\bin
-set MK_BIN=%MK_INSTALL_DIR%\bin
+set MK_CMAKE_BIN="%MK_CMAKE_INSTALL_DIR%\bin"
+set MK_LLVM_BIN="%MK_LLVM_INSTALL_DIR%\bin"
+set MK_BIN="%MK_INSTALL_DIR%\bin"
 
 echo.
 echo Creating environment variable MK_DIR...
@@ -113,13 +112,14 @@ if %ERRORLEVEL% == 0 (
 echo.
 echo Building source...
 
+cd "%~dp0\..\.."
 cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
 ::cmake . -G "Ninja" -Bbuild -DCMAKE_C_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_LINKER:FILEPATH="lld-link.exe" -DCMAKE_RC_COMPILER:FILEPATH="rc.exe" -DCMAKE_BUILD_TYPE="Release"
 ::cmake --build --config Release
 ::clang-cl /nologo /EHsc /MD src/mk.cpp
 
 if %ERRORLEVEL% == 0 (
-	echo Error: Build configuration succeeded.
+	echo Build configuration succeeded.
 ) else (
 	echo Error: Build configuration failed!
 	exit /b 1
@@ -128,7 +128,7 @@ if %ERRORLEVEL% == 0 (
 ninja -C build
 
 if %ERRORLEVEL% == 0 (
-	echo Error: Build succeeded.
+	echo Build succeeded.
 ) else (
 	echo Error: Build failed!
 	exit /b 1
@@ -137,24 +137,24 @@ if %ERRORLEVEL% == 0 (
 :: Copying files
 
 echo.
-echo Copying files to %MK_INSTALL_DIR%...
+echo Copying files to "%MK_INSTALL_DIR%"...
 
-xcopy /E /F /Y /R "%~dp0\..\..\build\bin" "%MK_INSTALL_DIR%\bin"
+xcopy /E /F /Y /R "%~dp0\..\..\build\bin" "%MK_INSTALL_DIR%\bin\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
 
-xcopy /E /F /Y /R "%~dp0\..\..\cmake" "%MK_INSTALL_DIR%\cmake"
+xcopy /E /F /Y /R "%~dp0\..\..\cmake" "%MK_INSTALL_DIR%\cmake\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
 
-xcopy /E /F /Y /R "%~dp0\..\..\integration" "%MK_INSTALL_DIR%\integration"
+xcopy /E /F /Y /R "%~dp0\..\..\integration" "%MK_INSTALL_DIR%\integration\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
 
-xcopy    /F /Y /R "%~dp0\..\..\LICENSE.txt" "%MK_INSTALL_DIR%\LICENSE.txt"
+xcopy    /F /Y /R "%~dp0\..\..\LICENSE.txt" "%MK_INSTALL_DIR%\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
@@ -163,7 +163,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo Removing temporary files...
-rd /s /q "%~dp0\build"
+rd /s /q "%~dp0\..\..\build"
 
 echo Installation done.
 set /p dummy=Press ENTER...
