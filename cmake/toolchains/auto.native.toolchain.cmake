@@ -1,5 +1,5 @@
 #
-# CMake toolchain file for targeting the native system using the auto-detected compiler
+# CMake toolchain file for targeting the native system using the auto-detected toolchain
 # https://clang.llvm.org/docs/CrossCompilation.html
 #
 
