@@ -9,7 +9,7 @@
 # https://cmake.org/cmake/help/latest/variable/CMAKE_AR.html
 # https://cmake.org/cmake/help/latest/variable/CMAKE_RANLIB.html
 
-if (CMAKE_HOST_WIN32) # True when the host system is Windows, including Win64.
+if (WIN32) # True when the target system is Windows, including Win64.
 
 	set(CMAKE_ASM_COMPILER "llvm-as" CACHE FILEPATH "" FORCE)
 	set(CMAKE_C_COMPILER "clang-cl" CACHE FILEPATH "" FORCE)
@@ -36,7 +36,7 @@ else ()
 	#set(CMAKE_C_FLAGS_INIT --driver-mode=gcc ${CMAKE_C_FLAGS_INIT})
 	#set(CMAKE_CXX_FLAGS_INIT --driver-mode=g++ ${CMAKE_CXX_FLAGS_INIT})
 
-	if (CMAKE_HOST_APPLE)
+	if (APPLE)
 		set(CMAKE_LINKER "ld" CACHE FILEPATH "" FORCE)
 		#set(CMAKE_EXE_LINKER_FLAGS_INIT -flavor darwin)
 		#set(CMAKE_MODULE_LINKER_FLAGS_INIT -flavor darwin)
