@@ -1,0 +1,6 @@
+vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+
+vcbuild.cmd -arch=x64 -host_arch=x64
+%comspec% /c "%userprofile%\bin\vsdevcmd.cmd"
+
+:: https://blogs.msdn.microsoft.com/vcblog/2017/03/06/finding-the-visual-c-compiler-tools-in-visual-studio-2017/

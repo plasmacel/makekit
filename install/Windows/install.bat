@@ -2,7 +2,7 @@
 
 set DEFAULT_CMAKE_DIR=%ProgramFiles%\CMake
 set DEFAULT_LLVM_DIR=%ProgramFiles%\LLVM
-set DEFAULT_MAKEKIT_DIR=%ProgramFiles%\MakeKit
+set DEFAULT_MK_DIR=%ProgramFiles%\MakeKit
 
 :: Get latest installed Windows 10 SDK version
 
@@ -33,9 +33,9 @@ if not exist "%MK_LLVM_INSTALL_DIR%" (
 	exit
 )
 
-set /p MK_INSTALL_DIR=MakeKit installation directory (default is %DEFAULT_MAKEKIT_DIR%):
+set /p MK_INSTALL_DIR=MakeKit installation directory (default is %DEFAULT_MK_DIR%):
 if "%MK_INSTALL_DIR%" == "" (
-	set MK_INSTALL_DIR=%DEFAULT_MAKEKIT_DIR%
+	set MK_INSTALL_DIR=%DEFAULT_MK_DIR%
 )
 if not exist "%MK_INSTALL_DIR%" (
 	mkdir "%MK_INSTALL_DIR%\bin"
@@ -52,6 +52,11 @@ if not exist "%MK_QT_INSTALL_DIR%" (
 	exit
 )
 
+:: Install Visual Studio 2017 Build Tools
+:: https://blogs.msdn.microsoft.com/vcblog/2016/11/16/introducing-the-visual-studio-build-tools/
+
+:: vs_buildtools.exe –quiet –add Microsoft.VisualStudio.Workload.VCTools –includeRecommended
+
 :: Set MK environment variables
 
 set MK_CMAKE_BIN=%MK_CMAKE_INSTALL_DIR%\bin
@@ -61,7 +66,7 @@ set MK_BIN=%MK_INSTALL_DIR%\bin
 
 echo.
 echo Creating environment variable MK_VCVARS_DIR...
-setx MK_VCVARS_DIR "%VSAPPIDDIR%/../Tools/vsdevcmd\ext"
+setx MK_VCVARS_DIR "%VSAPPIDDIR%/../Tools/vsdevcmd/ext"
 
 echo.
 echo Creating environment variable MK_DIR...
@@ -82,6 +87,21 @@ echo Extending environment variable PATH...
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK_CMAKE_BIN%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK_LLVM_BIN%"
 PowerShell -NoProfile -ExecutionPolicy Bypass -file "%~dp0\export_path.ps1" "%MK_BIN%"
+
+:: Compile MK
+
+::where /q clang-cl
+::if %ERRORLEVEL% NEQ 0 (
+::	echo Error: clang-cl cannot be found in PATH!
+::	exit
+::)
+
+::echo.
+::echo Making mk.exe...
+
+::cmake . -G "Ninja" -Bbuild -DCMAKE_C_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_LINKER:FILEPATH="lld-link.exe" -DCMAKE_RC_COMPILER:FILEPATH="rc.exe" -DCMAKE_BUILD_TYPE="Release"
+::cmake --build --config Release
+::clang-cl /nologo /EHsc /MD src/mk.cpp
 
 :: Copying files
 
