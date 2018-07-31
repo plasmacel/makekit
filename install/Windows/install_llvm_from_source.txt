@@ -6,10 +6,8 @@ if "%MK_LLVM_INSTALL_DIR%" == "" (
 	set MK_LLVM_INSTALL_DIR=%DEFAULT_LLVM_DIR%
 )
 if exist "%MK_LLVM_INSTALL_DIR%" (
-	echo ERROR: LLVM installation directory already exists.
+	echo ERROR: LLVM is already installed. Removing previous vesion...
 	rd /s /q "%MK_LLVM_INSTALL_DIR%"
-	@echo on
-	exit
 ) else (
 	mkdir %MK_LLVM_INSTALL_DIR%
 )

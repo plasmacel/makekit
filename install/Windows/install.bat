@@ -36,8 +36,11 @@ set /p MK_INSTALL_DIR=MakeKit installation directory (default is %DEFAULT_MK_DIR
 if "%MK_INSTALL_DIR%" == "" (
 	set MK_INSTALL_DIR=%DEFAULT_MK_DIR%
 )
-if not exist "%MK_INSTALL_DIR%" (
-	mkdir "%MK_INSTALL_DIR%\bin"
+if exist "%MK_INSTALL_DIR%" (
+	echo ERROR: MakeKit is already installed. Removing previous version...
+	rd /s /q "%MK_INSTALL_DIR%"
+) else (
+	mkdir %MK_INSTALL_DIR%
 )
 
 :: Get Qt installation directory
@@ -155,6 +158,12 @@ xcopy    /F /Y /R "%~dp0\..\..\LICENSE.txt" "%MK_INSTALL_DIR%\LICENSE.txt"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
+
+:: Removing files
+
+echo.
+echo Removing temporary files...
+rd /s /q "%~dp0\build"
 
 echo Installation done.
 set /p dummy=Press ENTER...
