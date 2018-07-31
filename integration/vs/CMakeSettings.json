@@ -1,5 +1,12 @@
 {
+  // MakeKit CMakeSettings.json
   // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
+
+  "environments": [
+    {
+      "MK_TOOLCHAIN": "llvm.native.toolchain"
+    }
+  ],
   "configurations": [
     {
       "name": "Debug",
@@ -8,7 +15,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -20,7 +27,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -32,7 +39,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
@@ -44,7 +51,7 @@
       "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake",
       "buildCommandArgs": "-j 8",
       "ctestCommandArgs": "",
       "variables": []
