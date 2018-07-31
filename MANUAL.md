@@ -37,28 +37,61 @@ On Darwin based systems (including macOS) LLVM completely replaces the Apple LLV
 - C Compiler: `clang --driver-mode=gcc` or simply `clang`
 - C++ compiler: `clang --driver-mode=g++` or simply `clang++`
 - Library tool: `llvm-lib`
-- Linker: `lld -flavor darwin`, or simply `ld`
+- Linker: `lld -flavor darwin`, or simply `ld.lld`
 
 **Linux**
 
 On Linux systems LLVM completely replaces the GNU C/C++ toolchain. Targeting native platform, `clang` should be ran with argument `--driver-mode=gcc` for C, and `--driver-mode=g++` for C++ compilation.
 
+GNU Toolchain
+
+- Assembler: `as`
+- C Compiler: `gcc`
+- C++ compiler: `g++`
+- Library tool: `lib`
+- Linker: `lld -flavor darwin`, or simply `ld.lld`
+
+- Archiver tool: `ar`
+- Diff tool: `diff`
+- Library indexer: `ranlib`
+- Viewer: `nm`
+
+LLVM Toolchain
+
 - Assembler: `llvm-as`
 - C Compiler: `clang --driver-mode=gcc` or simply `clang`
 - C++ compiler: `clang --driver-mode=g++` or simply `clang++`
 - Library tool: `llvm-lib`
-- Linker: `lld -flavor gnu`, or simply `lld`
-- Resource Compiler: `rc`
+- Linker: `lld -flavor gnu`, or simply `ld.lld`
+- Resource Compiler: `llvm-rc`
+
+- Archiver tool: `llvm-ar`
+- Diff tool: `llvm-diff`
+- Viewer: `llvm-nm`
+- Indexer: `llvm-ranlib`
 
 **Windows**
 
 On Windows systems LLVM almost completely replaces the Visual C++ tolchain, but still requires the [Microsoft Resource Compiler (RC)](https://docs.microsoft.com/en-us/windows/desktop/menurc/resource-compiler) `rc.exe` from the Windows SDK, and the [Microsoft Assembler (MASM)](https://docs.microsoft.com/en-us/cpp/assembler/masm/masm-for-x64-ml64-exe) `ml64.exe` from the Visual Studio Build Tools. Targeting native platform, `clang` should be ran with argument `--driver-mode=cl` both for C and C++ compilation. LLVM also provides an alternative executable `clang-cl` for this behavior.
 
+MSVC Toolchain
+
 - Assembler: `ml64`
-- Compiler: `clang --driver-mode=cl`, or equivalently `clang-cl`, or alternatively `cl`
-- Library tool: `llvm-lib`, or alternatively `lib`
-- Linker: `lld -flavor link`, or equivalently `lld-link.exe`, or alternatively `link`
+- Compiler: `cl`
+- Library tool: `lib`
+- Linker: `link`
+- Manifest tool: `mt`
 - Resource Compiler: `rc`
+
+LLVM Toolchain
+
+- Assembler/Disassembler: integrated, can be invoked as standalone by`llvm-mc`
+- Compiler: `clang --driver-mode=cl`, or equivalently `clang-cl`
+- Library tool: `llvm-lib`
+- Linker: `lld -flavor link`, or equivalently `lld-link`
+- Manifest tool: `llvm-mt`
+- Resource Compiler: `llvm-rc`
+
 
 More info: https://clang.llvm.org/docs/UsersManual.html#clang-cl
 
@@ -413,6 +446,10 @@ Removes the directory (including all associated files) of the build configuratio
 
 Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
 
+#### `mk help`
+
+Outputs the list of available commands and their basic descriptions.
+
 #### `mk host`
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
@@ -423,7 +460,7 @@ Creates or refreshes the build configuration specified by `BUILD_TYPE` and execu
 
 #### `mk reconfig BUILD_TYPE`
 
-Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. This command is recommended if `CMakeLists.txt` has been changed.
+Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. The built binaries remain unchanged. This command is recommended if `CMakeLists.txt` has been changed.
 
 #### `mk refresh BUILD_TYPE`
 
