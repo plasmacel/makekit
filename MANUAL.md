@@ -147,13 +147,16 @@ MakeKit relies on the following environment variables, which are automatically c
 
 - `MK_DIR` - The installation directory of MakeKit, where its `bin` folder can be found
 - `MK_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
+- `MK_BOOST_DIR` - The installation directory of the desired version of Boost, where its `bin` and `lib` folders can be found
 - `MK_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
 
 ## III. Generate and customize `CMakeLists.txt`
 
 MakeKit automatically generates `CMakeLists.txt` files for your project using a wide variety of user-specified settings.
 
-TODO
+In the generated `CMakeLists.txt` files several MakeKit related variables and functions are available.
+
+### Variables in `CMakeLists.txt`
 
 | VARIABLE         | Description    | Value type          |
 |:-----------------|:---------------|:--------------------|
@@ -390,7 +393,7 @@ More info: https://www.boost.org/doc/libs/1_67_0
 
 More info: http://doc.qt.io/qt-5/qtmodules.html
 
-### CMakeLists.txt commands
+### Functions in `CMakeLists.txt`
 
 **`mk_add_imported_library(NAME MODE INCLUDE_DIRECTORY STATIC_IMPORT SHARED_IMPORT)`**
 
@@ -398,13 +401,13 @@ Add an imported library using the name `NAME`.
 
 **`mk_deploy()`**
 
-Perform post-build deploy to the runtime output directory (`bin`).
+Perform a post-build deploy step to the runtime output directory (`bin`).
 
 **`mk_deploy_list()`**
 
 Generate a `.txt` file containing the required deploy files into the target build directories.
 
-## IV. Create a build system configuration (and execute it)
+## IV. The build (err, make) process
 
 The flow of the build process is the following: MakeKit first generates a Ninja build system using CMake (`mk config`), then this build system is being executed in parallelized, concurrent fashion (`mk make`), where each build task will use the LLVM C/C++ compiler (clang) and linker (lld). The generated build system can be updated (`mk refresh`) and re-generated (`mk reconfig`) any time. Similarly, the built binaries can be re-built (`mk remake`) any time. If required, all generated files, including the build system and the built binaries can be permanently removed (`mk clean`).
 
@@ -436,6 +439,7 @@ All default CMake `BUILD_TYPE`s are available:
 | RelWithDebInfo (release-debuginfo) | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
 | MinSizeRel (release-minsize)       | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
 
+When `BUILD_TYPE` is omitted, MakeKit will operate on the default build type, which is `release`.
 
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
 
@@ -443,11 +447,15 @@ Custom build types are also available and can be configured in `CustomBuilds.cma
 
 #### `mk clean BUILD_TYPE`
 
-Removes the directory (including all associated files) of the build configuration specified by `BUILD_TYPE`.
+Removes the directory (including the configuration and the built binaries) of the build configuration specified by `BUILD_TYPE`.
+
+If `BUILD_TYPE` is not specified, it defaults to `release`.
 
 #### `mk config BUILD_TYPE`
 
 Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
+
+If `BUILD_TYPE` is not specified, it defaults to `release`.
 
 #### `mk help`
 
@@ -461,17 +469,27 @@ Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#
 
 Creates or refreshes the build configuration specified by `BUILD_TYPE` and executes it, i.e. it starts the build process.
 
+The compiler/linker output can be very verbose when it encounters a lot of warnings and/or errors, which could overflow the buffer of your command line terminal - in this case you start to lose your oldest output lines to favor newer ones. To avoid this, you can redirect the command line output to a file (say `log.txt`) whose size is limited only by the data drive. This can be done by using the redirection operator `>>` as simply as `mk make BUILD_TYPE >> log.txt`, which will overwrite the file every time you issue the command - if you just want to append to it use `>` instead of `>>`.
+
+If `BUILD_TYPE` is not specified, it defaults to `release`.
+
 #### `mk reconfig BUILD_TYPE`
 
-Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. The built binaries remain unchanged. This command is recommended if `CMakeLists.txt` has been changed.
+Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
+
+If `BUILD_TYPE` is not specified, it defaults to `release`.
 
 #### `mk refresh BUILD_TYPE`
 
 Alias for `mk config BUILD_TYPE`.
 
+If `BUILD_TYPE` is not specified, it defaults to `release`.
+
 #### `mk remake BUILD_TYPE`
 
 Removes all prebuilt binaries of the build configuration specified by `BUILD_TYPE` and rebuilds them.
+
+If `BUILD_TYPE` is not specified, it defaults to `release`.
 
 #### `mk version`
 
@@ -500,3 +518,4 @@ TODO
 - https://rix0r.nl/blog/2015/08/13/cmake-guide/
 - https://gist.github.com/mbinna/c61dbb39bca0e4fb7d1f73b0d66a4fd1
 - http://blog.audio-tk.com/2015/09/01/sorting-source-files-and-projects-in-folders-with-cmake-and-visual-studioxcode/
+
