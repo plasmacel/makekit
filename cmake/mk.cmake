@@ -202,7 +202,7 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 	foreach (LIBRARY "${LIBRARIES}")
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-			mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
+			#mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
 				get_target_property(LIBRARY_IMPORTED ${LIBRARY} IMPORTED)
 				if (LIBRARY_IMPORTED)
@@ -345,12 +345,25 @@ if (CXX_SOURCES)
 	if (${MK_MODULE_MODE} STREQUAL "NONE")
 		return() # Do nothing
 	elseif (${MK_MODULE_MODE} STREQUAL "EXECUTABLE")
-		
-		if (MK_GUI_EXECUTABLE)
-			set(MK_EXECUTABLE_MODES "WIN32 MACOSX_BUNDLE")
-		endif ()
 
-		add_executable(${PROJECT_NAME} ${MK_EXECUTABLE_MODES} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
+		add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
+
+		# Set poperties to build as native GUI application
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
+		if (MK_NATIVE_GUI_API)
+			if (MK_OS_WINDOWS)
+				set_target_properties(${PROJECT_NAME} PROPERTIES
+					WIN32_EXECUTABLE TRUE
+				)
+			elseif (MK_OS_MACOS)
+				set_target_properties(${PROJECT_NAME} PROPERTIES
+					MACOSX_BUNDLE TRUE
+					MACOSX_BUNDLE_INFO_PLIST ${MK_MACOS_BUNDLE_INFO_PLIST}
+				)
+			endif ()
+		endif ()
 	else ()
 		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
 			set(MK_MODULE_VISIBILITY INTERFACE)
@@ -369,6 +382,9 @@ if (CXX_SOURCES)
 		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
 			target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
 		endif ()
+
+		#TODO
+		#set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${MK_MACOS_FRAMEWORK_INFO_PLIST})
 	endif ()
 	
 	# Set C/C++ language standard of the target
