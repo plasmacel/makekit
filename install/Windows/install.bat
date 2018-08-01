@@ -113,19 +113,21 @@ echo.
 echo Building source...
 
 cd "%~dp0\..\.."
-cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
-::cmake . -G "Ninja" -Bbuild -DCMAKE_C_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_CXX_COMPILER:FILEPATH="clang-cl.exe" -DCMAKE_LINKER:FILEPATH="lld-link.exe" -DCMAKE_RC_COMPILER:FILEPATH="rc.exe" -DCMAKE_BUILD_TYPE="Release"
+::cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
+::cmake . -G "Ninja" -Bbuild -DCMAKE_C_COMPILER:FILEPATH="clang-cl" -DCMAKE_CXX_COMPILER:FILEPATH="clang-cl" -DCMAKE_LINKER:FILEPATH="lld-link" -DCMAKE_RC_COMPILER:FILEPATH="rc" -DCMAKE_BUILD_TYPE="Release"
 ::cmake --build --config Release
-::clang-cl /nologo /EHsc /MD src/mk.cpp
 
-if %ERRORLEVEL% == 0 (
-	echo Build configuration succeeded.
-) else (
-	echo Error: Build configuration failed!
-	exit /b 1
-)
+::if %ERRORLEVEL% == 0 (
+::	echo Build configuration succeeded.
+::) else (
+::	echo Error: Build configuration failed!
+::	exit /b 1
+::)
 
-ninja -C build
+::ninja -C build
+mkdir build && mkdir build\bin
+clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/mk.cpp /o build\bin\
+clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
 
 if %ERRORLEVEL% == 0 (
 	echo Build succeeded.
@@ -140,6 +142,11 @@ echo.
 echo Copying files to "%MK_INSTALL_DIR%"...
 
 xcopy /E /F /Y /R "%~dp0\..\..\build\bin" "%MK_INSTALL_DIR%\bin\"
+if %ERRORLEVEL% NEQ 0 (
+	exit /b %ERRORLEVEL%
+)
+
+xcopy /E /F /Y /R "%~dp0\vswhere.exe" "%MK_INSTALL_DIR%\bin\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
