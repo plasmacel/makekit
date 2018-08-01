@@ -16,7 +16,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j 8",
+      "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -28,7 +28,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j 8",
+      "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -40,7 +40,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j 8",
+      "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -52,7 +52,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j 8",
+      "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": []
     }
