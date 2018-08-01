@@ -112,8 +112,9 @@ if %ERRORLEVEL% == 0 (
 echo.
 echo Building source...
 
-cd "%~dp0\..\.."
 call vsdevcmd.bat -arch=x64 -host_arch=x64
+
+cd "%~dp0\..\.."
 ::cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
 ::cmake . -G "Ninja" -Bbuild -DCMAKE_C_COMPILER:FILEPATH="clang-cl" -DCMAKE_CXX_COMPILER:FILEPATH="clang-cl" -DCMAKE_BUILD_TYPE="Release"
 ::cmake --build --config Release
@@ -147,7 +148,7 @@ if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
 
-xcopy /E /F /Y /R "%~dp0\vswhere.exe" "%MK_INSTALL_DIR%\bin\"
+xcopy    /F /Y /R "%~dp0\vswhere.exe" "%MK_INSTALL_DIR%\bin\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
