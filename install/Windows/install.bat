@@ -107,6 +107,15 @@ if %ERRORLEVEL% == 0 (
 	exit /b 1
 )
 
+echo Checking the presence of clang-cl...
+where /q clang-cl
+if %ERRORLEVEL% == 0 (
+	echo clang-cl is OK!
+) else (
+	echo Error: clang-cl cannot be found in PATH!
+	exit /b 1
+)
+
 :: Building source
 
 echo.
