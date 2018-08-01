@@ -1,0 +1,9 @@
+echo Installing LLVM OpenMP (libomp) to %MK_LLVM_INSTALL_DIR%...
+
+xcopy /F /Y /R "%~dp0\deps\llvm-openmp\include\omp.h" "%MK_LLVM_INSTALL_DIR%\lib\clang\6.0.0\include\omp.h"
+
+xcopy /F /Y /R "%~dp0\deps\llvm-openmp\bin\libomp.dll" "%MK_LLVM_INSTALL_DIR%\bin\libomp.dll"
+xcopy /F /Y /R "%~dp0\deps\llvm-openmp\bin\libompd.dll" "%MK_LLVM_INSTALL_DIR%\bin\libompd.dll"
+
+xcopy /F /Y /R "%~dp0\deps\llvm-openmp\lib\libomp.lib" "%MK_LLVM_INSTALL_DIR%\lib\libomp.lib"
+xcopy /F /Y /R "%~dp0\deps\llvm-openmp\lib\libompd.lib" "%MK_LLVM_INSTALL_DIR%\lib\libompd.lib"
