@@ -190,9 +190,6 @@ int config(std::string build_type, system_commands& cmd)
 
 #ifdef _WIN32
 	add_set_environment_command("x64", cmd);
-	//cmd.append("set MK_CURRENT_DIR=%cd%");
-	//cmd.append("pushd \"%MK_CURRENT_DIR%\"");
-	//cmd.append("echo good so far");
 #endif
 
 	// Append run CMake command
