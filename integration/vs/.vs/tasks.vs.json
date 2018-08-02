@@ -1,7 +1,7 @@
 {
   // MakeKit tasks.vs.json
   // See https://docs.microsoft.com/en-us/visualstudio/ide/customize-build-and-debug-tasks-in-visual-studio#define-tasks-with-tasksvsjson for more information about this file.
-
+  
   "version": "0.2.1",
   "environments": [
     {
@@ -11,35 +11,39 @@
   "tasks": [
     {
       "taskName": "Clean",
+      "taskLabel": "Clean ${cpp.activeConfiguration}",
       "appliesTo": "/",
       "type": "launch",
       "contextType": "clean",
       "command": "mk",
-      "args": [ "clean" ]
+      "args": [ "clean ${cpp.activeConfiguration}" ]
     },
     {
       "taskName": "Make",
       "appliesTo": "/",
+      "taskLabel": "Make ${cpp.activeConfiguration}",
       "type": "launch",
       "contextType": "build",
       "command": "mk",
-      "args": [ "make" ]
+      "args": [ "make ${cpp.activeConfiguration}" ]
     },
     {
       "taskName": "Refresh",
+      "taskLabel": "Refresh ${cpp.activeConfiguration}",
       "appliesTo": "/",
       "type": "launch",
       "contextType": "custom",
       "command": "mk",
-      "args": [ "refresh" ]
+      "args": [ "refresh ${cpp.activeConfiguration}" ]
     },
     {
       "taskName": "Remake",
+      "taskLabel": "Remake ${cpp.activeConfiguration}",
       "appliesTo": "/",
       "type": "launch",
       "contextType": "rebuild",
       "command": "mk",
-      "args": [ "remake" ]
+      "args": [ "remake ${cpp.activeConfiguration}" ]
     }
   ]
 }
