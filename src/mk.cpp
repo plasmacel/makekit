@@ -75,7 +75,7 @@ std::string get_env_var(const std::string& variable)
 
 	if ((_dupenv_s(&buf, &n, variable.c_str()) == 0) && (buf != nullptr))
 	{
-		value.assign(buf, n);
+		value.assign(buf, n-1);
 		std::free(buf);
 	}
 #else
@@ -111,11 +111,20 @@ void add_set_environment_command(const std::string& host_arch, const std::string
 	std::string current_host_arch = get_env_var("VSCMD_ARG_HOST_ARCH");
 	std::string current_target_arch = get_env_var("VSCMD_ARG_TGT_ARCH");
 
+	/*
+	std::cout << "Current host architecture: " << current_host_arch << std::endl;
+	std::cout << "Current target architecture: " << current_target_arch << std::endl;
+
+	std::cout << "New host architecture:" << host_arch << std::endl;
+	std::cout << "New target architecture: " << target_arch << std::endl;
+	*/
+
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
 		cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
 		cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
 		cmd.append("del vsdevcmd_dir.txt");
+		cmd.append("set VSCMD_ARG_no_logo=1");
 		cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
 	}
 }
@@ -146,8 +155,10 @@ std::string read_file(const std::string& filename)
 	return str;
 }
 
-int config(const std::string& build_type, system_commands& cmd)
+int config(std::string build_type, system_commands& cmd)
 {
+	if (build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
+
 	std::string cmake_build_type;
 
 	if (build_type == "debug")
@@ -202,11 +213,15 @@ int config(const std::string& build_type, system_commands& cmd)
 
 	cmd.append(cmake_command);
 
+	std::cout << "Configuring " << build_type << " build..." << std::endl;
+
 	return 0;
 }
 
-int make(const std::string& build_type, system_commands& cmd)
+int make(std::string build_type, system_commands& cmd)
 {
+	if (build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
+
 	const std::string build_dir = get_dir(build_type);
 	
 	// Config or refresh
@@ -233,38 +248,81 @@ int make(const std::string& build_type, system_commands& cmd)
 	cmd.append("if [ $? -eq 0 ]; then echo Build succeeded.; else echo Build failed.; fi");
 #endif
 	//cmd.append("cmake --build " + build_dir + " --target " + build_target + " --config " + build_type);
+
+	std::cout << "Making " << build_type << " build..." << std::endl;
+
 	return 0;
 }
 
 int clean_all(const std::string& build_type, system_commands& cmd)
 {
-	const std::string build_dir = get_dir(build_type);
-	
+	if (build_type.empty()) // Clean ALL build directories
+	{
 #ifdef _WIN32
-	cmd.append("@if exist " + build_dir + " @rd /s /q " + build_dir);
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @rd /s /q \"%X\"");
 #else
-	cmd.append("rm -r -f " + build_dir);
+		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
 #endif
+
+		std::cout << "Cleaning all builds..." << std::endl;
+	}
+	else
+	{
+		const std::string build_dir = get_dir(build_type);
+
+#ifdef _WIN32
+		cmd.append("if exist " + build_dir + " @rd /s /q " + build_dir);
+#else
+		cmd.append("/bin/rm -rf " + build_dir);
+#endif
+
+		std::cout << "Cleaning " << build_type << " build..." << std::endl;
+	}
+
 	return 0;
 }
 
 int clean_config(const std::string& build_type, system_commands& cmd)
 {
-	const std::string build_dir = get_dir(build_type);
+	if (build_type.empty()) // Clean CMakeCache.txt of ALL build configurations
+	{
+#ifdef _WIN32
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /q \"%X\\CMakeCache.txt\"");
+#else
+		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
+#endif
+	}
+	else
+	{
+		const std::string build_dir = get_dir(build_type);
 
 #ifdef _WIN32
-	cmd.append("@if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
+		cmd.append("if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
 #else
-	cmd.append("rm -f " + build_dir + "/CMakeCache.txt");
+		cmd.append("/bin/rm -f " + build_dir + "/CMakeCache.txt");
 #endif
+	}
+	
 	return 0;
 }
 
 int clean_make(const std::string& build_type, system_commands& cmd)
 {
-	const std::string build_dir = get_dir(build_type);
+	if (build_type.empty())
+	{
+#ifdef _WIN32
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @ninja -C \"%X\" -t clean");
+#else
+		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C $build_dir -t clean; done");
+#endif
+	}
+	else
+	{
+		const std::string build_dir = get_dir(build_type);
 
-	cmd.append("ninja -C " + build_dir + " -t clean");
+		cmd.append("ninja -C " + build_dir + " -t clean");
+	}
+	
 	return 0;
 }
 
@@ -314,8 +372,6 @@ int main(int argc, char** argv)
 	if (argc > 1) command = argv[1];
 	if (argc > 2) build_type = argv[2];
 
-	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
-
 	if (command == "help")
 	{
 		if (argc > 2) return 1;
@@ -338,37 +394,31 @@ int main(int argc, char** argv)
 	{
 		retval = clean_all(build_type, cmd);
 		if (retval != 0) return retval;
-		std::cout << "Cleaning " << build_type << " build..." << std::endl;
 	}
 	else if (command == "config")
 	{
 		retval = config(build_type, cmd);
 		if (retval != 0) return retval;
-		std::cout << "Configuring " << build_type << " build..." << std::endl;
 	}
 	else if (command == "make")
 	{
 		retval = make(build_type, cmd);
 		if (retval != 0) return retval;
-		std::cout << "Making " << build_type << " build..." << std::endl;
 	}
 	else if (command == "reconfig")
 	{
 		retval = reconfig(build_type, cmd);
 		if (retval != 0) return retval;
-		std::cout << "Reconfiguring " << build_type << " build..." << std::endl;
 	}
 	else if (command == "refresh")
 	{
 		retval = refresh(build_type, cmd);
 		if (retval != 0) return retval;
-		std::cout << "Refresh " << build_type << " build..." << std::endl;
 	}
 	else if (command == "remake")
 	{
 		retval = remake(build_type, cmd);
 		if (retval != 0) return retval;
-		std::cout << "Remaking " << build_type << " build..." << std::endl;
 	}
 	else
 	{
