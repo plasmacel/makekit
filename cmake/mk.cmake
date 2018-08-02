@@ -232,22 +232,26 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 				if (LIBRARY_IMPORTED)
 					#mk_message(STATUS "Imported library: ${LIBRARY}")
 
-					string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWERCASE)
+					if (CMAKE_BUILD_TYPE)
 
-					# try IMPORTED_LOCATION_<CONFIG> (it is mandatory for Qt)
-					if (${CMAKE_BUILD_TYPE_LOWERCASE} MATCHES "debug")
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
-					else ()
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
-					endif ()
-					
-					# if IMPORTED_LOCATION_<CONFIG> property is undefined, try LOCATION_<CONFIG>
-					if (NOT LIBRARY_RUNTIME)
-						if (${CMAKE_BUILD_TYPE_LOWERCASE} MATCHES "debug")
-							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_DEBUG)
+						string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
+
+						# try IMPORTED_LOCATION_<CONFIG> (it is mandatory for Qt)
+						if (${CMAKE_BUILD_TYPE_UPPERCASE} MATCHES "DEBUG")
+							get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
 						else ()
-							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_RELEASE)
+							get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
 						endif ()
+					
+						# if IMPORTED_LOCATION_<CONFIG> property is undefined, try LOCATION_<CONFIG>
+						if (NOT LIBRARY_RUNTIME)
+							if (${CMAKE_BUILD_TYPE_UPPERCASE} MATCHES "DEBUG")
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_DEBUG)
+							else ()
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_RELEASE)
+							endif ()
+						endif ()
+
 					endif ()
 
 					# if LOCATION_<CONFIG> property is undefined, try IMPORTED_LOCATION
