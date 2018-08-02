@@ -5,7 +5,7 @@
   "environments": [
     {
       "MK_TOOLCHAIN": "llvm.native.toolchain",
-      "MK_MAX_CORES": "0"
+      "MK_MAX_CORES": "" // Set to "-j N" where N is the number of maximum allowed build threads
     }
   ],
   "configurations": [
@@ -17,7 +17,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j ${env.MK_MAX_CORES}",
+      "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -29,7 +29,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j ${env.MK_MAX_CORES}",
+      "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -41,7 +41,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j ${env.MK_MAX_CORES}",
+      "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -53,7 +53,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "-j ${env.MK_MAX_CORES}",
+      "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
       "variables": []
     }
