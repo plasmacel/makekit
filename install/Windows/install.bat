@@ -17,6 +17,8 @@ if not exist "%MK_CMAKE_INSTALL_DIR%" (
 	exit /b 1
 )
 
+:: Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Kitware\CMake :: InstallDir
+
 :: Get LLVM installation directory
 
 set /p MK_LLVM_INSTALL_DIR=LLVM installation directory (default is %DEFAULT_LLVM_DIR%):
@@ -29,6 +31,8 @@ if not exist "%MK_LLVM_INSTALL_DIR%" (
 	@echo on
 	exit /b 1
 )
+
+:: Computer\HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\LLVM\LLVM :: (Default)
 
 :: Get MK installation directory
 
