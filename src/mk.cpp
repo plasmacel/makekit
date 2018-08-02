@@ -177,9 +177,9 @@ int config(std::string build_type, system_commands& cmd)
 	{
 		cmake_build_type = "MinSizeRel";
 	}
-	else
+	else // Using a protected or custom build type.
 	{
-		// Using a custom build type.
+		cmake_build_type = build_type;
 	}
 
 	// Compose terminal commands
