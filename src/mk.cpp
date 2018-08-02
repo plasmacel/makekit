@@ -343,14 +343,18 @@ int refresh(const std::string& build_type, system_commands& cmd)
 	return config(build_type, cmd);
 }
 
-int reconfig(const std::string& build_type, system_commands& cmd)
+int reconfig(std::string build_type, system_commands& cmd)
 {
+	if (build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
+
 	if (clean_config(build_type, cmd) != 0) return 1;
 	return config(build_type, cmd);
 }
 
-int remake(const std::string& build_type, system_commands& cmd)
+int remake(std::string build_type, system_commands& cmd)
 {
+	if (build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
+
 	if (clean_make(build_type, cmd) != 0) return 1;
 	return make(build_type, cmd);
 }
