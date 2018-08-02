@@ -231,19 +231,19 @@ int make(std::string build_type, system_commands& cmd)
 	
 	if (!ninja_status.empty())
 	{
-	#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("set \"NINJA_STATUS=" + ninja_status + " \"");
-	#else
+#	else
 		cmd.append("export \"NINJA_STATUS=" + ninja_status + " \"");
-	#endif
+#	endif
 	}
 
 	cmd.append("ninja -C " + build_dir);
-#ifdef _WIN32
+#	ifdef _WIN32
 	cmd.append("if %ERRORLEVEL% == 0 ( echo Build succeeded. ) else ( echo Build failed. )");
-#else
+#	else
 	cmd.append("if [ $? -eq 0 ]; then echo Build succeeded.; else echo Build failed.; fi");
-#endif
+#	endif
 	//cmd.append("cmake --build " + build_dir + " --target " + build_target + " --config " + build_type);
 
 	std::cout << "Making " << build_type << " build..." << std::endl;
@@ -255,11 +255,11 @@ int clean_all(const std::string& build_type, system_commands& cmd)
 {
 	if (build_type.empty()) // Clean ALL build directories
 	{
-#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @rd /s /q \"%X\"");
-#else
+#	else
 		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
-#endif
+#	endif
 
 		std::cout << "Cleaning all builds..." << std::endl;
 	}
@@ -267,11 +267,11 @@ int clean_all(const std::string& build_type, system_commands& cmd)
 	{
 		const std::string build_dir = get_dir(build_type);
 
-#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("if exist " + build_dir + " @rd /s /q " + build_dir);
-#else
+#	else
 		cmd.append("/bin/rm -rf " + build_dir);
-#endif
+#	endif
 
 		std::cout << "Cleaning " << build_type << " build..." << std::endl;
 	}
@@ -283,21 +283,21 @@ int clean_config(const std::string& build_type, system_commands& cmd)
 {
 	if (build_type.empty()) // Clean CMakeCache.txt of ALL build configurations
 	{
-#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /q \"%X\\CMakeCache.txt\"");
-#else
+#	else
 		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
-#endif
+#	endif
 	}
 	else
 	{
 		const std::string build_dir = get_dir(build_type);
 
-#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
-#else
+#	else
 		cmd.append("/bin/rm -f " + build_dir + "/CMakeCache.txt");
-#endif
+#	endif
 	}
 	
 	return 0;
@@ -307,11 +307,11 @@ int clean_make(const std::string& build_type, system_commands& cmd)
 {
 	if (build_type.empty())
 	{
-#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @ninja -C \"%X\" -t clean");
-#else
+#	else
 		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C $build_dir -t clean; done");
-#endif
+#	endif
 	}
 	else
 	{
