@@ -298,16 +298,6 @@ macro(mk_target_link_libraries PROJECT LIBRARIES)
 	target_link_libraries(${PROJECT} ${LIBRARIES})
 	mk_target_deploy_libraries(${LIBRARIES})
 
-	# Add shared libraries to MK_RUNTIME_LIBRARIES
-	#foreach (LIBRARY "${LIBRARIES}")
-	#	if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
-	#		get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-	#		if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY") # LIBRARY is a SHARED_LIBRARY TARGET
-	#			mk_shared_libraries(${LIBRARY})
-	#		endif ()
-	#	endif ()
-	#endforeach ()
-
 endmacro()
 
 # mk_add_build_type(NAME INHERIT C_FLAGS CXX_FLAGS EXE_LINKER_FLAGS SHARED_LINKER_FLAGS STATIC_LINKER_FLAGS)
@@ -351,10 +341,12 @@ macro(mk_add_build_type NAME INHERIT C_FLAGS CXX_FLAGS EXE_LINKER_FLAGS SHARED_L
 		CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ${NAME}"
 		FORCE)
 
-	#set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES} ${NAME}"
-	#	CACHE STRING ""
-	#	FORCE)
-	list(APPEND CMAKE_CONFIGURATION_TYPES ${NAME})
+	if (CMAKE_CONFIGURATION_TYPES) # This is defined for multi-configuration generators
+		set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES} ${NAME}"
+			CACHE STRING ""
+			FORCE)
+		#list(APPEND CMAKE_CONFIGURATION_TYPES ${NAME})
+	endif ()
 
 	# If ${NAME} is a debug configuration, then add it to the list DEBUG_CONFIGURATIONS
 	if (${INHERIT} MATCHES "DEBUG")
