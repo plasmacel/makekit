@@ -449,7 +449,7 @@ Custom build types are also available and can be configured in `CustomBuilds.cma
 
 Removes the directory (including the configuration and the built binaries) of the build configuration specified by `BUILD_TYPE`.
 
-If `BUILD_TYPE` is not specified, it defaults to `release`.
+If `BUILD_TYPE` is not specified, the command removes the build directory of *ALL* build configurations.
 
 #### `mk config BUILD_TYPE`
 
