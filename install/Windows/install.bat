@@ -188,3 +188,51 @@ set /p dummy=Press ENTER...
 
 @echo on
 exit /b 0
+
+:: GetRegistryValue (KEY, VALUE)
+:GetRegistryValue
+FOR /F "usebackq tokens=2,* skip=2" %%L IN (
+    `reg query %~1 /v %~2`
+) DO SET %~1=%%M
+exit /b 0
+
+:: CheckPATH (NAME, EXE)
+:CheckPATH
+echo Checking the presence of %~1...
+where /q %~2
+if %ERRORLEVEL% == 0 (
+	echo %~1 is OK!
+) else (
+	echo Error: %~1 cannot be found in PATH!
+	exit /b 1
+)
+exit /b 0
+
+:: CreateEnvVariable (NAME, VALUE)
+:CreateEnvVariable
+echo Creating environment variable %~1...
+setx %~1 "%~2:\=/%"
+exit /b 0
+
+:: CopyFile (SRC, DEST)
+:CopyFile
+xcopy /F /Y /R "%~1" "%~2\"
+if %ERRORLEVEL% NEQ 0 (
+	exit /b %ERRORLEVEL%
+)
+exit /b 0
+
+:: CopyDirectory (SRC, DEST)
+:CopyDirectory
+xcopy /E /F /Y /R "%~1" "%~2\"
+if %ERRORLEVEL% NEQ 0 (
+	exit /b %ERRORLEVEL%
+)
+exit /b 0
+
+:: Compile (SRC, DEST)
+:Compile
+clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG "%~1" /o %~2\"
+exit /b 0
+
+
