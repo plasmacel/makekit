@@ -1,0 +1,45 @@
+{
+  // MakeKit tasks.vs.json
+  // See https://docs.microsoft.com/en-us/visualstudio/ide/customize-build-and-debug-tasks-in-visual-studio#define-tasks-with-tasksvsjson for more information about this file.
+
+  "version": "0.2.1",
+  "environments": [
+    {
+      "VSCMD_START_DIR": "\"${workspaceRoot}\""
+    }
+  ],
+  "tasks": [
+    {
+      "taskName": "Clean",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "clean",
+      "command": "mk",
+      "args": [ "clean" ]
+    },
+    {
+      "taskName": "Make",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "build",
+      "command": "mk",
+      "args": [ "make" ]
+    },
+    {
+      "taskName": "Refresh",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "custom",
+      "command": "mk",
+      "args": [ "refresh" ]
+    },
+    {
+      "taskName": "Remake",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "rebuild",
+      "command": "mk",
+      "args": [ "remake" ]
+    }
+  ]
+}
