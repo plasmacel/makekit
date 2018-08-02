@@ -2,8 +2,8 @@
 # Keep in mind, that CMake BUILD_TYPEs are case-insensitive, thus
 # it doesn't make difference between lowercase and uppercase characters.
 # The following build type names are protected by CMake: None, Debug, Release, RelWithDebInfo, MinSizeRel.
-# You can inherit from another build types by listing their flags variable (like ${CMAKE_CXX_FLAGS_DEBUG}) in your custom flags.
+# You can inherit from another build types by passing its name to mk_add_build_type().
 
-message("Adding custom build types...")
+message(STATUS "Adding custom build types...")
 
 # Add custom build types here...
