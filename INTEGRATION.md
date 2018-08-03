@@ -39,9 +39,16 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 Visual Studio integration is based on Visual Studio's ["Open Folder"](https://docs.microsoft.com/en-us/visualstudio/ide/develop-code-in-visual-studio-without-projects-or-solutions) development feature. The IDE and its build behavior can be manipulated by the following files:
 
 - `CMakeSettings.json`
+It is required to make IntelliSense work and to launch builds using CMake. It enables the Build, Rebuild and Clean commands using CMake.
+
 - `CppProperties.json`
+It is not required.
+
 - `.vs/launch.vs.json`
+It is required if you want to create custom debug environments.
+
 - `.vs/tasks.vs.json`
+It is required to integrate all features of MakeKit into the Visual Studio IDE. It enables the Build, Rebuild and Clean commands using MakeKit.
 
 
 - https://blogs.msdn.microsoft.com/vcblog/2016/10/05/bring-your-c-codebase-to-visual-studio-with-open-folder/
