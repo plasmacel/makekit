@@ -36,6 +36,17 @@ CLion on Windows currently supports the following set of development environment
 
 For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp
 
+Visual Studio integration is based on Visual Studio's ["Open Folder"](https://docs.microsoft.com/en-us/visualstudio/ide/develop-code-in-visual-studio-without-projects-or-solutions) development feature. The IDE and its build behavior can be manipulated by the following files:
+
+- `CMakeSettings.json`
+- `CppProperties.json`
+- `.vs/launch.vs.json`
+- `.vs/tasks.vs.json`
+
+
+- https://blogs.msdn.microsoft.com/vcblog/2016/10/05/bring-your-c-codebase-to-visual-studio-with-open-folder/
+- https://blogs.msdn.microsoft.com/vcblog/2017/11/02/customizing-your-environment-with-visual-c-and-open-folder/
+
 ### Visual Studio Code (Windows, macOS, Linux)
 
 1. Download and install Visual Studio Code from the link
