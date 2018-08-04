@@ -465,7 +465,7 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk deps <CONFIG>`
 
-Lists the dependencies of `<CONFIG>` build, which is available after a successful `make` command.
+Lists the dependencies of `<CONFIG>` build, which are available after a successful `make` command.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
