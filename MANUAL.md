@@ -451,19 +451,19 @@ Removes the directory (including the configuration and the built binaries) of th
 
 If `<CONFIG>` is not specified, the command removes the build directory of *ALL* build configurations.
 
-#### `mk commands <CONFIG> [-X <TARGET>]`
+#### `mk commands [<CONFIG>] [-X <TARGETS>]`
 
-Lists the actual commands which are used to build the specified configuration `<CONFIG>`.
+Lists the actual commands which are used to build the specified configuration `<CONFIG>`. `<TARGETS>` is a string with the list of exclusive targets.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk config <CONFIG> [-T <TOOLCHAIN>]`
+#### `mk config [<CONFIG>] [-T <TOOLCHAIN>]`
 
 Creates a build system configuration for the specified `<CONFIG>`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk deps <CONFIG>`
+#### `mk deps [<CONFIG>]`
 
 Lists the dependencies of `<CONFIG>` build, which are available after a successful `make` command.
 
@@ -477,7 +477,7 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
-#### `mk make <CONFIG> [-X <TARGET[^]>] [-T <TOOLCHAIN>]`
+#### `mk make [<CONFIG>] [-X <TARGETS | TARGET[^]>] [-T <TOOLCHAIN>]`
 
 Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
 
@@ -485,19 +485,19 @@ The compiler/linker output can be very verbose when it encounters a lot of warni
 
 If `BUILD_TYPE` is not specified, it defaults to `Release`.
 
-#### `mk reconfig <CONFIG> [-T <TOOLCHAIN>]`
+#### `mk reconfig [<CONFIG>] [-T <TOOLCHAIN>]`
 
 Removes the build configuration of the specified `CONFIG` and re-creates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk refresh <CONFIG>`
+#### `mk refresh [<CONFIG>]`
 
 Alias for `mk config BUILD_TYPE`.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk remake <CONFIG> [-X <TARGET[^]>] [-T <TOOLCHAIN>]`
+#### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-T <TOOLCHAIN>]`
 
 Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
 
