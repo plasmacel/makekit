@@ -344,6 +344,28 @@ int clean(system_commands& cmd, const std::string& config, bool config_flag, boo
 	return 0;
 }
 
+int commands(system_commands& cmd, std::string config, const std::string& target)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("ninja -C " +  build_dir + " -t commands " + target);
+
+	return 0;
+}
+
+int deps(system_commands& cmd, std::string config)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("ninja -C " +  build_dir + " -t deps");
+
+	return 0;
+}
+
 int help(system_commands& cmd)
 {
 	cmd.append("echo God helps those who help themselves.");
@@ -426,9 +448,19 @@ int main(int argc, char** argv)
 		retval = clean(cmd, args(2).str(), args[{ "-c", "-C" }], args[{ "-m", "-M" }]);
 		if (retval != 0) return retval;
 	}
+	else if (command == "commands")
+	{
+		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
+		if (retval != 0) return retval;
+	}
 	else if (command == "config")
 	{
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
+		if (retval != 0) return retval;
+	}
+	else if (command == "deps")
+	{
+		retval = deps(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "make")
