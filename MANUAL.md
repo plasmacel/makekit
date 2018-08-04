@@ -477,7 +477,7 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
-#### `mk make [<CONFIG>] [-X <TARGETS | TARGET[^]>] [-T <TOOLCHAIN>]`
+#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-T <TOOLCHAIN>]`
 
 Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
 
