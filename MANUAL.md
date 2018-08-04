@@ -431,13 +431,13 @@ If the source tree has been changed by adding or removing files, existing build 
 
 All default CMake `BUILD_TYPE`s are available:
 
-| BUILD_TYPE                         | Description                                       | clang flags       | clang-cl flags                     |
-|:-----------------------------------|:--------------------------------------------------|:------------------|:-----------------------------------|
-| None                               |                                                   |                   | `/DWIN32 /D_WINDOWS /W3 /GR /EHsc` |
-| Debug (debug)                      | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`          |
-| Release (release)                  | Release build, full optimization                  | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`            |
-| RelWithDebInfo (release-debuginfo) | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
-| MinSizeRel (release-minsize)       | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
+| BUILD_TYPE     | Description                                       | clang flags       | clang-cl flags                     |
+|:---------------|:--------------------------------------------------|:------------------|:-----------------------------------|
+| None           |                                                   |                   | `/DWIN32 /D_WINDOWS /W3 /GR /EHsc` |
+| Debug          | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`          |
+| Release        | Release build, full optimization                  | `-O3 -DNDEBUG`    | `/MD /O2 /Ob2 /DNDEBUG`            |
+| RelWithDebInfo | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
+| MinSizeRel     | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
 
 When `BUILD_TYPE` is omitted, MakeKit will operate on the default build type, which is `release`.
 
@@ -445,17 +445,17 @@ Custom build types are also available and can be configured in `CustomBuilds.cma
 
 ## VII. Commands
 
-#### `mk clean BUILD_TYPE`
+#### `mk clean [<CONFIG>] [-C] [-M]`
 
 Removes the directory (including the configuration and the built binaries) of the build configuration specified by `BUILD_TYPE`.
 
-If `BUILD_TYPE` is not specified, the command removes the build directory of *ALL* build configurations.
+If `<CONFIG>` is not specified, the command removes the build directory of *ALL* build configurations.
 
-#### `mk config BUILD_TYPE`
+#### `mk config <CONFIG> [-T <TOOLCHAIN>]`
 
-Creates a build system configuration for the specified `BUILD_TYPE`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
+Creates a build system configuration for the specified `<CONFIG>`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
 
-If `BUILD_TYPE` is not specified, it defaults to `release`.
+If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk help`
 
@@ -465,31 +465,31 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
-#### `mk make BUILD_TYPE`
+#### `mk make <CONFIG> [-X <TARGET[^]>] [-T <TOOLCHAIN>]`
 
-Creates or refreshes the build configuration specified by `BUILD_TYPE` and executes it, i.e. it starts the build process.
+Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
 
-The compiler/linker output can be very verbose when it encounters a lot of warnings and/or errors, which could overflow the buffer of your command line terminal - in this case you start to lose your oldest output lines to favor newer ones. To avoid this, you can redirect the command line output to a file (say `log.txt`) whose size is limited only by the data drive. This can be done by using the redirection operator `>>` as simply as `mk make BUILD_TYPE >> log.txt`, which will overwrite the file every time you issue the command - if you just want to append to it use `>` instead of `>>`.
+The compiler/linker output can be very verbose when it encounters a lot of warnings and/or errors, which could overflow the buffer of your command line terminal - in this case you start to lose your oldest output lines to favor newer ones. To avoid this, you can redirect the command line output to a file (say `log.txt`) whose size is limited only by the data drive. This can be done by using the redirection operator `>>` as simply as `mk make <CONFIG> >> log.txt`, which will overwrite the file every time you issue the command - if you just want to append to it use `>` instead of `>>`.
 
-If `BUILD_TYPE` is not specified, it defaults to `release`.
+If `BUILD_TYPE` is not specified, it defaults to `Release`.
 
-#### `mk reconfig BUILD_TYPE`
+#### `mk reconfig <CONFIG> [-T <TOOLCHAIN>]`
 
-Removes the build configuration of the specified `BUILD_TYPE` and re-creates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
+Removes the build configuration of the specified `CONFIG` and re-creates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
 
-If `BUILD_TYPE` is not specified, it defaults to `release`.
+If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk refresh BUILD_TYPE`
+#### `mk refresh <CONFIG>`
 
 Alias for `mk config BUILD_TYPE`.
 
-If `BUILD_TYPE` is not specified, it defaults to `release`.
+If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk remake BUILD_TYPE`
+#### `mk remake <CONFIG> [-X <TARGET[^]>] [-T <TOOLCHAIN>]`
 
-Removes all prebuilt binaries of the build configuration specified by `BUILD_TYPE` and rebuilds them.
+Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
 
-If `BUILD_TYPE` is not specified, it defaults to `release`.
+If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk version`
 
