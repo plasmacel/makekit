@@ -451,9 +451,21 @@ Removes the directory (including the configuration and the built binaries) of th
 
 If `<CONFIG>` is not specified, the command removes the build directory of *ALL* build configurations.
 
+#### `mk commands <CONFIG> [-X <TARGET>]`
+
+Lists the actual commands which are used to build the specified configuration `<CONFIG>`.
+
+If `<CONFIG>` is not specified, it defaults to `Release`.
+
 #### `mk config <CONFIG> [-T <TOOLCHAIN>]`
 
 Creates a build system configuration for the specified `<CONFIG>`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
+
+If `<CONFIG>` is not specified, it defaults to `Release`.
+
+#### `mk deps <CONFIG>`
+
+Lists the dependencies of `<CONFIG>` build, which is available after a successful `make` command.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
