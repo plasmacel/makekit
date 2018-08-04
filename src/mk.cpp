@@ -28,7 +28,7 @@
 #include <string>
 #include "argh.h"
 
-static const std::string VERSION = "0.1.1";
+static const std::string VERSION = "0.2";
 static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
