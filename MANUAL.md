@@ -439,8 +439,6 @@ All default CMake `BUILD_TYPE`s are available:
 | RelWithDebInfo | Release build, optimization with debug symbols    | `-O2 -g -DNDEBUG` | `/MD /Zi /O2 /Ob1 /DNDEBUG`        |
 | MinSizeRel     | Release build, optimization for small binary size | `-Os -DNDEBUG`    | `/MD /O1 /Ob1 /DNDEBUG`            |
 
-When `BUILD_TYPE` is omitted, MakeKit will operate on the default build type, which is `release`.
-
 Custom build types are also available and can be configured in `CustomBuilds.cmake`.
 
 ## VII. Commands
