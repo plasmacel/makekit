@@ -451,7 +451,7 @@ Removes the directory (including the configuration and the built binaries) of th
 
 If `<CONFIG>` is not specified, the command removes the build directory of *ALL* build configurations.
 
-#### `mk config <CONFIG>`
+#### `mk config <CONFIG> [-T <TOOLCHAIN>]`
 
 Creates a build system configuration for the specified `<CONFIG>`. If it has been already created, then this command will refresh it. This command is also required when files has been added or removed from the source.
 
@@ -473,7 +473,7 @@ The compiler/linker output can be very verbose when it encounters a lot of warni
 
 If `BUILD_TYPE` is not specified, it defaults to `Release`.
 
-#### `mk reconfig <CONFIG>`
+#### `mk reconfig <CONFIG> [-T <TOOLCHAIN>]`
 
 Removes the build configuration of the specified `CONFIG` and re-creates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
 
