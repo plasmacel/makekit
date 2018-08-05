@@ -21,6 +21,7 @@ Using the auto-generated `CMakeLists.txt` of MakeKit, when you create or refresh
 - header files (`.h`, `.h++`, `.hh`, `.hpp`, `.hxx`)
 - inline files (`.inc`, `.inl`, `.i++`, `.icc`, `.ipp`, `.ixx`, `.t++`, `.tcc`, `.tpp`, `.txx`)
 - source files (`.c`, `.c++`, `.cc`, `.cpp`, `.cxx`)
+- Qt resource files (`.qrc`)
 - Qt user interface files (`.ui`)
 - pre-built binary object files (`.o` on macOS & Linux, `.obj` on Windows)
 - assembler files (`.asm`, `.s`)
