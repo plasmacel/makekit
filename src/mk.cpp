@@ -392,11 +392,11 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 
 	if (target.empty())
 	{
-		std::cout << "Commands of " << config << " build" << std::endl;
+		std::cout << "Listing commands of " << config << " build" << std::endl;
 	}
 	else
 	{
-		std::cout << "Commands of " << config << " build target " <<  target << std::endl;
+		std::cout << "Listing commands of " << config << " build target " <<  target << std::endl;
 	}
 
 	return 0;
@@ -410,7 +410,7 @@ int deps(system_commands& cmd, std::string config)
 
 	cmd.append("ninja -C " +  build_dir + " -t deps");
 
-	std::cout << "Listing the dependencies of " << config << " build..." << std::endl;
+	std::cout << "Listing dependencies of " << config << " build..." << std::endl;
 
 	return 0;
 }
