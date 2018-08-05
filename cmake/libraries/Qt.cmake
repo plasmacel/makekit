@@ -29,6 +29,20 @@
 #
 
 if (MK_QT)
+	# Find Qt5
+
+	set(Qt5_DIR $ENV{MK_QT_DIR}/lib/cmake/Qt5)
+	find_package(Qt5 COMPONENTS ${MK_QT} REQUIRED)
+
+	if (NOT Qt5_FOUND)
+		mk_message(FATAL_ERROR "Qt5 libraries cannot be found!")
+		return()
+	endif ()
+
+	mk_message(STATUS "Found Qt5 version ${Qt5_VERSION}")
+
+	# Include current directory
+
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 	# Setting Qt related target properties (AUTOMOC, AUTORCC, AUTOUIC)
@@ -44,17 +58,12 @@ if (MK_QT)
 	set_target_properties(${PROJECT_NAME} PROPERTIES AUTORCC ON)
 	set_target_properties(${PROJECT_NAME} PROPERTIES AUTOUIC ON)
 
-	# Find Qt5
+	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
-	set(Qt5_DIR $ENV{MK_QT_DIR}/lib/cmake/Qt5)
-	find_package(Qt5 COMPONENTS ${MK_QT} REQUIRED)
+	file(GLOB_RECURSE CXX_QRCFILES RELATIVE ${MK_SOURCE} CONFIGURE_DEPENDS *.qrc)
+	file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MK_SOURCE} CONFIGURE_DEPENDS *.ui)
 
-	if (NOT Qt5_FOUND)
-		mk_message(FATAL_ERROR "Qt5 libraries cannot be found!")
-		return()
-	endif ()
-
-	mk_message(STATUS "Found Qt5 version ${Qt5_VERSION}")
+	target_sources(${PROJECT_NAME} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
 
 	# This is not required, since target_link_libraries does this automatically
 	#compile_options(${PROJECT_NAME} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS})
