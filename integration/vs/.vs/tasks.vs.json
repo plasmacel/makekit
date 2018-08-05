@@ -1,7 +1,7 @@
 {
   // MakeKit tasks.vs.json
   // See https://docs.microsoft.com/en-us/visualstudio/ide/customize-build-and-debug-tasks-in-visual-studio#define-tasks-with-tasksvsjson for more information about this file.
-  
+
   "version": "0.2.1",
   "environments": [
     {
@@ -12,7 +12,7 @@
     {
       "taskName": "Clean",
       "taskLabel": "Clean ${cpp.activeConfiguration}",
-      "appliesTo": "/",
+      "appliesTo": "/,*",
       "type": "launch",
       "contextType": "clean",
       "command": "mk",
@@ -20,12 +20,39 @@
     },
     {
       "taskName": "Make",
-      "appliesTo": "/",
+      "appliesTo": "/,*",
       "taskLabel": "Make ${cpp.activeConfiguration}",
       "type": "launch",
       "contextType": "build",
       "command": "mk",
-      "args": [ "make ${cpp.activeConfiguration}" ]
+      "args": [ "make ${cpp.activeConfiguration} -C" ]
+    },
+    {
+      "taskName": "Remake",
+      "taskLabel": "Remake ${cpp.activeConfiguration}",
+      "appliesTo": "/,*",
+      "type": "launch",
+      "contextType": "rebuild",
+      "command": "mk",
+      "args": [ "remake ${cpp.activeConfiguration} -C" ]
+    },
+    {
+      "taskName": "Configure",
+      "taskLabel": "Configure ${cpp.activeConfiguration}",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "custom",
+      "command": "mk",
+      "args": [ "config ${cpp.activeConfiguration}" ]
+    },
+    {
+      "taskName": "Reconfigure",
+      "taskLabel": "Reconfigure ${cpp.activeConfiguration}",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "custom",
+      "command": "mk",
+      "args": [ "reconfig ${cpp.activeConfiguration}" ]
     },
     {
       "taskName": "Refresh",
@@ -37,13 +64,33 @@
       "args": [ "refresh ${cpp.activeConfiguration}" ]
     },
     {
-      "taskName": "Remake",
-      "taskLabel": "Remake ${cpp.activeConfiguration}",
+      "taskName": "Compile",
+      "taskLabel": "Compile",
+      "appliesTo": "*.asm,*.s,*.c,*.c++,*.cc,*.cpp,*.cxx,*.cu,*.qrc,*.ui",
+      "type": "launch",
+      "contextType": "custom",
+      "command": "mk",
+      "args": [ "make ${cpp.activeConfiguration} -X \"${relativeFile}^\"" ]
+    },
+    {
+      "taskName": "Commands",
+      "taskLabel": "List commands of ${cpp.activeConfiguration}",
       "appliesTo": "/",
       "type": "launch",
-      "contextType": "rebuild",
+      "contextType": "custom",
       "command": "mk",
-      "args": [ "remake ${cpp.activeConfiguration}" ]
+      "args": [ "commands ${cpp.activeConfiguration}" ]
+    },
+    {
+      "taskName": "Dependencies",
+      "taskLabel": "List dependencies of ${cpp.activeConfiguration}",
+      "appliesTo": "/",
+      "type": "launch",
+      "contextType": "custom",
+      "command": "mk",
+      "args": [ "deps ${cpp.activeConfiguration}" ]
     }
+
+    // ${relativeFile} ninja -C build.${cpp.activeConfiguration} \"../${relativeFile}\"
   ]
 }
