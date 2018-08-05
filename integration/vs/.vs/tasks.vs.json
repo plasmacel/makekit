@@ -90,7 +90,5 @@
       "command": "mk",
       "args": [ "deps ${cpp.activeConfiguration}" ]
     }
-
-    // ${relativeFile} ninja -C build.${cpp.activeConfiguration} \"../${relativeFile}\"
   ]
 }
