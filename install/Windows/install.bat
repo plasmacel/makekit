@@ -161,6 +161,11 @@ if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
 )
 
+xcopy    /F /Y /R "%~dp0\vsdevcmd_proxy.bat" "%MK_INSTALL_DIR%\bin\"
+if %ERRORLEVEL% NEQ 0 (
+	exit /b %ERRORLEVEL%
+)
+
 xcopy    /F /Y /R "%~dp0\vswhere.exe" "%MK_INSTALL_DIR%\bin\"
 if %ERRORLEVEL% NEQ 0 (
 	exit /b %ERRORLEVEL%
