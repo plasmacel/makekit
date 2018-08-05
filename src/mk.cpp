@@ -122,11 +122,12 @@ void add_set_environment_command(system_commands& cmd, const std::string& host_a
 
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
-		cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
-		cmd.append("del vsdevcmd_dir.txt");
-		cmd.append("set VSCMD_ARG_no_logo=1");
-		cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
+		//cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
+		//cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
+		//cmd.append("del vsdevcmd_dir.txt");
+		//cmd.append("set VSCMD_ARG_no_logo=1");
+		//cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
+		cmd.append("call vsdevcmd_proxy.bat -arch=" +  target_arch + " -host_arch=" + host_arch);
 	}
 }
 
@@ -194,15 +195,20 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 	return 0;
 }
 
-int make(system_commands& cmd, std::string config, std::string toolchain, std::string target)
+int make(system_commands& cmd, std::string config, std::string toolchain, std::string target, bool configure_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 	const std::string build_dir = get_dir(config);
 	
-	// Config or refresh
+	// Configure or refresh
 	
-	if (configure(cmd, config, toolchain) != 0) return 1;
+	if (configure_flag)
+	{
+		if (configure(cmd, config, toolchain) != 0) return 1;
+	}
+
+#if 0
 
 	std::string ninja_status = read_file("mk_status.txt");
 	
@@ -214,6 +220,8 @@ int make(system_commands& cmd, std::string config, std::string toolchain, std::s
 		cmd.append("export \"NINJA_STATUS=" + ninja_status + " \"");
 #	endif
 	}
+
+#endif
 
 	if (target.empty()) // Build all targets
 	{
@@ -398,14 +406,14 @@ int reconfig(system_commands& cmd, std::string config, const std::string& toolch
 	return configure(cmd, config, toolchain);
 }
 
-int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target)
+int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool configure_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 #if 1
 
 	if (clean_make(cmd, config, target) != 0) return 1;
-	return make(cmd, config, toolchain, target);
+	return make(cmd, config, toolchain, target, configure_flag);
 
 #else
 
@@ -483,7 +491,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "make")
 	{
-		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str());
+		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
@@ -498,7 +506,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "remake")
 	{
-		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str());
+		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }]);
 		if (retval != 0) return retval;
 	}
 	else
