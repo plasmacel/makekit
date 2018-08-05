@@ -491,7 +491,7 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk refresh [<CONFIG>]`
 
-Alias for `mk config BUILD_TYPE`.
+Refreshes an existing build configuration `<CONFIG>`.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
