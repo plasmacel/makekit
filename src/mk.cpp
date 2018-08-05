@@ -207,6 +207,10 @@ int make(system_commands& cmd, std::string config, std::string toolchain, std::s
 	{
 		if (configure(cmd, config, toolchain) != 0) return 1;
 	}
+	else
+	{
+		add_set_environment_command(cmd, "x64");
+	}
 
 #if 0
 
