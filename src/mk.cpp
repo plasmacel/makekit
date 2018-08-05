@@ -289,6 +289,8 @@ int clean_config(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
 #	endif
+
+		std::cout << "Cleaning the configuration of all builds..." << std::endl;
 	}
 	else
 	{
@@ -299,6 +301,8 @@ int clean_config(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("/bin/rm -f " + build_dir + "/CMakeCache.txt");
 #	endif
+
+		std::cout << "Cleaning the configuration of " << config << " build..." << std::endl;
 	}
 	
 	return 0;
@@ -313,6 +317,8 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 #	else
 		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C $build_dir -t clean" + target + "; done");
 #	endif
+
+		std::cout << "Cleaning the built binaries of all builds..." << std::endl;
 	}
 	else
 	{
@@ -323,6 +329,8 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 	#else
 		cmd.append("cmake --build " + build_dir + " --target clean");
 	#endif
+
+		std::cout << "Cleaning the built binaries of " << config << " build..." << std::endl;
 	}
 	
 	return 0;
@@ -337,6 +345,8 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
 #	endif
+
+		std::cout << "Cleaning all builds..." << std::endl;
 	}
 	else // Clean config build directory
 	{
@@ -347,6 +357,8 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("/bin/rm -rf " + build_dir);
 #	endif
+
+		std::cout << "Cleaning " << config << " build..." << std::endl;
 	}
 
 	return 0;
