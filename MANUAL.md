@@ -463,7 +463,7 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk deps [<CONFIG>]`
 
-Lists the dependencies of `<CONFIG>` build, which are available after a successful `make` command.
+Lists the dependencies of `<CONFIG>` build, which are available only after a successful `make` command.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
@@ -475,7 +475,7 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
-#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-T <TOOLCHAIN>]`
+#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-C [-T <TOOLCHAIN>]] `
 
 Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
 
