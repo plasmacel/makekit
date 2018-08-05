@@ -1,11 +1,11 @@
 # Manual
 
-- I. Installation
-- II. CLI Commands
+- I. [**Installation**](https://github.com/plasmacel/makekit/blob/master/manual/INSTALLATION.md)
+- II. [**MakeKit CLI**](https://github.com/plasmacel/makekit/blob/master/manual/COMMANDS.md)
 - III. Usage
 - III. Generate `CMakeLists.txt`
 - III. The make process
-- IV. Troubleshooting
+- IV. [**Troubleshooting**](https://github.com/plasmacel/makekit/blob/master/manual/TROUBLESHOOTING.md)
 
 
 ## IV. The build (err, make) process
