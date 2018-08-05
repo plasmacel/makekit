@@ -1,4 +1,4 @@
-## The MakeKit CLI
+## MakeKit CLI
 
 The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
