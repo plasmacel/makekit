@@ -5,7 +5,7 @@
   "environments": [
     {
       "MK_TOOLCHAIN": "llvm.native.toolchain",
-      "MK_MAX_CORES": "" // Set to "-j N" where N is the number of maximum allowed build threads
+      "MK_MAX_CORES": "" // To limit the number of parallel build threads, set it to "-j N" where N is the number of threads
     }
   ],
   "configurations": [
@@ -14,20 +14,9 @@
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "${env.MK_MAX_CORES}",
-      "ctestCommandArgs": "",
-      "variables": []
-    },
-    {
-      "name": "Release - DebugInfo",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "intelliSenseMode": "windows-clang-x64",
+      "buildRoot": "${workspaceRoot}\\build.${name}",
+      "installRoot": "${workspaceRoot}\\build.${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
       "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
@@ -38,20 +27,35 @@
       "generator": "Ninja",
       "configurationType": "Release",
       "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "intelliSenseMode": "windows-clang-x64",
+      "buildRoot": "${workspaceRoot}\\build.${name}",
+      "installRoot": "${workspaceRoot}\\build.${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
       "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
       "variables": []
     },
     {
-      "name": "Release - MinSize",
+      "name": "RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "intelliSenseMode": "windows-clang-x64",
+      "buildRoot": "${workspaceRoot}\\build.${name}",
+      "installRoot": "${workspaceRoot}\\build.${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_CORES}",
+      "ctestCommandArgs": "",
+      "variables": []
+    },
+    {
+      "name": "MinSizeRel",
       "generator": "Ninja",
       "configurationType": "MinSizeRel",
       "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "intelliSenseMode": "windows-clang-x64",
+      "buildRoot": "${workspaceRoot}\\build.${name}",
+      "installRoot": "${workspaceRoot}\\build.${name}",
       "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
       "buildCommandArgs": "${env.MK_MAX_CORES}",
       "ctestCommandArgs": "",
