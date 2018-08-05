@@ -1,6 +1,6 @@
-## VII. Commands
+## The MakeKit CLI
 
-The `mk` CLI (Command Line Interface) provides the following commands:
+The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
 #### `mk clean [<CONFIG>] [-C] [-M]`
 
