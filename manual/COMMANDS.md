@@ -54,7 +54,7 @@ Refreshes an existing build configuration `<CONFIG>`.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-T <TOOLCHAIN>]`
+#### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-C [-T <TOOLCHAIN>]]`
 
 Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
 
