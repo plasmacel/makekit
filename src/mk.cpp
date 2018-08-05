@@ -228,8 +228,11 @@ int make(system_commands& cmd, std::string config, std::string toolchain, std::s
 		}
 		else // Building a single target
 		{
+		#if 1
 			cmd.append("ninja -C " + build_dir + " " + target);
-			//cmd.append("cmake --build " + build_dir + " --target " + target + " --config " + config);
+		#else
+			cmd.append("cmake --build " + build_dir + " --target " + target);
+		#endif
 		}		
 	}
 
@@ -296,7 +299,11 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 	{
 		const std::string build_dir = get_dir(config);
 
+	#if 1
 		cmd.append("ninja -C " + build_dir + " -t clean " + target);
+	#else
+		cmd.append("cmake --build " + build_dir + " --target clean");
+	#endif
 	}
 	
 	return 0;
@@ -395,8 +402,19 @@ int remake(system_commands& cmd, std::string config, const std::string& toolchai
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
+#if 1
+
 	if (clean_make(cmd, config, target) != 0) return 1;
 	return make(cmd, config, toolchain, target);
+
+#else
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("cmake --build " + build_dir + " --clean-first");
+	return 0;
+
+#endif
 }
 
 int version(system_commands& cmd)
