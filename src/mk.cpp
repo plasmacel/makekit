@@ -86,6 +86,17 @@ std::string get_env_var(const std::string& variable)
 	return value;
 }
 
+void message(system_commands& cmd, const std::string& msg)
+{
+	cmd.append("echo " + msg);
+
+#ifdef _WIN32
+	cmd.append("echo.");
+#else
+	cmd.append("echo -n \"\n\"");
+#endif
+}
+
 void where_path(system_commands& cmd, const std::string& filename)
 {
 #ifdef _WIN32
@@ -184,10 +195,6 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/cmake/toolchains/" + toolchain + ".toolchain.cmake\"";
 #endif
 
-#ifdef _WIN32
-	//cmd.append("popd");
-#endif
-
 	cmd.append(cmake_command);
 
 	std::cout << "Configuring " << config << " build..." << std::endl;
@@ -195,7 +202,7 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 	return 0;
 }
 
-int make(system_commands& cmd, std::string config, std::string toolchain, std::string target, bool configure_flag)
+int make(system_commands& cmd, std::string config, const std::string& toolchain, std::string target, bool configure_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
@@ -288,7 +295,7 @@ int clean_config(system_commands& cmd, const std::string& config)
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
-		cmd.append("if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
+		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
 #	else
 		cmd.append("/bin/rm -f " + build_dir + "/CMakeCache.txt");
 #	endif
@@ -336,7 +343,7 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
-		cmd.append("if exist " + build_dir + " @rd /s /q " + build_dir);
+		cmd.append("if exist \"" + build_dir + "\" @rd /s /q " + build_dir);
 #	else
 		cmd.append("/bin/rm -rf " + build_dir);
 #	endif
@@ -371,6 +378,15 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 
 	cmd.append("ninja -C " +  build_dir + " -t commands " + target);
 
+	if (target.empty())
+	{
+		std::cout << "Commands of " << config << " build" << std::endl;
+	}
+	else
+	{
+		std::cout << "Commands of " << config << " build target " <<  target << std::endl;
+	}
+
 	return 0;
 }
 
@@ -381,6 +397,8 @@ int deps(system_commands& cmd, std::string config)
 	const std::string build_dir = get_dir(config);
 
 	cmd.append("ninja -C " +  build_dir + " -t deps");
+
+	std::cout << "Listing the dependencies of " << config << " build..." << std::endl;
 
 	return 0;
 }
@@ -397,9 +415,32 @@ int hostinfo(system_commands& cmd)
 	return 0;
 }
 
-int refresh(system_commands& cmd, const std::string& config, const std::string& toolchain)
+int refresh(system_commands& cmd, std::string config)
 {
-	return configure(cmd, config, toolchain);
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	// Compose terminal commands
+
+	const std::string build_dir = get_dir(config);
+
+//#ifdef _WIN32
+//	cmd.append("if not exist \"" + build_dir + "/CMakeCache.txt\" ( echo " + config + " config cannot be found. )");
+//#else
+//	cmd.append("if [ ! -f \"" + build_dir + "/CMakeCache.txt\" ]; then echo " + config + " config cannot be found.; fi");
+//#endif
+
+	// Append run CMake command
+
+	std::string cmake_command = "cmake .";
+	cmake_command += " -GNinja";
+	cmake_command += " -B" + build_dir;
+	cmake_command += " -DCMAKE_BUILD_TYPE=" + config;
+
+	cmd.append(cmake_command);
+
+	std::cout << "Refreshing " << config << " build..." << std::endl;
+
+	return 0;
 }
 
 int reconfig(system_commands& cmd, std::string config, const std::string& toolchain)
@@ -505,7 +546,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "refresh")
 	{
-		retval = refresh(cmd, args(2).str(), args(toolchain_param).str());
+		retval = refresh(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "remake")
