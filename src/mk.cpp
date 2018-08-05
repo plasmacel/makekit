@@ -392,11 +392,11 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 
 	if (target.empty())
 	{
-		std::cout << "Listing commands of " << config << " build" << std::endl;
+		std::cout << "Listing commands of " << config << " build..." << std::endl;
 	}
 	else
 	{
-		std::cout << "Listing commands of " << config << " build target " <<  target << std::endl;
+		std::cout << "Listing commands of " << config << " build target " <<  target << "..." << std::endl;
 	}
 
 	return 0;
