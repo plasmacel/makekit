@@ -202,7 +202,35 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 	return 0;
 }
 
-int make(system_commands& cmd, std::string config, const std::string& toolchain, std::string target, bool configure_flag)
+int refresh(system_commands& cmd, std::string config)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	// Compose terminal commands
+
+	const std::string build_dir = get_dir(config);
+
+	//#ifdef _WIN32
+	//	cmd.append("if not exist \"" + build_dir + "/CMakeCache.txt\" ( echo " + config + " config cannot be found. )");
+	//#else
+	//	cmd.append("if [ ! -f \"" + build_dir + "/CMakeCache.txt\" ]; then echo " + config + " config cannot be found.; fi");
+	//#endif
+
+	// Append run CMake command
+
+	std::string cmake_command = "cmake .";
+	cmake_command += " -GNinja";
+	cmake_command += " -B" + build_dir;
+	cmake_command += " -DCMAKE_BUILD_TYPE=" + config;
+
+	cmd.append(cmake_command);
+
+	std::cout << "Refreshing " << config << " build..." << std::endl;
+
+	return 0;
+}
+
+int make(system_commands& cmd, std::string config, const std::string& toolchain, std::string target, bool configure_flag, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
@@ -216,6 +244,11 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 	}
 	else
 	{
+		if (refresh_flag)
+		{
+			if (refresh(cmd, config)) return 1;
+		}
+
 		add_set_environment_command(cmd, "x64");
 	}
 
@@ -427,34 +460,6 @@ int hostinfo(system_commands& cmd)
 	return 0;
 }
 
-int refresh(system_commands& cmd, std::string config)
-{
-	if (config.empty()) config = DEFAULT_CONFIG;
-
-	// Compose terminal commands
-
-	const std::string build_dir = get_dir(config);
-
-//#ifdef _WIN32
-//	cmd.append("if not exist \"" + build_dir + "/CMakeCache.txt\" ( echo " + config + " config cannot be found. )");
-//#else
-//	cmd.append("if [ ! -f \"" + build_dir + "/CMakeCache.txt\" ]; then echo " + config + " config cannot be found.; fi");
-//#endif
-
-	// Append run CMake command
-
-	std::string cmake_command = "cmake .";
-	cmake_command += " -GNinja";
-	cmake_command += " -B" + build_dir;
-	cmake_command += " -DCMAKE_BUILD_TYPE=" + config;
-
-	cmd.append(cmake_command);
-
-	std::cout << "Refreshing " << config << " build..." << std::endl;
-
-	return 0;
-}
-
 int reconfig(system_commands& cmd, std::string config, const std::string& toolchain)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
@@ -463,14 +468,14 @@ int reconfig(system_commands& cmd, std::string config, const std::string& toolch
 	return configure(cmd, config, toolchain);
 }
 
-int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool configure_flag)
+int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool configure_flag, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 #if 1
 
 	if (clean_make(cmd, config, target) != 0) return 1;
-	return make(cmd, config, toolchain, target, configure_flag);
+	return make(cmd, config, toolchain, target, configure_flag, refresh_flag);
 
 #else
 
@@ -548,7 +553,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "make")
 	{
-		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }]);
+		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
@@ -563,7 +568,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "remake")
 	{
-		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }]);
+		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else
