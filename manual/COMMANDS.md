@@ -36,7 +36,7 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
-#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-C [-T <TOOLCHAIN>]] `
+#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-C [-T <TOOLCHAIN>]] [-R]`
 
 Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
 
@@ -57,7 +57,7 @@ This command is useful for refreshing the build configuration if the source tree
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-C [-T <TOOLCHAIN>]]`
+#### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-R]`
 
 Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
 
