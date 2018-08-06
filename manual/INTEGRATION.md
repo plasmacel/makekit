@@ -54,7 +54,22 @@ This file is optional, and can be used to create custom debug environments.
 - `.vs/tasks.vs.json`
 This file is required to integrate all features of MakeKit into the Visual Studio IDE. It enables to launch the default Build, Rebuild and Clean commands using MakeKit and spawns context menu items to perform additional MakeKit tasks.
 
+|:------------------------------------------------------------|:-----------------------------------------------------------|
+| Visual Studio                                               | CMake Command                                              |
+| Solution file (.sln)                                        | project()                                                  |
+| Project file (.vcxproj)                                     | target name in the command add_executable or add_library   |
+| executable (.exe)                                           | add_executable()                                           |
+| static library (.lib)                                       | add_library(STATIC)                                        |
+| dynamic library (.dll)                                      | add_library(SHARED)                                        |
+| Source Folders                                              | source_group                                               |
+| Project Folders                                             | set_property(TARGET PROPERTY FOLDER)                       |
+| Properties->General->Output Directory                       | set_target_properties(PROPERTIES RUNTIME_OUTPUT_DIRECTORY) |
+| Properties->C/C++->Preprocessor->Preprocessor Definitions   | add_compile_definitions()                                  |
+| Properties->C/C++->General->Additional Include Directories  | target_include_directories()                               |
+| Properties->Linker->General->Additional Library Directories | link_directories()                                         |
+| Properties->Linker->Input->Additional Dependencies          | target_link_libraries()                                    |
 
+- https://cognitivewaves.wordpress.com/cmake-and-visual-studio/
 - https://blogs.msdn.microsoft.com/vcblog/2016/10/05/bring-your-c-codebase-to-visual-studio-with-open-folder/
 - https://blogs.msdn.microsoft.com/vcblog/2017/11/02/customizing-your-environment-with-visual-c-and-open-folder/
 
