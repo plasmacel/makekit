@@ -320,7 +320,7 @@ int clean_config(system_commands& cmd, const std::string& config)
 		message(cmd, "Cleaning the configuration of all builds.");
 
 #	ifdef _WIN32
-		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\\CMakeCache.txt\" 1> NUL");
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\\CMakeCache.txt\" > NUL");
 #	else
 		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
 #	endif
@@ -332,7 +332,7 @@ int clean_config(system_commands& cmd, const std::string& config)
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
-		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /s /q \"" + build_dir + "\\CMakeCache.txt\" 1> NUL");
+		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /s /q \"" + build_dir + "\\CMakeCache.txt\" > NUL");
 #	else
 		cmd.append("/bin/rm -f \"" + build_dir + "/CMakeCache.txt\"");
 #	endif
@@ -392,7 +392,7 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 #	ifdef _WIN32
 		// First delete all files in the build directory and its subdirectories recursively to avoid the common problem
 		// that removing the build directory fails with error message "The directory is not empty".
-		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\" 1> NUL && @rd /s /q \"%X\"");
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\" > NUL && @rd /s /q \"%X\"");
 #	else
 		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
 #	endif
@@ -404,7 +404,7 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
-		cmd.append("if exist \"" + build_dir + "\" @del /f /s /q \"" + build_dir + "\" 1> NUL && @rd /s /q \"" + build_dir + "\"");
+		cmd.append("if exist \"" + build_dir + "\" @del /f /s /q \"" + build_dir + "\" > NUL && @rd /s /q \"" + build_dir + "\"");
 #	else
 		cmd.append("/bin/rm -rf \"" + build_dir + "\"");
 #	endif
@@ -507,7 +507,7 @@ int version(system_commands& cmd)
 
 int check_args_count(const argh::parser& args, size_t max)
 {
-	if (args.size() > max)
+	if ((args.size() + args.params().size() + args.flags().size()) > max)
 	{
 		std::cout << "WARNING Too many arguments for this command." << std::endl;
 		return 1;
