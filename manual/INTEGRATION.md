@@ -54,8 +54,8 @@ This file is optional, and can be used to create custom debug environments.
 - `.vs/tasks.vs.json`
 This file is required to integrate all features of MakeKit into the Visual Studio IDE. It enables to launch the default Build, Rebuild and Clean commands using MakeKit and spawns context menu items to perform additional MakeKit tasks.
 
-|:------------------------------------------------------------|:-----------------------------------------------------------|
 | Visual Studio                                               | CMake Command                                              |
+|:------------------------------------------------------------|:-----------------------------------------------------------|
 | Solution file (.sln)                                        | project()                                                  |
 | Project file (.vcxproj)                                     | target name in the command add_executable or add_library   |
 | executable (.exe)                                           | add_executable()                                           |
