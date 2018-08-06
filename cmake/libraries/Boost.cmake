@@ -35,8 +35,16 @@ if (MK_BOOST)
 		return()
 	endif ()
 
+	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+
+	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+		set(MK_LINK_SCOPE INTERFACE)
+	else ()
+		unset(MK_LINK_SCOPE)
+	endif ()
+
 	foreach (BOOST_MODULE ${MK_BOOST})
-		target_link_libraries(${PROJECT_NAME} Boost::${BOOST_MODULE})
+		target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} Boost::${BOOST_MODULE})
 		mk_target_deploy_libraries(${PROJECT_NAME} Boost::${BOOST_MODULE})
 	endforeach ()
 endif ()

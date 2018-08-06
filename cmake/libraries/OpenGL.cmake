@@ -35,7 +35,15 @@ if (MK_OPENGL)
 		return()
 	endif ()
 
-	target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+
+	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+		set(MK_LINK_SCOPE INTERFACE)
+	else ()
+		unset(MK_LINK_SCOPE)
+	endif ()
+
+	target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} OpenGL::GL)
 	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
 
 	#if (OpenGL::OpenGL)

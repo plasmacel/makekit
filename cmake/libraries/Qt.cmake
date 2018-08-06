@@ -72,13 +72,21 @@ if (MK_QT)
 
 	set(MK_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
 
+	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+
+	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+		set(MK_LINK_SCOPE INTERFACE)
+	else ()
+		unset(MK_LINK_SCOPE)
+	endif ()
+
 	foreach (QT_MODULE ${MK_QT})
 		if (NOT ${QT_MODULE} IN_LIST MK_QT_MODULES)
 			mk_message(SEND_ERROR "Skipping invalid Qt module: ${QT_MODULE}")
 			continue()
 		endif ()
 		
-		target_link_libraries(${PROJECT_NAME} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
+		target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
 		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QT_MODULE})
 	endforeach ()
 endif ()
