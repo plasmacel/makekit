@@ -6,13 +6,18 @@ The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
 #### `mk clean [<CONFIG>] [-X [<TARGETS>]]`
 
-Removes the directory (including the configuration and the built binaries) of the build configuration specified by `BUILD_TYPE`.
+Removes the directory (including the configuration and the built binaries) of the build configuration specified by `<CONFIG>`.
+
+`-X` make the command exclusive for the specified targets
+-X excusively clean the binaries of specified targets If the list of targets is omitted, then clean all binaries.
 
 If `<CONFIG>` is not specified, the command removes the build directory of *ALL* build configurations.
 
 #### `mk commands [<CONFIG>] [-X <TARGETS>]`
 
 Lists the actual commands which are used to build the specified configuration `<CONFIG>`. `<TARGETS>` is a string with the list of exclusive targets.
+
+`-X` make the command exclusive for the specified targets
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
@@ -42,7 +47,9 @@ Creates or refreshes the build configuration specified by `<CONFIG>` and execute
 
 The compiler/linker output can be very verbose when it encounters a lot of warnings and/or errors, which could overflow the buffer of your command line terminal - in this case you start to lose your oldest output lines to favor newer ones. To avoid this, you can redirect the command line output to a file (say `log.txt`) whose size is limited only by the data drive. This can be done by using the redirection operator `>>` as simply as `mk make <CONFIG> >> log.txt`, which will overwrite the file every time you issue the command - if you just want to append to it use `>` instead of `>>`.
 
-If `BUILD_TYPE` is not specified, it defaults to `Release`.
+`-X` make the command exclusive for the specified targets
+
+If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk reconfig [<CONFIG>] [-T <TOOLCHAIN>]`
 
@@ -61,6 +68,8 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
 
+`-X` make the command exclusive for the specified targets
+
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk version`
@@ -69,9 +78,9 @@ Outputs the version of the `mk` CLI (Command Line Interface).
 
 ## Build configurations
 
-All default CMake `BUILD_TYPE`s are available:
+All default CMake configurations are available:
 
-| BUILD_TYPE     | Description                                       | clang flags       | clang-cl flags                     |
+| CONFIG         | Description                                       | clang flags       | clang-cl flags                     |
 |:---------------|:--------------------------------------------------|:------------------|:-----------------------------------|
 | None           |                                                   |                   | `/DWIN32 /D_WINDOWS /W3 /GR /EHsc` |
 | Debug          | Debug build, no optimization                      | `-g`              | `/MDd /Zi /Ob0 /Od /RTC1`          |
