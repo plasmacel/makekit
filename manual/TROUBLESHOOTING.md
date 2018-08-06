@@ -7,3 +7,5 @@ TODO
 3. Check whether the source tree is free of in-source build files.
 4. Check the required libraries of your project and their location.
 5. Check the required user and access permissions.
+
+If CMake cries for entry point, then check the type of your targets (maybe you accidentally added something as an EXECUTABLE).
