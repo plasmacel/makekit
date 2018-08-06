@@ -125,7 +125,7 @@ if %ERRORLEVEL% == 0 (
 echo.
 echo Building source...
 
-call vsdevcmd.bat -arch=x64 -host_arch=x64
+call vsdevcmd_proxy.bat -arch=x64 -host_arch=x64
 
 cd "%~dp0\..\.."
 ::cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
@@ -196,7 +196,7 @@ echo Installation done.
 set /p dummy=Press ENTER...
 
 @echo on
-exit /b 0
+@exit /b 0
 
 :: GetRegistryValue (KEY, VALUE)
 :GetRegistryValue
