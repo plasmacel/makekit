@@ -252,6 +252,8 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 		add_set_environment_command(cmd, "x64");
 	}
 
+	// Append build commands
+
 #if 0
 
 	std::string ninja_status = read_file("mk_status.txt");
@@ -480,14 +482,14 @@ int reconfig(system_commands& cmd, std::string config, const std::string& toolch
 	return configure(cmd, config, toolchain);
 }
 
-int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool refresh_flag)
+int remake(system_commands& cmd, std::string config, const std::string& target, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 #if 1
 
 	if (clean_make(cmd, config, target) != 0) return 1;
-	return make(cmd, config, toolchain, target, false, refresh_flag);
+	return make(cmd, config, "", target, false, refresh_flag);
 
 #else
 
@@ -524,63 +526,70 @@ int main(int argc, char** argv)
 
 	std::string command = args(1).str();
 
+	if (command == "deps")
+	{
+		if (args.size() > 2) return 1;
+		retval = deps(cmd, args(2).str());
+		if (retval != 0) return retval;
+	}
 	if (command == "help")
 	{
-		if (argc > 2) return 1;
+		if (args.size() > 2) return 1;
 		retval = help(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "host")
 	{
-		if (argc > 2) return 1;
+		if (args.size() > 2) return 1;
 		retval = hostinfo(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "version")
 	{
-		if (argc > 2) return 1;
+		if (args.size() > 2) return 1;
 		retval = version(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "clean")
 	{
-		if (argc > 4) return 1;
+		if (args.size() > 4) return 1;
 		retval = clean(cmd, args(2).str(), args(exclusive_param).str(), args[exclusive_param]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "commands")
 	{
+		if (args.size() > 3) return 1;
 		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "config")
 	{
+		if (args.size() > 3) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
-		if (retval != 0) return retval;
-	}
-	else if (command == "deps")
-	{
-		retval = deps(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "make")
 	{
+		if (args.size() > 6) return 1;
 		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
 	{
+		if (args.size() > 3) return 1;
 		retval = reconfig(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "refresh")
 	{
+		if (args.size() > 2) return 1;
 		retval = refresh(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "remake")
 	{
-		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
+		if (args.size() > 4) return 1;
+		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else
