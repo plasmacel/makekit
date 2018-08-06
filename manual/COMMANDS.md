@@ -65,7 +65,7 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk version`
 
-Outputs the version of the `mk` CLI (command line interface).
+Outputs the version of the `mk` CLI (Command Line Interface).
 
 ## Build configurations
 
