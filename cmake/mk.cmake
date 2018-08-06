@@ -528,7 +528,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 endfunction()
 
 set(MK_ALL_SOURCES ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
-mk_add_target(${PROJECT_NAME} EXECUTABLE "${MK_ALL_SOURCES}")
+mk_add_target(${PROJECT_NAME} ${MK_MODULE_MODE} "${MK_ALL_SOURCES}")
 
 #
 # Create source groups for IDE project generators
