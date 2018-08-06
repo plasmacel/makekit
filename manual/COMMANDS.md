@@ -4,7 +4,7 @@
 
 The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
-#### `mk clean [<CONFIG>] [-C] [-M]`
+#### `mk clean [<CONFIG>] [-X [<TARGETS>]]`
 
 Removes the directory (including the configuration and the built binaries) of the build configuration specified by `BUILD_TYPE`.
 

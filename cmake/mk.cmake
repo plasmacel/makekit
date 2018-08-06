@@ -35,6 +35,9 @@ endif ()
 enable_language(C)
 enable_language(CXX)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
 if (MK_ASM)
 	enable_language(ASM)
 endif ()
@@ -454,18 +457,18 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
 		if (${ARGC} GREATER 3)
 			if (ARGV3)
-				if (MK_OS_WINDOWS)
-					set_target_properties(
-						${TARGET_NAME} PROPERTIES
-						WIN32_EXECUTABLE TRUE
-					)
-				elseif (MK_OS_MACOS)
-					set_target_properties(
-						${TARGET_NAME} PROPERTIES
-						MACOSX_BUNDLE TRUE
-						MACOSX_BUNDLE_INFO_PLIST ${MK_MACOS_BUNDLE_INFO_PLIST}
-					)
-				endif ()
+				#if (MK_OS_WINDOWS)
+				#	set_target_properties(
+				#		${TARGET_NAME} PROPERTIES
+				#		WIN32_EXECUTABLE TRUE
+				#	)
+				#elseif (MK_OS_MACOS)
+				#	set_target_properties(
+				#		${TARGET_NAME} PROPERTIES
+				#		MACOSX_BUNDLE TRUE
+				#		MACOSX_BUNDLE_INFO_PLIST ${MK_MACOS_BUNDLE_INFO_PLIST}
+				#	)
+				#endif ()
 			endif ()
 		endif ()
 
@@ -473,18 +476,25 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 
 		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
 			set(TARGET_LINK_TYPE "INTERFACE")
-		if (${TARGET_TYPE} STREQUAL "OBJECT_LIBRARY")
-			set(TARGET_LINK_TYPE "OBJECT")
-		elseif (${TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
-			set(TARGET_LINK_TYPE "STATIC")
-		elseif (${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")
-			set(TARGET_LINK_TYPE "SHARED")
-		else()
-			mk_message(FATAL_ERROR "Invalid target type: ${TARGET_TYPE}")
-			return()
+			set(TARGET_LINK_SCOPE "INTERFACE")
+			add_library(${TARGET_NAME} ${TARGET_LINK_TYPE})
+			#target_include_directories(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+			target_sources(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+		else ()
+			unset(TARGET_LINK_SCOPE)
+			if (${TARGET_TYPE} STREQUAL "OBJECT_LIBRARY")
+				set(TARGET_LINK_TYPE "OBJECT")
+			elseif (${TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
+				set(TARGET_LINK_TYPE "STATIC")
+			elseif (${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")
+				set(TARGET_LINK_TYPE "SHARED")
+			else()
+				mk_message(FATAL_ERROR "Invalid target type: ${TARGET_TYPE}")
+				return()
+			endif ()
+
+			add_library(${TARGET_NAME} ${TARGET_LINK_TYPE} ${TARGET_SOURCES})
 		endif ()
-		
-		add_library(${TARGET_NAME} ${TARGET_LINK_TYPE} ${TARGET_SOURCES})
 		
 		# For header-only libraries this line is required
 		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
@@ -497,8 +507,8 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 	endif ()
 	
 	# Set C/C++ language standard of the target
-	set_property(TARGET ${TARGET_NAME} PROPERTY C_STANDARD 11)
-	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
+	#set_property(TARGET ${TARGET_NAME} PROPERTY C_STANDARD 11)
+	#set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
 	# Add pthreads on macOS and Linux
 	# This is to avoid an issue when the compiler and/or the dependent libraries don't do this automatically
@@ -512,83 +522,13 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 			return()
 		endif ()
 
-		target_link_libraries(${TARGET_NAME} Threads::Threads)
+		target_link_libraries(${TARGET_NAME} ${TARGET_LINK_SCOPE} Threads::Threads)
 	endif ()
 
 endfunction()
 
-#mk_add_target(${PROJECT_NAME} EXECUTABLE ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
-
-if (CXX_SOURCES)
-	if (${MK_MODULE_MODE} STREQUAL "NONE")
-		return() # Do nothing
-	elseif (${MK_MODULE_MODE} STREQUAL "EXECUTABLE")
-
-		add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
-
-		# Set poperties to build as native GUI application
-		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
-		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
-		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
-		if (MK_NATIVE_GUI_API)
-			if (MK_OS_WINDOWS)
-				set_target_properties(
-					${PROJECT_NAME} PROPERTIES
-					WIN32_EXECUTABLE TRUE
-				)
-			elseif (MK_OS_MACOS)
-				set_target_properties(
-					${PROJECT_NAME} PROPERTIES
-					MACOSX_BUNDLE TRUE
-					MACOSX_BUNDLE_INFO_PLIST ${MK_MACOS_BUNDLE_INFO_PLIST}
-				)
-			endif ()
-		endif ()
-	else ()
-		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-			set(MK_MODULE_VISIBILITY INTERFACE)
-		elseif (${MK_MODULE_MODE} STREQUAL "STATIC_LIBRARY")
-			set(MK_MODULE_VISIBILITY STATIC)
-		elseif (${MK_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
-			set(MK_MODULE_VISIBILITY SHARED)
-		else()
-			mk_message(FATAL_ERROR "Invalid MK_MODULE_MODE!")
-			return()
-		endif ()
-		
-		add_library(${PROJECT_NAME} ${MK_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
-		
-		# For header-only libraries this line is required
-		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-			target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
-		endif ()
-
-		#TODO
-		#set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${MK_MACOS_FRAMEWORK_INFO_PLIST})
-	endif ()
-	
-	# Set C/C++ language standard of the target
-	set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
-	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-
-	# Add pthreads on macOS and Linux
-	# This is to avoid an issue when the compiler and/or the dependent libraries don't do this automatically
-	# https://cmake.org/cmake/help/v3.12/module/FindThreads.html
-	if (NOT MK_OS_WINDOWS)
-		set(THREADS_PREFER_PTHREAD_FLAG ON)
-		find_package(Threads REQUIRED)
-
-		if (NOT Threads_FOUND)
-			mk_message(FATAL_ERROR "POSIX Threads (pthreads) libraries cannot be found!")
-			return()
-		endif ()
-
-		target_link_libraries(${PROJECT_NAME} Threads::Threads)
-	endif ()
-else ()
-	mk_message(STATUS "No C/C++ sources found.")
-	return()
-endif ()
+set(MK_ALL_SOURCES ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
+mk_add_target(${PROJECT_NAME} ${MK_MODULE_MODE} "${MK_ALL_SOURCES}")
 
 #
 # Create source groups for IDE project generators

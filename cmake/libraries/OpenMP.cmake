@@ -28,6 +28,16 @@
 #
 
 if (MK_OPENMP)
+	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+
+	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+		set(MK_LINK_SCOPE INTERFACE)
+		set(MK_COMPILE_OPTIONS_SCOPE INTERFACE)
+	else ()
+		unset(MK_LINK_SCOPE)
+		set(MK_COMPILE_OPTIONS_SCOPE PRIVATE)
+	endif ()
+
 	if (TRUE) # Use LLVM libomp
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
 		find_library(MK_LIBOMP_LIB libomp PATHS $ENV{MK_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
@@ -38,12 +48,12 @@ if (MK_OPENMP)
 		endif ()
 	
 		if (MK_OS_WINDOWS)
-			target_compile_options(${PROJECT_NAME} PRIVATE -Xclang -fopenmp)
+			target_compile_options(${PROJECT_NAME} ${MK_COMPILE_OPTIONS_SCOPE} -Xclang -fopenmp)
 		else ()
-			target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp=libomp)
+			target_compile_options(${PROJECT_NAME} ${MK_COMPILE_OPTIONS_SCOPE} -fopenmp=libomp)
 		endif ()
 		
-		target_link_libraries(${PROJECT_NAME} ${MK_LIBOMP_LIB})
+		target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} ${MK_LIBOMP_LIB})
 		mk_target_deploy_libraries(${PROJECT_NAME} ${MK_LIBOMP_LIB})
 	else ()
 		find_package(OpenMP REQUIRED)
@@ -53,7 +63,7 @@ if (MK_OPENMP)
 			return()
 		endif ()
 		
-		target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
+		target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} OpenMP::OpenMP_CXX)
 		mk_target_deploy_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
 	endif ()
 endif ()

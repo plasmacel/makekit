@@ -109,7 +109,7 @@ void where_path(system_commands& cmd, const std::string& filename)
 bool has_path(const std::string& filename)
 {
 #ifdef _WIN32
-	std::system(std::string{"where /q " + filename}.c_str());
+	std::system(std::string{"where /q \"" + filename + "\""}.c_str());
 	return get_env_var("ERRORLEVEL") == "0";
 #else
 	std::system(std::string{"which " + filename}.c_str());
@@ -187,8 +187,8 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
-	cmake_command += " -B" + build_dir;
-	cmake_command += " -DCMAKE_BUILD_TYPE=" + config;
+	cmake_command += " -B\"" + build_dir + "\"";
+	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
 #ifdef _WIN32
 	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/" + toolchain + ".toolchain.cmake\"";
 #else
@@ -220,8 +220,8 @@ int refresh(system_commands& cmd, std::string config)
 
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
-	cmake_command += " -B" + build_dir;
-	cmake_command += " -DCMAKE_BUILD_TYPE=" + config;
+	cmake_command += " -B\"" + build_dir + "\"";
+	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
 
 	cmd.append(cmake_command);
 
@@ -257,6 +257,8 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 		add_set_environment_command(cmd, "x64");
 	}
 
+	// Append build commands
+
 #if 0
 
 	std::string ninja_status = read_file("mk_status.txt");
@@ -274,23 +276,22 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 
 	if (target.empty()) // Build all targets
 	{
-		cmd.append("ninja -C " + build_dir);
+		cmd.append("ninja -C \"" + build_dir + "\"");
 	}
 	else
 	{
 		if (target.back() == '^') // Compiling a single source
 		{
-			target.pop_back();
-			cmd.append("ninja -C " + build_dir + " \"../" + target + "\"");
+			cmd.append("ninja -C \"" + build_dir + "\" \"../" + target + "\"");
 		}
 		else // Building a single target
 		{
 		#if 1
-			cmd.append("ninja -C " + build_dir + " " + target);
+			cmd.append("ninja -C \"" + build_dir + "\" " + target);
 		#else
-			cmd.append("cmake --build " + build_dir + " --target " + target);
+			cmd.append("cmake --build \"" + build_dir + "\" --target " + target);
 		#endif
-		}		
+		}
 	}
 
 #	ifdef _WIN32
@@ -301,6 +302,7 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 
 	if (target.back() == '^')
 	{
+		target.pop_back();
 		std::cout << "Compiling " << target << " using " << config << " build..." << std::endl;
 	}
 	else
@@ -323,7 +325,7 @@ int clean_config(system_commands& cmd, const std::string& config)
 	if (config.empty()) // Clean CMakeCache.txt of ALL build configurations
 	{
 #	ifdef _WIN32
-		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /q \"%X\\CMakeCache.txt\"");
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\\CMakeCache.txt\"");
 #	else
 		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
 #	endif
@@ -335,9 +337,9 @@ int clean_config(system_commands& cmd, const std::string& config)
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
-		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
+		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /s /q \"" + build_dir + "\\CMakeCache.txt\"");
 #	else
-		cmd.append("/bin/rm -f " + build_dir + "/CMakeCache.txt");
+		cmd.append("/bin/rm -f \"" + build_dir + "/CMakeCache.txt\"");
 #	endif
 
 		std::cout << "Cleaning the configuration of " << config << " build..." << std::endl;
@@ -353,22 +355,36 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 #	ifdef _WIN32
 		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @ninja -C \"%X\" -t clean " + target);
 #	else
-		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C $build_dir -t clean" + target + "; done");
+		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C \"$build_dir\" -t clean " + target + "; done");
 #	endif
 
-		std::cout << "Cleaning the built binaries of all builds..." << std::endl;
+		if (target.empty())
+		{
+			std::cout << "Cleaning the built binaries in all builds..." << std::endl;
+		}
+		else
+		{
+			std::cout << "Cleaning the built binaries of target(s) " <<  target << " in all builds..." << std::endl;
+		}
 	}
 	else
 	{
 		const std::string build_dir = get_dir(config);
 
 	#if 1
-		cmd.append("ninja -C " + build_dir + " -t clean " + target);
+		cmd.append("ninja -C \"" + build_dir + "\" -t clean " + target);
 	#else
-		cmd.append("cmake --build " + build_dir + " --target clean");
+		cmd.append("cmake --build \"" + build_dir + "\" --target clean"); // ONLY IF TARGET IS EMPTY
 	#endif
 
-		std::cout << "Cleaning the built binaries of " << config << " build..." << std::endl;
+		if (target.empty())
+		{
+			std::cout << "Cleaning the built binaries in " << config << " build..." << std::endl;
+		}
+		else
+		{
+			std::cout << "Cleaning the built binaries of target(s) " << target << " in " << config << " build..." << std::endl;
+		}
 	}
 	
 	return 0;
@@ -379,7 +395,9 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 	if (config.empty()) // Clean ALL build directories
 	{
 #	ifdef _WIN32
-		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @rd /s /q \"%X\"");
+		// First delete all files in the build directory and its subdirectories recursively to avoid the common problem
+		// that removing the build directory fails with error message "The directory is not empty".
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\" && @rd /s /q \"%X\"");
 #	else
 		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
 #	endif
@@ -391,9 +409,9 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
-		cmd.append("if exist \"" + build_dir + "\" @rd /s /q " + build_dir);
+		cmd.append("if exist \"" + build_dir + "\" @del /f /s /q \"" + build_dir + "\" && @rd /s /q \"" + build_dir + "\"");
 #	else
-		cmd.append("/bin/rm -rf " + build_dir);
+		cmd.append("/bin/rm -rf \"" + build_dir + "\"");
 #	endif
 
 		std::cout << "Cleaning " << config << " build..." << std::endl;
@@ -402,19 +420,15 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 	return 0;
 }
 
-int clean(system_commands& cmd, const std::string& config, bool config_flag, bool make_flag)
+int clean(system_commands& cmd, const std::string& config, const std::string& target, bool make_flag)
 {
-	if ((config_flag && make_flag) || (!config_flag && !make_flag))
+	if (make_flag || !target.empty()) // Clean only the built binaries created by the make command
+	{
+		return clean_make(cmd, config, target);
+	}
+	else // Clean the whole build directory
 	{
 		return clean_config_and_make(cmd, config);
-	}
-	else if (config_flag)
-	{
-		return clean_config(cmd, config);
-	}
-	else if (make_flag)
-	{
-		return clean_make(cmd, config, "");
 	}
 
 	return 0;
@@ -426,7 +440,7 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 
 	const std::string build_dir = get_dir(config);
 
-	cmd.append("ninja -C " +  build_dir + " -t commands " + target);
+	cmd.append("ninja -C \"" +  build_dir + "\" -t commands " + target);
 
 	if (target.empty())
 	{
@@ -446,7 +460,7 @@ int deps(system_commands& cmd, std::string config)
 
 	const std::string build_dir = get_dir(config);
 
-	cmd.append("ninja -C " +  build_dir + " -t deps");
+	cmd.append("ninja -C \"" +  build_dir + "\" -t deps");
 
 	std::cout << "Listing dependencies of " << config << " build..." << std::endl;
 
@@ -473,20 +487,20 @@ int reconfig(system_commands& cmd, std::string config, const std::string& toolch
 	return configure(cmd, config, toolchain);
 }
 
-int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool refresh_flag)
+int remake(system_commands& cmd, std::string config, const std::string& target, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 #if 1
 
 	if (clean_make(cmd, config, target) != 0) return 1;
-	return make(cmd, config, toolchain, target, false, refresh_flag);
+	return make(cmd, config, "", target, false, refresh_flag);
 
 #else
 
 	const std::string build_dir = get_dir(config);
 
-	cmd.append("cmake --build " + build_dir + " --clean-first");
+	cmd.append("cmake --build \"" + build_dir + "\" --clean-first");
 	return 0;
 
 #endif
@@ -517,63 +531,70 @@ int main(int argc, char** argv)
 
 	std::string command = args(1).str();
 
+	if (command == "deps")
+	{
+		if (args.size() > 2) return 1;
+		retval = deps(cmd, args(2).str());
+		if (retval != 0) return retval;
+	}
 	if (command == "help")
 	{
-		if (argc > 2) return 1;
+		if (args.size() > 2) return 1;
 		retval = help(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "host")
 	{
-		if (argc > 2) return 1;
+		if (args.size() > 2) return 1;
 		retval = hostinfo(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "version")
 	{
-		if (argc > 2) return 1;
+		if (args.size() > 2) return 1;
 		retval = version(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "clean")
 	{
-		if (argc > 4) return 1;
-		retval = clean(cmd, args(2).str(), args[{ "-c", "-C" }], args[{ "-m", "-M" }]);
+		if (args.size() > 4) return 1;
+		retval = clean(cmd, args(2).str(), args(exclusive_param).str(), args[exclusive_param]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "commands")
 	{
+		if (args.size() > 3) return 1;
 		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "config")
 	{
+		if (args.size() > 3) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
-		if (retval != 0) return retval;
-	}
-	else if (command == "deps")
-	{
-		retval = deps(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "make")
 	{
+		if (args.size() > 6) return 1;
 		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
 	{
+		if (args.size() > 3) return 1;
 		retval = reconfig(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "refresh")
 	{
+		if (args.size() > 2) return 1;
 		retval = refresh(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "remake")
 	{
-		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
+		if (args.size() > 4) return 1;
+		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else
