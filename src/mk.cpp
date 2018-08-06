@@ -86,18 +86,12 @@ std::string get_env_var(const std::string& variable)
 	return value;
 }
 
-void message(system_commands& cmd, const std::string& msg)
+inline void message(system_commands& cmd, const std::string& msg)
 {
 	cmd.append("echo " + msg);
-
-#ifdef _WIN32
-	cmd.append("echo.");
-#else
-	cmd.append("echo -n \"\n\"");
-#endif
 }
 
-void where_path(system_commands& cmd, const std::string& filename)
+inline void where_path(system_commands& cmd, const std::string& filename)
 {
 #ifdef _WIN32
 	cmd.append("where " + filename);
@@ -106,7 +100,7 @@ void where_path(system_commands& cmd, const std::string& filename)
 #endif
 }
 
-bool has_path(const std::string& filename)
+inline bool has_path(const std::string& filename)
 {
 #ifdef _WIN32
 	std::system(std::string{"where /q \"" + filename + "\""}.c_str());
@@ -142,7 +136,7 @@ void add_set_environment_command(system_commands& cmd, const std::string& host_a
 	}
 }
 
-void add_set_environment_command(system_commands& cmd, const std::string& arch)
+inline void add_set_environment_command(system_commands& cmd, const std::string& arch)
 {
 	add_set_environment_command(cmd, arch, arch);
 }
@@ -173,6 +167,8 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 	if (config.empty()) config = DEFAULT_CONFIG;
 	if (toolchain.empty()) toolchain = DEFAULT_TOOLCHAIN;
 
+	message(cmd, "Configuring " + config + " build.");
+
 	// Compose terminal commands
 	
 	const std::string build_dir = get_dir(config);
@@ -197,14 +193,14 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 
 	cmd.append(cmake_command);
 
-	std::cout << "Configuring " << config << " build..." << std::endl;
-
 	return 0;
 }
 
 int refresh(system_commands& cmd, std::string config)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
+
+	message(cmd, "Refreshing " + config + " build.");
 
 	// Compose terminal commands
 
@@ -225,8 +221,6 @@ int refresh(system_commands& cmd, std::string config)
 
 	cmd.append(cmake_command);
 
-	std::cout << "Refreshing " << config << " build..." << std::endl;
-
 	return 0;
 }
 
@@ -246,7 +240,7 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 	{
 		if (!toolchain.empty())
 		{
-			cmd.append("echo Toolchain is ignored without the config (-C) flag.");
+			message(cmd, "Toolchain is ignored without the config (-C) flag.");
 		}
 
 		if (refresh_flag)
@@ -256,6 +250,22 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 
 		add_set_environment_command(cmd, "x64");
 	}
+
+	if (target.back() == '^')
+	{
+		message(cmd, "Compiling " + target.substr(0, target.size() - 1) + " using " + config + " build.");
+	}
+	else
+	{
+		if (target.empty())
+		{
+			message(cmd, "Building all targets using " + config + " build.");
+		}
+		else
+		{
+			message(cmd, "Building target " + target + " using " + config + " build.");
+		}
+}
 
 	// Append build commands
 
@@ -300,23 +310,6 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 	cmd.append("if [ $? -eq 0 ]; then echo Build succeeded.; else echo Build failed.; fi");
 #	endif
 
-	if (target.back() == '^')
-	{
-		target.pop_back();
-		std::cout << "Compiling " << target << " using " << config << " build..." << std::endl;
-	}
-	else
-	{
-		if (target.empty())
-		{
-			std::cout << "Building all using " << config << " build..." << std::endl;
-		}
-		else
-		{
-			std::cout << "Building " << target << " using " << config << " build..." << std::endl;
-		}
-	}
-
 	return 0;
 }
 
@@ -324,16 +317,18 @@ int clean_config(system_commands& cmd, const std::string& config)
 {
 	if (config.empty()) // Clean CMakeCache.txt of ALL build configurations
 	{
+		message(cmd, "Cleaning the configuration of all builds.");
+
 #	ifdef _WIN32
 		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\\CMakeCache.txt\"");
 #	else
 		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
 #	endif
-
-		std::cout << "Cleaning the configuration of all builds..." << std::endl;
 	}
 	else
 	{
+		message(cmd, "Cleaning the configuration of " + config + " build.");
+
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
@@ -341,8 +336,6 @@ int clean_config(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("/bin/rm -f \"" + build_dir + "/CMakeCache.txt\"");
 #	endif
-
-		std::cout << "Cleaning the configuration of " << config << " build..." << std::endl;
 	}
 	
 	return 0;
@@ -352,23 +345,32 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 {
 	if (config.empty())
 	{
+		if (target.empty())
+		{
+			message(cmd, "Cleaning the built binaries in all builds.");
+		}
+		else
+		{
+			message(cmd, "Cleaning the built binaries of target(s) " + target + " in all builds.");
+		}
+
 #	ifdef _WIN32
 		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @ninja -C \"%X\" -t clean " + target);
 #	else
 		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C \"$build_dir\" -t clean " + target + "; done");
 #	endif
-
-		if (target.empty())
-		{
-			std::cout << "Cleaning the built binaries in all builds..." << std::endl;
-		}
-		else
-		{
-			std::cout << "Cleaning the built binaries of target(s) " <<  target << " in all builds..." << std::endl;
-		}
 	}
 	else
 	{
+		if (target.empty())
+		{
+			message(cmd, "Cleaning the built binaries in " + config + " build.");
+		}
+		else
+		{
+			message(cmd, "Cleaning the built binaries of target(s) " + target + " in " + config + " build.");
+		}
+
 		const std::string build_dir = get_dir(config);
 
 	#if 1
@@ -376,15 +378,6 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 	#else
 		cmd.append("cmake --build \"" + build_dir + "\" --target clean"); // ONLY IF TARGET IS EMPTY
 	#endif
-
-		if (target.empty())
-		{
-			std::cout << "Cleaning the built binaries in " << config << " build..." << std::endl;
-		}
-		else
-		{
-			std::cout << "Cleaning the built binaries of target(s) " << target << " in " << config << " build..." << std::endl;
-		}
 	}
 	
 	return 0;
@@ -394,6 +387,8 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 {
 	if (config.empty()) // Clean ALL build directories
 	{
+		message(cmd, "Cleaning all builds.");
+
 #	ifdef _WIN32
 		// First delete all files in the build directory and its subdirectories recursively to avoid the common problem
 		// that removing the build directory fails with error message "The directory is not empty".
@@ -401,11 +396,11 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
 #	endif
-
-		std::cout << "Cleaning all builds..." << std::endl;
 	}
 	else // Clean config build directory
 	{
+		message(cmd, "Cleaning " + config + " build.");
+
 		const std::string build_dir = get_dir(config);
 
 #	ifdef _WIN32
@@ -413,8 +408,6 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 #	else
 		cmd.append("/bin/rm -rf \"" + build_dir + "\"");
 #	endif
-
-		std::cout << "Cleaning " << config << " build..." << std::endl;
 	}
 
 	return 0;
@@ -438,18 +431,18 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
-	const std::string build_dir = get_dir(config);
-
-	cmd.append("ninja -C \"" +  build_dir + "\" -t commands " + target);
-
 	if (target.empty())
 	{
-		std::cout << "Listing commands of " << config << " build..." << std::endl;
+		message(cmd, "Listing commands of " + config + " build.");
 	}
 	else
 	{
-		std::cout << "Listing commands of " << config << " build target " <<  target << "..." << std::endl;
+		message(cmd, "Listing commands of " + config + " build target " + target + ".");
 	}
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("ninja -C \"" +  build_dir + "\" -t commands " + target);
 
 	return 0;
 }
@@ -458,18 +451,18 @@ int deps(system_commands& cmd, std::string config)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
+	message(cmd, "Listing dependencies of " + config + " build.");
+
 	const std::string build_dir = get_dir(config);
 
 	cmd.append("ninja -C \"" +  build_dir + "\" -t deps");
-
-	std::cout << "Listing dependencies of " << config << " build..." << std::endl;
 
 	return 0;
 }
 
 int help(system_commands& cmd)
 {
-	cmd.append("echo God helps those who help themselves.");
+	message(cmd, "God helps those who help themselves.");
 	return 0;
 }
 
@@ -508,7 +501,18 @@ int remake(system_commands& cmd, std::string config, const std::string& target, 
 
 int version(system_commands& cmd)
 {
-	std::cout << VERSION << std::endl;
+	message(cmd, VERSION);
+	return 0;
+}
+
+int check_args_count(const argh::parser& args, size_t max)
+{
+	if (args.size() > max)
+	{
+		std::cout << "WARNING Too many arguments for this command." << std::endl;
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -533,67 +537,67 @@ int main(int argc, char** argv)
 
 	if (command == "deps")
 	{
-		if (args.size() > 2) return 1;
+		if (check_args_count(args, 2)) return 1;
 		retval = deps(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	if (command == "help")
 	{
-		if (args.size() > 2) return 1;
+		if (check_args_count(args, 2)) return 1;
 		retval = help(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "host")
 	{
-		if (args.size() > 2) return 1;
+		if (check_args_count(args, 2)) return 1;
 		retval = hostinfo(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "version")
 	{
-		if (args.size() > 2) return 1;
+		if (check_args_count(args, 2)) return 1;
 		retval = version(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "clean")
 	{
-		if (args.size() > 4) return 1;
+		if (check_args_count(args, 4)) return 1;
 		retval = clean(cmd, args(2).str(), args(exclusive_param).str(), args[exclusive_param]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "commands")
 	{
-		if (args.size() > 3) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "config")
 	{
-		if (args.size() > 3) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "make")
 	{
-		if (args.size() > 6) return 1;
+		if (check_args_count(args, 6)) return 1;
 		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
 	{
-		if (args.size() > 3) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = reconfig(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "refresh")
 	{
-		if (args.size() > 2) return 1;
+		if (check_args_count(args, 2)) return 1;
 		retval = refresh(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "remake")
 	{
-		if (args.size() > 4) return 1;
+		if (check_args_count(args, 4)) return 1;
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
