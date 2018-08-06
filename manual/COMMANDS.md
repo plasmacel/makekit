@@ -8,14 +8,17 @@ The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
 Removes the directory (including the configuration and the built binaries) of the build configuration specified by `<CONFIG>`.
 
+**Arguments**
+
 `-X` make the command exclusive for the specified targets
--X excusively clean the binaries of specified targets If the list of targets is omitted, then clean all binaries.
 
 If `<CONFIG>` is not specified, the command removes the build directory of *ALL* build configurations.
 
 #### `mk commands [<CONFIG>] [-X <TARGETS>]`
 
 Lists the actual commands which are used to build the specified configuration `<CONFIG>`. `<TARGETS>` is a string with the list of exclusive targets.
+
+**Arguments**
 
 `-X` make the command exclusive for the specified targets
 
@@ -47,13 +50,15 @@ Creates or refreshes the build configuration specified by `<CONFIG>` and execute
 
 The compiler/linker output can be very verbose when it encounters a lot of warnings and/or errors, which could overflow the buffer of your command line terminal - in this case you start to lose your oldest output lines to favor newer ones. To avoid this, you can redirect the command line output to a file (say `log.txt`) whose size is limited only by the data drive. This can be done by using the redirection operator `>>` as simply as `mk make <CONFIG> >> log.txt`, which will overwrite the file every time you issue the command - if you just want to append to it use `>` instead of `>>`.
 
+**Arguments**
+
 `-X` make the command exclusive for the specified targets
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk reconfig [<CONFIG>] [-T <TOOLCHAIN>]`
 
-Removes the build configuration of the specified `CONFIG` and re-creates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
+Removes build configuration `CONFIG` and regenerates it from scratch. The built binaries remain untouched. This command is recommended if `CMakeLists.txt` has been changed.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
@@ -67,6 +72,8 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 #### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-R]`
 
 Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
+
+**Arguments**
 
 `-X` make the command exclusive for the specified targets
 
