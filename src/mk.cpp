@@ -507,7 +507,7 @@ int version(system_commands& cmd)
 
 int check_args_count(const argh::parser& args, size_t max)
 {
-	if ((args.size() + args.params().size() + args.flags().size()) > max)
+	if ((args.size() + args.flags().size() + args.params().size()) > max)
 	{
 		std::cout << "WARNING Too many arguments for this command." << std::endl;
 		return 1;
