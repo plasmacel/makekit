@@ -244,6 +244,11 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 	}
 	else
 	{
+		if (!toolchain.empty())
+		{
+			cmd.append("echo Toolchain is ignored without the config (-C) flag.");
+		}
+
 		if (refresh_flag)
 		{
 			if (refresh(cmd, config)) return 1;
