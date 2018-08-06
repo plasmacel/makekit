@@ -468,14 +468,14 @@ int reconfig(system_commands& cmd, std::string config, const std::string& toolch
 	return configure(cmd, config, toolchain);
 }
 
-int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool configure_flag, bool refresh_flag)
+int remake(system_commands& cmd, std::string config, const std::string& toolchain, const std::string& target, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 #if 1
 
 	if (clean_make(cmd, config, target) != 0) return 1;
-	return make(cmd, config, toolchain, target, configure_flag, refresh_flag);
+	return make(cmd, config, toolchain, target, false, refresh_flag);
 
 #else
 
@@ -568,7 +568,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "remake")
 	{
-		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
+		retval = remake(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else
