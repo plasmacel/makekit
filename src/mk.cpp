@@ -284,7 +284,7 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 		#else
 			cmd.append("cmake --build \"" + build_dir + "\" --target " + target);
 		#endif
-		}		
+		}
 	}
 
 #	ifdef _WIN32
