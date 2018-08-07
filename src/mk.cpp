@@ -289,7 +289,7 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 			message(cmd, "Building all targets using " + config + " build.");
 		}
 
-		if (!max_threads.empty())
+		if (!max_threads.empty() && (max_threads != "0"))
 		{
 			//message(cmd, "Maximum number of parallel build threads are limited to " + std::to_string(max_threads));
 			ninja_command += " -j " + max_threads;
