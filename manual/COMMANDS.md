@@ -70,7 +70,7 @@ This command is useful for refreshing the build configuration if the source tree
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk remake [<CONFIG>] [-X <TARGET[^]>] [-R]`
+#### `mk remake [<CONFIG>] [-X <TARGETS | TARGET^>] [-J <MAX_THREADS>] [-R]`
 
 Removes all prebuilt binaries of the build configuration specified by `<CONFIG>` and rebuilds them.
 
