@@ -27,7 +27,8 @@
 # https://cmake.org/cmake/help/v3.10/module/FindOpenCL.html
 #
 
-if (MK_OPENCL)
+function(mk_target_link_OpenCL TARGET_NAME)
+
 	find_package(OpenCL REQUIRED)
     
 	if (NOT OpenCL_FOUND)
@@ -35,14 +36,15 @@ if (MK_OPENCL)
 		return()
 	endif ()
 
-	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-		set(MK_LINK_SCOPE INTERFACE)
+		set(LINK_SCOPE INTERFACE)
 	else ()
-		unset(MK_LINK_SCOPE)
+		unset(LINK_SCOPE)
 	endif ()
     
-	target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} OpenCL::OpenCL)
-	mk_target_deploy_libraries(${PROJECT_NAME} OpenCL::OpenCL)
-endif ()
+	target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenCL::OpenCL)
+	mk_target_deploy_libraries(${TARGET_NAME} OpenCL::OpenCL)
+
+endfunction()

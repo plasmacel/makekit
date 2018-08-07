@@ -28,11 +28,12 @@
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
-if (MK_QT)
+function(mk_target_link_Qt TARGET_NAME)
+
 	# Find Qt5
 
 	set(Qt5_DIR $ENV{MK_QT_DIR}/lib/cmake/Qt5)
-	find_package(Qt5 COMPONENTS ${MK_QT} REQUIRED)
+	find_package(Qt5 COMPONENTS ${ARGN} REQUIRED)
 
 	if (NOT Qt5_FOUND)
 		mk_message(FATAL_ERROR "Qt5 libraries cannot be found!")
@@ -54,39 +55,40 @@ if (MK_QT)
 	# set(CMAKE_AUTORCC ON)
 	# set(CMAKE_AUTOUIC ON)
 
-	set_target_properties(${PROJECT_NAME} PROPERTIES AUTOMOC ON)
-	set_target_properties(${PROJECT_NAME} PROPERTIES AUTORCC ON)
-	set_target_properties(${PROJECT_NAME} PROPERTIES AUTOUIC ON)
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC ON)
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTORCC ON)
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOUIC ON)
 
 	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
 	file(GLOB_RECURSE CXX_QRCFILES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.qrc)
 	file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.ui)
 
-	target_sources(${PROJECT_NAME} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
+	target_sources(${TARGET_NAME} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
 
 	# This is not required, since target_link_libraries does this automatically
-	#compile_options(${PROJECT_NAME} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS})
+	#compile_options(${TARGET_NAME} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS})
 
 	# Link and deploy required Qt libraries
 
-	set(MK_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
+	set(ALL_QT_MODULES Bluetooth Charts Concurrent Core DataVisualization DBus Designer Gamepad Gui Help LinguistTools Location MacExtras Multimedia MultimediaWidgets Network NetworkAuth Nfc OpenGL OpenGLExtensions Positioning PositioningQuick PrintSupport Purchasing Qml Quick QuickCompiler QuickControls2 QuickTest QuickWidgets RemoteObjects RepParser Script ScriptTools Scxml Sensors SerialBus SerialPort Sql Svg Test TextToSpeech UiPlugin UiTools WebChannel WebEngine WebEngineCore WebEngineWidgets WebSockets WebView Widgets Xml XmlPatterns 3DAnimation 3DCore 3DExtras 3DInput 3DLogic 3DQuick 3DQuickAnimation 3DQuickExtras 3DQuickInput 3DQuickRender 3DQuickScene2D 3DRender)
 
-	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-		set(MK_LINK_SCOPE INTERFACE)
+		set(LINK_SCOPE INTERFACE)
 	else ()
-		unset(MK_LINK_SCOPE)
+		unset(LINK_SCOPE)
 	endif ()
 
-	foreach (QT_MODULE ${MK_QT})
-		if (NOT ${QT_MODULE} IN_LIST MK_QT_MODULES)
+	foreach (QT_MODULE IN ITEMS ${ARGN})
+		if (NOT ${QT_MODULE} IN_LIST ALL_QT_MODULES)
 			mk_message(SEND_ERROR "Skipping invalid Qt module: ${QT_MODULE}")
 			continue()
 		endif ()
 		
-		target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		mk_target_deploy_libraries(${PROJECT_NAME} Qt5::${QT_MODULE})
+		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
+		mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
 	endforeach ()
-endif ()
+
+endfunction()

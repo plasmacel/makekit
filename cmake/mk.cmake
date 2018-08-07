@@ -115,49 +115,60 @@ endif ()
 # macro(mk_collect_inlines PATH)
 # macro(mk_collect_objects PATH)
 
-#file(GLOB_RECURSE C_SOURCES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.c)
-#file(GLOB_RECURSE C_HEADERS RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.h)
+# mk_collect_sources
+macro(mk_find_sources SOURCE_DIR)
+	message(STATUS "Finding sources in ${SOURCE_DIR}")
 
-file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.cc *.c++ *.cpp *.cxx)
-file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.h *.hh *.h++ *.hpp *.hxx)
-file(GLOB_RECURSE CXX_INLINES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.inc *.inl *.ipp *.ixx *.tpp *.txx)
-#file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} ${CMAKE_CXX_OUTPUT_EXTENSION})
-if (MK_OS_WINDOWS)
-	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.obj)
-else ()
-	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.o)
-endif ()
+	if (${ARGC} GREATER 1 AND ARGV1)
+		set(RELATIVE_ARGS "RELATIVE ${SOURCE_DIR}")
+	else ()
+		unset(RELATIVE_ARGS)
+	endif ()
 
-# if ("ASM" IN_LIST ${ENABLED_LANGUAGES})
-if (MK_ASM)
-	file(GLOB_RECURSE ASM_SOURCES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.asm *.s)
-endif ()
+	#file(GLOB_RECURSE C_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.c)
+	#file(GLOB_RECURSE C_HEADERS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.h)
 
-# if ("CUDA" IN_LIST ${ENABLED_LANGUAGES})
-if (MK_CUDA)
-	file(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.cu)
-endif ()
+	file(GLOB_RECURSE CXX_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.cc ${SOURCE_DIR}/*.c++ ${SOURCE_DIR}/*.cpp ${SOURCE_DIR}/*.cxx)
+	file(GLOB_RECURSE CXX_HEADERS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.h ${SOURCE_DIR}/*.hh ${SOURCE_DIR}/*.h++ ${SOURCE_DIR}/*.hpp ${SOURCE_DIR}/*.hxx)
+	file(GLOB_RECURSE CXX_INLINES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.inc ${SOURCE_DIR}/*.inl ${SOURCE_DIR}/*.ipp ${SOURCE_DIR}/*.ixx ${SOURCE_DIR}/*.tpp ${SOURCE_DIR}/*.txx)
+	#file(GLOB_RECURSE CXX_OBJECTS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${CMAKE_CXX_OUTPUT_EXTENSION})
+	if (MK_OS_WINDOWS)
+		file(GLOB_RECURSE CXX_OBJECTS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.obj)
+	else ()
+		file(GLOB_RECURSE CXX_OBJECTS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.o)
+	endif ()
 
-#
-# Set source properties
-#
+	# if ("ASM" IN_LIST ${ENABLED_LANGUAGES})
+	if (MK_ASM)
+		file(GLOB_RECURSE ASM_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.asm ${SOURCE_DIR}/*.s)
+	endif ()
 
-foreach (CXX_HEADER ${CXX_HEADERS})
-	set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
-endforeach ()
+	# if ("CUDA" IN_LIST ${ENABLED_LANGUAGES})
+	if (MK_CUDA)
+		file(GLOB_RECURSE CUDA_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.cu)
+	endif ()
 
-foreach (CXX_INLINE ${CXX_INLINES})
-	set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
-endforeach ()
+	#
+	# Set source properties
+	#
 
-#
-# Excluding CMake generated files from source for safety
-#
+	foreach (CXX_HEADER ${CXX_HEADERS})
+		set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
+	endforeach ()
 
-list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
-list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
-list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
-list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
+	foreach (CXX_INLINE ${CXX_INLINES})
+		set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
+	endforeach ()
+
+	#
+	# Excluding CMake generated files from source for safety
+	#
+
+	list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
+	list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
+	list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
+	list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
+endmacro()
 
 #
 # Functions and Macros
@@ -435,21 +446,22 @@ function(mk_target_exclude TARGET_NAME TARGET_EXCLUDE)
 	)
 endfunction()
 
-# mk_add_target(TARGET_NAME TARGET_TYPE TARGET_SOURCES [TARGET_GUI_API])
-function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
+# 
+function(mk_add_target2 TARGET_NAME TARGET_TYPE INCLUDE_DIR SOURCE_DIR)
+
+	set(TARGET_SOURCES "")
+	mk_find_sources(INCLUDE_DIR)
+	mk_find_sources(SOURCE_DIR)
 
 	if (NOT TARGET_SOURCES)
-		mk_message(STATUS "No C/C++ sources found.")
+		mk_message(STATUS "No C/C++ sources specified.")
 		return()
 	endif ()
 
-	if (${TARGET_TYPE} STREQUAL "NONE")
+	if (${TARGET_TYPE} STREQUAL "EXECUTABLE")
 
-		return() # Do nothing
-
-	elseif (${TARGET_TYPE} STREQUAL "EXECUTABLE")
-
-		add_executable(${TARGET_NAME} ${TARGET_SOURCES})
+		add_executable(${TARGET_NAME} ${TARGET_SOURCES}) # sources can be omitted here
+		target_include_directories(${TARGET_NAME} PRIVATE ${INCLUDE_DIR})
 
 		# Set poperties to build as native GUI application
 		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
@@ -473,32 +485,35 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 		endif ()
 
 	else ()
-
+		
 		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-			set(TARGET_LINK_TYPE "INTERFACE")
-			set(TARGET_LINK_SCOPE "INTERFACE")
-			add_library(${TARGET_NAME} ${TARGET_LINK_TYPE})
-			#target_include_directories(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+
+			set(TARGET_INCLUDE_SCOPE "INTERFACE")
+			set(TARGET_SOURCE_SCOPE "INTERFACE")
+
+			add_library(${TARGET_NAME} INTERFACE)
 			target_sources(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+			target_include_directories(${TARGET_NAME} INTERFACE ${INCLUDE_DIR} INTERFACE ${SOURCE_DIR})
+
 		else ()
-			unset(TARGET_LINK_SCOPE)
+			
+			set(TARGET_INCLUDE_SCOPE "PUBLIC")
+			set(TARGET_SOURCE_SCOPE "PRIVATE")
+
 			if (${TARGET_TYPE} STREQUAL "OBJECT_LIBRARY")
-				set(TARGET_LINK_TYPE "OBJECT")
+				set(TARGET_LIBRARY_TYPE "OBJECT")
 			elseif (${TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
-				set(TARGET_LINK_TYPE "STATIC")
+				set(TARGET_LIBRARY_TYPE "STATIC")
 			elseif (${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")
-				set(TARGET_LINK_TYPE "SHARED")
+				set(TARGET_LIBRARY_TYPE "SHARED")
 			else()
 				mk_message(FATAL_ERROR "Invalid target type: ${TARGET_TYPE}")
 				return()
 			endif ()
 
-			add_library(${TARGET_NAME} ${TARGET_LINK_TYPE} ${TARGET_SOURCES})
-		endif ()
-		
-		# For header-only libraries this line is required
-		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-			target_include_directories(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+			add_library(${TARGET_NAME} ${TARGET_LIBRARY_TYPE} ${TARGET_SOURCES}) # sources can be omitted here, except for object libraries
+			target_include_directories(${TARGET_NAME} PUBLIC ${INCLUDE_DIR} PRIVATE ${SOURCE_DIR})
+
 		endif ()
 
 		#TODO
@@ -527,8 +542,115 @@ function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
 
 endfunction()
 
-set(MK_ALL_SOURCES ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
-mk_add_target(${PROJECT_NAME} ${MK_MODULE_MODE} "${MK_ALL_SOURCES}")
+# mk_add_target(TARGET_NAME TARGET_TYPE TARGET_SOURCES ...)
+function(mk_add_target TARGET_NAME TARGET_TYPE TARGET_SOURCES)
+
+	if (NOT TARGET_SOURCES)
+		mk_message(STATUS "No C/C++ sources specified.")
+		return()
+	endif ()
+
+	if (${TARGET_TYPE} STREQUAL "NONE")
+
+		return() # Do nothing
+
+	elseif (${TARGET_TYPE} STREQUAL "EXECUTABLE")
+
+		set(TARGET_LINK_SCOPE "PRIVATE")
+		add_executable(${TARGET_NAME} ${TARGET_SOURCES})
+		target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_LISTS_DIR})
+
+		# Set poperties to build as native GUI application
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
+		if (${ARGC} GREATER 3)
+			if (ARGV3)
+				#if (MK_OS_WINDOWS)
+				#	set_target_properties(
+				#		${TARGET_NAME} PROPERTIES
+				#		WIN32_EXECUTABLE TRUE
+				#	)
+				#elseif (MK_OS_MACOS)
+				#	set_target_properties(
+				#		${TARGET_NAME} PROPERTIES
+				#		MACOSX_BUNDLE TRUE
+				#		MACOSX_BUNDLE_INFO_PLIST ${MK_MACOS_BUNDLE_INFO_PLIST}
+				#	)
+				#endif ()
+			endif ()
+		endif ()
+
+	else ()
+
+		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+			
+			set(TARGET_LINK_TYPE "INTERFACE")
+			set(TARGET_LINK_SCOPE "INTERFACE")
+
+			add_library(${TARGET_NAME} ${TARGET_LINK_TYPE})
+			target_sources(${TARGET_NAME} ${TARGET_LINK_SCOPE} ${TARGET_SOURCES})
+			target_include_directories(${TARGET_NAME} INTERFACE ${MK_SOURCE})
+
+		else ()
+			
+			unset(TARGET_LINK_SCOPE)
+
+			if (${TARGET_TYPE} STREQUAL "OBJECT_LIBRARY")
+				set(TARGET_LINK_TYPE "OBJECT")
+			elseif (${TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
+				set(TARGET_LINK_TYPE "STATIC")
+			elseif (${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")
+				set(TARGET_LINK_TYPE "SHARED")
+			else()
+				mk_message(FATAL_ERROR "Invalid target type: ${TARGET_TYPE}")
+				return()
+			endif ()
+
+			add_library(${TARGET_NAME} ${TARGET_LINK_TYPE} ${TARGET_SOURCES})
+			target_include_directories(${TARGET_NAME} INTERFACE ${MK_SOURCE})
+
+		endif ()
+		
+		# For header-only libraries this line is required
+		#if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+		#	target_include_directories(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+		#endif ()
+
+		#TODO
+		#set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${MK_MACOS_FRAMEWORK_INFO_PLIST})
+
+	endif ()
+
+	get_target_property(ASD ${TARGET_NAME} INTERFACE_INCLUDE_DIRECTORIES)
+	message(STATUS "Target include directories: ${ASD}")
+
+	message(STATUS "ARG : ${TARGET_SOURCES}")
+	foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
+		target_sources(${TARGET_NAME} ${TARGET_LINK_SCOPE} ${ARG})
+		message(STATUS "ARG : ${ARG}")
+	endforeach()
+	
+	# Set C/C++ language standard of the target
+	#set_property(TARGET ${TARGET_NAME} PROPERTY C_STANDARD 11)
+	#set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
+
+	# Add pthreads on macOS and Linux
+	# This is to avoid an issue when the compiler and/or the dependent libraries don't do this automatically
+	# https://cmake.org/cmake/help/v3.12/module/FindThreads.html
+	if (NOT MK_OS_WINDOWS)
+		set(THREADS_PREFER_PTHREAD_FLAG ON)
+		find_package(Threads REQUIRED)
+
+		if (NOT Threads_FOUND)
+			mk_message(FATAL_ERROR "POSIX Threads (pthreads) libraries cannot be found!")
+			return()
+		endif ()
+
+		target_link_libraries(${TARGET_NAME} ${TARGET_LINK_SCOPE} Threads::Threads)
+	endif ()
+
+endfunction()
 
 #
 # Create source groups for IDE project generators

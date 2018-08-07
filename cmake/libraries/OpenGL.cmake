@@ -27,7 +27,8 @@
 # https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
 #
 
-if (MK_OPENGL)
+function(mk_target_link_OpenGL TARGET_NAME)
+
 	find_package(OpenGL REQUIRED)
 		
 	if (NOT OpenGL_FOUND)
@@ -35,7 +36,7 @@ if (MK_OPENGL)
 		return()
 	endif ()
 
-	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
 		set(MK_LINK_SCOPE INTERFACE)
@@ -43,14 +44,15 @@ if (MK_OPENGL)
 		unset(MK_LINK_SCOPE)
 	endif ()
 
-	target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} OpenGL::GL)
-	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
+	target_link_libraries(${TARGET_NAME} ${MK_LINK_SCOPE} OpenGL::GL)
+	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
 
 	#if (OpenGL::OpenGL)
-	#	target_link_libraries(${PROJECT_NAME} OpenGL::OpenGL)
-	#	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::OpenGL)
+	#	target_link_libraries(${TARGET_NAME} OpenGL::OpenGL)
+	#	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::OpenGL)
 	#else ()
-	#	target_link_libraries(${PROJECT_NAME} OpenGL::GL)
-	#	mk_target_deploy_libraries(${PROJECT_NAME} OpenGL::GL)
+	#	target_link_libraries(${TARGET_NAME} OpenGL::GL)
+	#	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
 	#endif ()
-endif ()
+
+endfunction()

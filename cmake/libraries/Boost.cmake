@@ -27,24 +27,26 @@
 # https://cmake.org/cmake/help/v3.10/module/FindBoost.html
 #
 
-if (MK_BOOST)
-	find_package(Boost COMPONENTS ${MK_BOOST} REQUIRED)
+function(mk_target_link_boost TARGET_NAME)
+
+	find_package(Boost COMPONENTS ${ARGN} REQUIRED)
     
 	if (NOT Boost_FOUND)
 		mk_message(FATAL_ERROR "Boost libraries cannot be found!")
 		return()
 	endif ()
 
-	get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-		set(MK_LINK_SCOPE INTERFACE)
+		set(LINK_SCOPE INTERFACE)
 	else ()
-		unset(MK_LINK_SCOPE)
+		unset(LINK_SCOPE)
 	endif ()
 
-	foreach (BOOST_MODULE ${MK_BOOST})
-		target_link_libraries(${PROJECT_NAME} ${MK_LINK_SCOPE} Boost::${BOOST_MODULE})
-		mk_target_deploy_libraries(${PROJECT_NAME} Boost::${BOOST_MODULE})
+	foreach (BOOST_MODULE IN ITEMS ${ARGN})
+		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Boost::${BOOST_MODULE})
+		mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
 	endforeach ()
-endif ()
+
+endfunction()
