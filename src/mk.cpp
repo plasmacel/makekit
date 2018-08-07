@@ -533,67 +533,67 @@ int main(int argc, char** argv)
 
 	if (command == "deps")
 	{
-		if (check_args_count(args, 2)) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = deps(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	if (command == "help")
 	{
-		if (check_args_count(args, 2)) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = help(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "host")
 	{
-		if (check_args_count(args, 2)) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = hostinfo(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "version")
 	{
-		if (check_args_count(args, 2)) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = version(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "clean")
 	{
-		if (check_args_count(args, 4)) return 1;
+		if (check_args_count(args, 5)) return 1;
 		retval = clean(cmd, args(2).str(), args(exclusive_param).str(), args[exclusive_param]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "commands")
 	{
-		if (check_args_count(args, 3)) return 1;
+		if (check_args_count(args, 4)) return 1;
 		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "config")
 	{
-		if (check_args_count(args, 3)) return 1;
+		if (check_args_count(args, 4)) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "make")
 	{
-		if (check_args_count(args, 7)) return 1;
+		if (check_args_count(args, 8)) return 1;
 		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
 	{
-		if (check_args_count(args, 3)) return 1;
+		if (check_args_count(args, 4)) return 1;
 		retval = reconfig(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "refresh")
 	{
-		if (check_args_count(args, 2)) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = refresh(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "remake")
 	{
-		if (check_args_count(args, 5)) return 1;
+		if (check_args_count(args, 6)) return 1;
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
