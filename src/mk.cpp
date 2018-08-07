@@ -224,7 +224,7 @@ int refresh(system_commands& cmd, std::string config)
 	return 0;
 }
 
-int make(system_commands& cmd, std::string config, const std::string& toolchain, std::string target, bool configure_flag, bool refresh_flag)
+int make(system_commands& cmd, std::string config, const std::string& toolchain, std::string target, const std::string& max_threads, bool configure_flag, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
@@ -251,22 +251,6 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 		add_set_environment_command(cmd, "x64");
 	}
 
-	if (target.back() == '^')
-	{
-		message(cmd, "Compiling " + target.substr(0, target.size() - 1) + " using " + config + " build.");
-	}
-	else
-	{
-		if (target.empty())
-		{
-			message(cmd, "Building all targets using " + config + " build.");
-		}
-		else
-		{
-			message(cmd, "Building target " + target + " using " + config + " build.");
-		}
-}
-
 	// Append build commands
 
 #if 0
@@ -284,25 +268,35 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 
 #endif
 
-	if (target.empty()) // Build all targets
+	std::string ninja_command;
+
+	if (target.back() == '^') // Compiling a single source
 	{
-		cmd.append("ninja -C \"" + build_dir + "\"");
+		message(cmd, "Compiling " + target.substr(0, target.size() - 1) + " using " + config + " build.");
+		ninja_command = "ninja -C \"" + build_dir + "\" \"../" + target + "\"";
 	}
 	else
 	{
-		if (target.back() == '^') // Compiling a single source
+		ninja_command = "ninja -C \"" + build_dir + "\"";
+
+		if (!target.empty())
 		{
-			cmd.append("ninja -C \"" + build_dir + "\" \"../" + target + "\"");
+			message(cmd, "Building target " + target + " using " + config + " build.");
+			ninja_command += " " + target;
 		}
-		else // Building a single target
+		else
 		{
-		#if 1
-			cmd.append("ninja -C \"" + build_dir + "\" " + target);
-		#else
-			cmd.append("cmake --build \"" + build_dir + "\" --target " + target);
-		#endif
+			message(cmd, "Building all targets using " + config + " build.");
+		}
+
+		if (!max_threads.empty())
+		{
+			//message(cmd, "Maximum number of parallel build threads are limited to " + std::to_string(max_threads));
+			ninja_command += " -j " + max_threads;
 		}
 	}
+
+	cmd.append(ninja_command);
 
 #	ifdef _WIN32
 	cmd.append("if %ERRORLEVEL% == 0 ( echo Build succeeded. ) else ( echo Build failed. )");
@@ -480,14 +474,14 @@ int reconfig(system_commands& cmd, std::string config, const std::string& toolch
 	return configure(cmd, config, toolchain);
 }
 
-int remake(system_commands& cmd, std::string config, const std::string& target, bool refresh_flag)
+int remake(system_commands& cmd, std::string config, const std::string& target, const std::string& max_threads, bool refresh_flag)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 #if 1
 
 	if (clean_make(cmd, config, target) != 0) return 1;
-	return make(cmd, config, "", target, false, refresh_flag);
+	return make(cmd, config, "", target, max_threads, false, refresh_flag);
 
 #else
 
@@ -521,10 +515,12 @@ int main(int argc, char** argv)
 	// Parsing arguments
 
 	std::initializer_list<char const* const> exclusive_param{ "-x", "-X", "--exclusive" };
+	std::initializer_list<char const* const> maxthreads_param{ "-j", "-J", "--maxthreads" };
 	std::initializer_list<char const* const> toolchain_param{ "-t", "-T", "--toolchain" };
 
 	argh::parser args;
 	args.add_params(exclusive_param);
+	args.add_params(maxthreads_param);
 	args.add_params(toolchain_param);
 	args.parse(argc, argv);
 
@@ -579,8 +575,8 @@ int main(int argc, char** argv)
 	}
 	else if (command == "make")
 	{
-		if (check_args_count(args, 6)) return 1;
-		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
+		if (check_args_count(args, 7)) return 1;
+		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else if (command == "reconfig")
@@ -597,8 +593,8 @@ int main(int argc, char** argv)
 	}
 	else if (command == "remake")
 	{
-		if (check_args_count(args, 4)) return 1;
-		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args[{ "-r", "-R" }]);
+		if (check_args_count(args, 5)) return 1;
+		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
 	else

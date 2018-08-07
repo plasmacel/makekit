@@ -44,7 +44,7 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
-#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-C [-T <TOOLCHAIN>]] [-R]`
+#### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-J <MAX_THREADS>] [-C [-T <TOOLCHAIN>]] [-R]`
 
 Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
 
@@ -53,6 +53,7 @@ The compiler/linker output can be very verbose when it encounters a lot of warni
 Arguments
 
 `-X` make the command exclusive for the specified targets (no targets specified means all target)
+`-J` limit the number of parallel build threads
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
@@ -76,6 +77,7 @@ Removes all prebuilt binaries of the build configuration specified by `<CONFIG>`
 Arguments
 
 `-X` make the command exclusive for the specified targets (no targets specified means all target)
+`-J` limit the number of parallel build threads
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
