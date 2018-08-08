@@ -2,11 +2,11 @@
 
 - I. [**Installation**](https://github.com/plasmacel/makekit/blob/master/manual/INSTALLATION.md)
 - II. [**Integration**](https://github.com/plasmacel/makekit/blob/master/manual/INTEGRATION.md)
-- II. [**MakeKit CLI**](https://github.com/plasmacel/makekit/blob/master/manual/COMMANDS.md)
-- III. Usage
-- III. Generate `CMakeLists.txt`
-- III. The make process
-- IV. [**Troubleshooting**](https://github.com/plasmacel/makekit/blob/master/manual/TROUBLESHOOTING.md)
+- III. [**MakeKit CLI**](https://github.com/plasmacel/makekit/blob/master/manual/COMMANDS.md)
+- IV. Usage
+- V. Generate `CMakeLists.txt`
+- VI. The make process
+- VII. [**Troubleshooting**](https://github.com/plasmacel/makekit/blob/master/manual/TROUBLESHOOTING.md)
 
 
 ## IV. The build (err, make) process
