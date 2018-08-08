@@ -248,20 +248,25 @@ function(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	#list(APPEND OUTPUT_LIST ${FILE_LIST})
 
+	set(${OUTPUT_LIST} "")
+
 	# ASM files
 
 	mk_collect_files(${SOURCE_DIR} ${MK_ASM_SOURCE_SUFFIX} FILE_LIST)
-	set(OUTPUT_LIST ${OUTPUT_LIST} FILE_LIST PARENT_SCOPE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# C source files
 
 	mk_collect_files(${SOURCE_DIR} ${MK_C_SOURCE_SUFFIX} FILE_LIST)
-	set(OUTPUT_LIST ${OUTPUT_LIST} FILE_LIST PARENT_SCOPE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CXX source files
 
 	mk_collect_files(${SOURCE_DIR} ${MK_CXX_SOURCE_SUFFIX} FILE_LIST)
-	set(OUTPUT_LIST ${OUTPUT_LIST} FILE_LIST PARENT_SCOPE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CXX header files
 
@@ -269,7 +274,8 @@ function(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 	foreach (CXX_HEADER ${FILE_LIST})
 		set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
 	endforeach ()
-	set(OUTPUT_LIST ${OUTPUT_LIST} FILE_LIST PARENT_SCOPE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CXX inline files
 
@@ -277,12 +283,14 @@ function(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 	foreach (CXX_INLINE ${FILE_LIST})
 		set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
 	endforeach ()
-	set(OUTPUT_LIST ${OUTPUT_LIST} FILE_LIST PARENT_SCOPE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CUDA source files
 
 	mk_collect_files(${SOURCE_DIR} ${MK_CUDA_SOURCE_SUFFIX} FILE_LIST)
-	set(OUTPUT_LIST ${OUTPUT_LIST} FILE_LIST PARENT_SCOPE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 endfunction()
 
@@ -344,26 +352,26 @@ endmacro()
 
 # mk_save_list(FILENAME LIST)
 # TODO specify separator
-macro(mk_save_list FILENAME LIST)
+function(mk_save_list FILENAME LIST)
 
 	string(REPLACE ";" "\n" LIST_PROCESSED "${LIST}")
 	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
 
-endmacro()
+endfunction()
 
 #
 # Target operations
 #
 
-# mk_add_imported_library(NAME MODE LIBRARY_INCLUDE_DIRECTORIES [LIBRARY_IMPORT_FILE])
+# mk_add_imported_library(LIBRARY_NAME LIBRARY_TYPE LIBRARY_INCLUDE_DIRECTORIES [LIBRARY_IMPORT_FILE])
 # where MODE can be INTERFACE, OBJECT, STATIC, SHARED
 # TODO check too much arguments
-macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES)
+function(mk_add_imported_library LIBRARY_NAME LIBRARY_TYPE LIBRARY_INCLUDE_DIRECTORIES)
 
-	add_library(${NAME} ${MODE} IMPORTED GLOBAL)
+	add_library(${LIBRARY_NAME} ${LIBRARY_TYPE} IMPORTED GLOBAL)
 
 	set_target_properties(
-		${NAME} PROPERTIES
+		${LIBRARY_NAME} PROPERTIES
 		INTERFACE_INCLUDE_DIRECTORIES ${LIBRARY_INCLUDE_DIRECTORIES}
 	)
 
@@ -374,39 +382,43 @@ macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES)
 
 		get_filename_component(IMPORTED_LIBRARY_EXT ${LIBRARY_STATIC_IMPORT} EXT)
 
-		# Find platform-specific library file and set LIBRARY_STATIC_FILE
+		# Find platform-specific library file and set ${LIBRARY_STATIC_IMPORT_FILE}
 
 		if (IMPORTED_LIBRARY_EXT)
-			set(LIBRARY_STATIC_FILE ${LIBRARY_STATIC_IMPORT})
+			set(MK_${LIBRARY_NAME}_STATIC_IMPORT_FILE ${LIBRARY_STATIC_IMPORT} CACHE FILEPATH "")
 		else ()
 			get_filename_component(IMPORTED_LIBRARY_DIRECTORY ${LIBRARY_STATIC_IMPORT} DIRECTORY)
 			get_filename_component(IMPORTED_LIBRARY_NAME ${LIBRARY_STATIC_IMPORT} NAME_WE)
 
-			set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
-			find_library(LIBRARY_STATIC_FILE ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH REQUIRED)
+			set(LIBRARY_STATIC_IMPORT_FILE MK_${LIBRARY_NAME}_STATIC_IMPORT_FILE)
+
+			#set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
+
+			# The variable name stored in LIBRARY_STATIC_IMPORT is being cached
+			find_library(${LIBRARY_STATIC_IMPORT_FILE} ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH REQUIRED)
 		endif ()
 	
-		if (LIBRARY_STATIC_FILE)
-			mk_message(STATUS "${NAME} found: ${LIBRARY_STATIC_FILE}")
+		if (${LIBRARY_STATIC_IMPORT_FILE})
+			mk_message(STATUS "${LIBRARY_NAME} found: ${${LIBRARY_STATIC_IMPORT_FILE}}")
 		else ()
-			mk_message(FATAL_ERROR "${NAME} cannot be found!")
+			mk_message(FATAL_ERROR "${LIBRARY_NAME} cannot be found!")
 			return()
 		endif ()
 
-		set(LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
+		set(LIBRARY_SHARED_FILE ${${LIBRARY_STATIC_IMPORT_FILE}})
 
-		if (MK_OS_WINDOWS AND ${MODE} STREQUAL "SHARED")
-			string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
+		if (MK_OS_WINDOWS AND ${LIBRARY_TYPE} STREQUAL "SHARED")
+			string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_SHARED_FILE ${${LIBRARY_STATIC_IMPORT_FILE}})
 		endif ()
 
 		set_target_properties(
-			${NAME} PROPERTIES
+			${LIBRARY_NAME} PROPERTIES
 			IMPORTED_LOCATION ${LIBRARY_SHARED_FILE}
-			IMPORTED_IMPLIB ${LIBRARY_STATIC_FILE}
+			IMPORTED_IMPLIB ${${LIBRARY_STATIC_IMPORT_FILE}}
 		)
 	endif()
 	
-endmacro()
+endfunction()
 
 macro(mk_target_exclude TARGET_NAME TARGET_EXCLUDE)
 	set_target_properties(
@@ -644,7 +656,7 @@ endfunction()
 # This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
 # It does nothing for non-shared libraries
 # TODO rename parameter PROJECT to TARGET_NAME
-macro(mk_target_deploy_libraries TARGET_NAME)
+function(mk_target_deploy_libraries TARGET_NAME)
 
 	foreach (LIBRARY IN ITEMS "${ARGN}")
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
@@ -710,12 +722,12 @@ macro(mk_target_deploy_libraries TARGET_NAME)
 
 		if (LIBRARY_RUNTIME)
 			#mk_message(STATUS "Added runtime library: ${LIBRARY_RUNTIME}")
-			set(MK_${TARGET_NAME}_RUNTIME_LIBRARIES ${MK_${TARGET_NAME}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
+			set(MK_${TARGET_NAME}_RUNTIME_LIBRARIES ${MK_${TARGET_NAME}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME} PARENT_SCOPE)
 			#list(APPEND MK_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
 		endif ()
 	endforeach ()
 
-endmacro()
+endfunction()
 
 # mk_target_link_libraries(TARGET_NAME LIBRARIES...)
 # This macro performs target_link_libraries(${PROJECT} ${LIBRARIES}) and mk_target_deploy_libraries(${LIBRARIES})
