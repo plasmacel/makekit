@@ -54,20 +54,20 @@ This file is optional, and can be used to create custom debug environments.
 - `.vs/tasks.vs.json`
 This file is required to integrate all features of MakeKit into the Visual Studio IDE. It enables to launch the default Build, Rebuild and Clean commands using MakeKit and spawns context menu items to perform additional MakeKit tasks.
 
-| Visual Studio                                               | CMake Command                                              |
-|:------------------------------------------------------------|:-----------------------------------------------------------|
-| Solution file (.sln)                                        | project()                                                  |
-| Project file (.vcxproj)                                     | target name in the command add_executable or add_library   |
-| executable (.exe)                                           | add_executable()                                           |
-| static library (.lib)                                       | add_library(STATIC)                                        |
-| dynamic library (.dll)                                      | add_library(SHARED)                                        |
-| Source Folders                                              | source_group                                               |
-| Project Folders                                             | set_property(TARGET PROPERTY FOLDER)                       |
-| Properties->General->Output Directory                       | set_target_properties(PROPERTIES RUNTIME_OUTPUT_DIRECTORY) |
-| Properties->C/C++->Preprocessor->Preprocessor Definitions   | add_compile_definitions()                                  |
-| Properties->C/C++->General->Additional Include Directories  | target_include_directories()                               |
-| Properties->Linker->General->Additional Library Directories | link_directories()                                         |
-| Properties->Linker->Input->Additional Dependencies          | target_link_libraries()                                    |
+| Visual Studio                                               | CMake Command                                                |
+|:------------------------------------------------------------|:-------------------------------------------------------------|
+| Solution file (.sln)                                        | Project (`project(<NAME>)`)                                  |
+| Project file (.vcxproj)                                     | Target (`add_executable(<NAME>)`, `add_library(<NAME>)`)     |
+| Executable (.exe)                                           | Executable target (`add_executable(<NAME>)`)                 |
+| Static library (.lib)                                       | Static library target (`add_library(<NAME> STATIC)`)         |
+| Dynamic library (.dll)                                      | Dynamic library target (`add_library(<NAME> SHARED)`)        |
+| Source Folders                                              | Source groups (`source_group(...)`)                          |
+| Project Folders                                             | Target folders (`set_property(TARGET PROPERTY FOLDER)`)      |
+| Properties->General->Output Directory                       | `set_target_properties(PROPERTIES RUNTIME_OUTPUT_DIRECTORY)` |
+| Properties->C/C++->Preprocessor->Preprocessor Definitions   | `target_compile_definitions(<TARGET> ...)`                   |
+| Properties->C/C++->General->Additional Include Directories  | `target_include_directories(<TARGET> ...)`                   |
+| Properties->Linker->General->Additional Library Directories | `link_directories(...) `                                     |
+| Properties->Linker->Input->Additional Dependencies          | `target_link_libraries(<TARGET> ...)`                        |
 
 #### Known problems
 
