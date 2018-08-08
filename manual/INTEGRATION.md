@@ -71,8 +71,8 @@ This file is required to integrate all features of MakeKit into the Visual Studi
 
 #### Known problems
 
-https://developercommunity.visualstudio.com/content/problem/189962/cmake-outputs-broken-source-file-paths-in-build-lo.html
-https://developercommunity.visualstudio.com/content/problem/215727/double-click-in-error-list-does-nothing-for-cpp-fi.html
+- https://developercommunity.visualstudio.com/content/problem/189962/cmake-outputs-broken-source-file-paths-in-build-lo.html
+- https://developercommunity.visualstudio.com/content/problem/215727/double-click-in-error-list-does-nothing-for-cpp-fi.html
 
 #### More info
 
