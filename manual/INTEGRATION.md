@@ -69,6 +69,13 @@ This file is required to integrate all features of MakeKit into the Visual Studi
 | Properties->Linker->General->Additional Library Directories | link_directories()                                         |
 | Properties->Linker->Input->Additional Dependencies          | target_link_libraries()                                    |
 
+#### Known problems
+
+https://developercommunity.visualstudio.com/content/problem/189962/cmake-outputs-broken-source-file-paths-in-build-lo.html
+https://developercommunity.visualstudio.com/content/problem/215727/double-click-in-error-list-does-nothing-for-cpp-fi.html
+
+#### More info
+
 - https://cognitivewaves.wordpress.com/cmake-and-visual-studio/
 - https://blogs.msdn.microsoft.com/vcblog/2016/10/05/bring-your-c-codebase-to-visual-studio-with-open-folder/
 - https://blogs.msdn.microsoft.com/vcblog/2017/11/02/customizing-your-environment-with-visual-c-and-open-folder/
