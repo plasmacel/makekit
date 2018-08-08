@@ -22,7 +22,7 @@
 #	SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 message(STATUS "MakeKit - Configuring project ${PROJECT_NAME}...")
 
@@ -108,7 +108,7 @@ include(CustomBuilds.cmake OPTIONAL)
 #
 
 if (MK_AUTO_REFRESH)
-	cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+	#cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 	set(MK_CONFIGURE_DEPENDS CONFIGURE_DEPENDS)
 else ()
 	unset(MK_CONFIGURE_DEPENDS)
@@ -155,15 +155,19 @@ endmacro()
 # Build types
 #
 
-# mk_add_build_type(<NAME> <INHERIT> <C_FLAGS> <CXX_FLAGS> <EXE_LINKER_FLAGS> <SHARED_LINKER_FLAGS> <STATIC_LINKER_FLAGS>)
-# TODO use ARGN
-macro(mk_add_build_type NAME INHERIT)
+# mk_add_build_type(<NAME> <INHERIT> C_FLAGS <...> CXX_FLAGS <...> LINKER_FLAGS <...> EXE_LINKER_FLAGS <...> SHARED_LINKER_FLAGS <...> STATIC_LINKER_FLAGS <...>)
+# This function must be invoked at the top level of the project and before the first target_link_libraries() command invocation.
+function(mk_add_build_type NAME INHERIT)
+
+	# Parse arguments
 
 	foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
 		if (${ARG} STREQUAL "C_FLAGS")
 			set(CURRENT_LIST "C_FLAGS")
 		elseif (${ARG} STREQUAL "CXX_FLAGS")
 			set(CURRENT_LIST "CXX_FLAGS")
+		elseif (${ARG} STREQUAL "LINKER_FLAGS")
+			set(CURRENT_LIST "LINKER_FLAGS")
 		elseif (${ARG} STREQUAL "EXE_LINKER_FLAGS")
 			set(CURRENT_LIST "EXE_LINKER_FLAGS")
 		elseif (${ARG} STREQUAL "SHARED_LINKER_FLAGS")
@@ -175,14 +179,18 @@ macro(mk_add_build_type NAME INHERIT)
 		endif ()
 	endforeach()
 
-	set(MK_PROTECTED_BUILD_NAMES_UPPERCASE NONE DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+	# Check against protected names
+
+	set(PROTECTED_BUILD_NAMES_UPPERCASE NONE DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
 
 	string(TOUPPER ${NAME} NAME_UPPERCASE)
 	string(TOUPPER ${INHERIT} INHERIT_UPPERCASE)
 
-	if (${NAME_UPPERCASE} IN_LIST ${MK_PROTECTED_BUILD_NAMES_UPPERCASE})
+	if (${NAME_UPPERCASE} IN_LIST ${PROTECTED_BUILD_NAMES_UPPERCASE})
 		mk_message(FATAL_ERROR "Protected build type: ${NAME}")	
 	endif ()
+
+	# Set cache variables
 
 	set(CMAKE_C_FLAGS_${NAME_UPPERCASE} "${CMAKE_C_FLAGS_${INHERIT_UPPERCASE}} ${C_FLAGS}"
 		CACHE STRING "Flags used by the C compiler during ${NAME} builds"
@@ -192,17 +200,19 @@ macro(mk_add_build_type NAME INHERIT)
 		CACHE STRING "Flags used by the CXX compiler during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE} ${EXE_LINKER_FLAGS}"
+	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE} ${LINKER_FLAGS} ${EXE_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of executables during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE} ${SHARED_LINKER_FLAGS}"
+	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE} ${LINKER_FLAGS} ${SHARED_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of shared libraries during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE} ${STATIC_LINKER_FLAGS}"
+	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE} ${LINKER_FLAGS} ${STATIC_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of static libraries during ${NAME} builds"
 		FORCE)
+
+	# Mark variables as advanced
 
 	mark_as_advanced(
 		CMAKE_CXX_FLAGS_${NAME_UPPERCASE}
@@ -211,6 +221,7 @@ macro(mk_add_build_type NAME INHERIT)
 		CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE})
 
 	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
+
 	set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
 		CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ${NAME}"
 		FORCE)
@@ -219,34 +230,39 @@ macro(mk_add_build_type NAME INHERIT)
 		set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES} ${NAME}"
 			CACHE STRING ""
 			FORCE)
-		#list(APPEND CMAKE_CONFIGURATION_TYPES ${NAME})
 	endif ()
 
 	# If ${NAME} is a debug configuration, then add it to the list DEBUG_CONFIGURATIONS
+	# This property must be set at the top level of the project and before the first target_link_libraries() command invocation.
+	# https://cmake.org/cmake/help/v3.12/prop_gbl/DEBUG_CONFIGURATIONS.html
+
 	if (${INHERIT_UPPERCASE} STREQUAL "DEBUG")
-		#set(DEBUG_CONFIGURATIONS "${DEBUG_CONFIGURATIONS} ${NAME}"
-		#	CACHE STRING ""
-		#	FORCE)
-		list(APPEND DEBUG_CONFIGURATIONS ${NAME})
+		set(DEBUG_CONFIGURATIONS "${DEBUG_CONFIGURATIONS} ${NAME}"
+			CACHE STRING ""
+			FORCE)
+		#list(APPEND DEBUG_CONFIGURATIONS ${NAME})
 	endif()
 
-endmacro()
+endfunction()
 
 #
 # File operations
 #
 
-# mk_collect_files(<OUTPUT_LIST> <SOURCE_DIR>)
-macro(mk_collect_files OUTPUT_LIST SOURCE_DIR)
+# mk_collect_files(<OUTPUT_LIST> <MODE> <PATH>)
+# TODO should be a function
+macro(mk_collect_files OUTPUT_LIST MODE PATH)
+
+	if (${MODE} STREQUAL "ABSOLUTE")
+		set(RELATIVE_ARGS "")
+	elseif (${MODE} STREQUAL "RELATIVE")
+		set(RELATIVE_ARGS "RELATIVE ${PATH}")
+	else ()
+		mk_message(SEND_ERROR "Invalid collect mode: ${MODE}")
+	endif ()
 
 	set(GLOB_EXPRESSIONS ${ARGN})
-	list(TRANSFORM GLOB_EXPRESSIONS PREPEND "${SOURCE_DIR}/")
-
-	#if (${ARGC} GREATER 1 AND ARGV1)
-	#	set(RELATIVE_ARGS "RELATIVE ${SOURCE_DIR}")
-	#else ()
-	#	unset(RELATIVE_ARGS)
-	#endif ()
+	list(TRANSFORM GLOB_EXPRESSIONS PREPEND "${PATH}/")
 
 	#mk_message(STATUS "Collecting files: ${GLOB_EXPRESSIONS}")
 	file(GLOB_RECURSE ${OUTPUT_LIST} ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${GLOB_EXPRESSIONS})
@@ -258,12 +274,10 @@ macro(mk_collect_files OUTPUT_LIST SOURCE_DIR)
 endmacro()
 
 # mk_collect_files(<OUTPUT_LIST> PATH <...> PATTERN <...>)
-macro(mk_collect_files2 OUTPUT_LIST)
+# TODO no need for PATH keyword, arguments until PATTERN should be the paths themself
+macro(mk_collect_files_multipath OUTPUT_LIST)
 
 	# Parse arguments
-
-	set(GLOB_PATHS "")
-	set(GLOB_PATTERNS "")
 
 	foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
 		if (${ARG} STREQUAL "PATH")
@@ -283,16 +297,10 @@ macro(mk_collect_files2 OUTPUT_LIST)
 		endforeach()
 	endforeach ()
 
-	#if (${ARGC} GREATER 1 AND ARGV1)
-	#	set(RELATIVE_ARGS "RELATIVE ${SOURCE_DIR}")
-	#else ()
-	#	unset(RELATIVE_ARGS)
-	#endif ()
-
 	# Perform GLOB
 
 	#mk_message(STATUS "Collecting files: ${GLOB_EXPRESSIONS}")
-	file(GLOB_RECURSE ${OUTPUT_LIST} ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${GLOB_EXPRESSIONS})
+	file(GLOB_RECURSE ${OUTPUT_LIST} ${MK_CONFIGURE_DEPENDS} ${GLOB_EXPRESSIONS})
 	#mk_message(STATUS "Collected files: ${${OUTPUT_LIST}}")
 	
 	# Excluding CMake generated files from the results just for safety
@@ -302,12 +310,11 @@ macro(mk_collect_files2 OUTPUT_LIST)
 endmacro()
 
 # mk_collect_sources(<OUTPUT_LIST> <SOURCE_DIR>)
-# TODO use ARGN
-function(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
+macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	#list(APPEND OUTPUT_LIST ${FILE_LIST})
 
-	set(${OUTPUT_LIST} "")
+	unset(${OUTPUT_LIST})
 
 	# ASM files
 
@@ -351,7 +358,7 @@ function(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
-endfunction()
+endmacro()
 
 # mk_find_sources
 # DEPRECATED
@@ -425,6 +432,7 @@ endfunction()
 # mk_add_imported_library(<LIBRARY_NAME> <LIBRARY_TYPE> <LIBRARY_INCLUDE_DIRECTORIES> [<LIBRARY_IMPORT_FILE>])
 # where MODE can be INTERFACE, OBJECT, STATIC, SHARED
 # TODO check too much arguments
+# TODO add support for configurations
 function(mk_add_imported_library LIBRARY_NAME LIBRARY_TYPE LIBRARY_INCLUDE_DIRECTORIES)
 
 	add_library(${LIBRARY_NAME} ${LIBRARY_TYPE} IMPORTED GLOBAL)
@@ -489,14 +497,10 @@ endmacro()
 
 #
 # mk_add_target(<TARGET_NAME> <TARGET_TYPE> [INCLUDE <...>] [SOURCE <...>])
-#
+# TODO WIN32 MODE support
 function(mk_add_target TARGET_NAME TARGET_TYPE)
 
-	set(TARGET_INCLUDE_DIR "")
-
 	# Parse arguments
-
-	set(TARGET_SOURCES_MIXED "")
 
 	foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
 		if (${ARG} STREQUAL "INCLUDE")
@@ -512,9 +516,6 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 	# Resolve mixed source paths/filepaths
 
-	set(TARGET_SOURCES "")
-	set(TARGET_INCLUDE_DIR "")
-
 	if (TARGET_INCLUDE_DIR)
 		set(TARGET_HAS_INCLUDE_DIRS TRUE)
 	else ()
@@ -524,19 +525,17 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 	foreach(TARGET_SOURCE IN ITEMS ${TARGET_SOURCES_MIXED})
 		if (IS_DIRECTORY ${TARGET_SOURCE}) # Find sources in the specified directory
 			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} ${MK_CXX_HEADER_SUFFIX} ${MK_CXX_INLINE_SUFFIX} ${MK_CXX_SOURCE_SUFFIX})
-			#list(APPEND TARGET_SOURCES ${TARGET_SOURCES_TEMP})
-			set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCES_TEMP})
+			list(APPEND TARGET_SOURCES ${TARGET_SOURCES_TEMP})
+			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCES_TEMP})
 
 			if (NOT TARGET_HAS_INCLUDE_DIRS)
 				list(APPEND TARGET_INCLUDE_DIR ${TARGET_SOURCE})
 			endif ()
 		else ()
-			set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCE})
+			list(APPEND TARGET_SOURCES ${TARGET_SOURCE})
+			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCE})
 		endif ()
 	endforeach()
-
-	unset(TARGET_SOURCE)
-	unset(TARGET_SOURCES_TEMP)
 
 	message(STATUS "INCLUDES: ${TARGET_INCLUDE_DIR}")
 	message(STATUS "SOURCES: ${TARGET_SOURCES}")
@@ -745,8 +744,8 @@ endmacro()
 # TODO use list
 macro(mk_target_deploy_resources TARGET_NAME)
 
-	set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
-	#list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
+	#set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
+	list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
 
 endmacro()
 
