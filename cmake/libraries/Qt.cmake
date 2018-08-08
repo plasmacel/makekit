@@ -28,6 +28,9 @@
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
+set(MK_CXX_QRCFILE_SUFFIX *.ui)
+set(MK_CXX_UIFILE_SUFFIX *.qrc)
+
 function(mk_target_link_Qt TARGET_NAME)
 
 	# Find Qt5
@@ -61,8 +64,8 @@ function(mk_target_link_Qt TARGET_NAME)
 
 	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
-	file(GLOB_RECURSE CXX_QRCFILES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.qrc)
-	file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MK_SOURCE} ${MK_CONFIGURE_DEPENDS} *.ui)
+	file(GLOB_RECURSE CXX_QRCFILES ${MK_CONFIGURE_DEPENDS} *.qrc)
+	file(GLOB_RECURSE CXX_UIFILES ${MK_CONFIGURE_DEPENDS} *.ui)
 
 	target_sources(${TARGET_NAME} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
 
