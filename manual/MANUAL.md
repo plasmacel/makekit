@@ -1,6 +1,7 @@
 # Manual
 
 - I. [**Installation**](https://github.com/plasmacel/makekit/blob/master/manual/INSTALLATION.md)
+- II. [**Integration**](https://github.com/plasmacel/makekit/blob/master/manual/INTEGRATION.md)
 - II. [**MakeKit CLI**](https://github.com/plasmacel/makekit/blob/master/manual/COMMANDS.md)
 - III. Usage
 - III. Generate `CMakeLists.txt`
