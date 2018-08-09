@@ -609,9 +609,6 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 			target_include_directories(${TARGET_NAME} INTERFACE ${ARGS_INCLUDE} INTERFACE ${SOURCE_DIR})
 
 		else ()
-			
-			set(TARGET_INCLUDE_SCOPE "PUBLIC")
-			set(TARGET_SOURCE_SCOPE "PRIVATE")
 
 			if (${TARGET_TYPE} STREQUAL "OBJECT_LIBRARY")
 				set(TARGET_LIBRARY_TYPE "OBJECT")
@@ -635,9 +632,6 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 			endif ()
 
 		endif ()
-
-		#TODO
-		#set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${MK_MACOS_FRAMEWORK_INFO_PLIST})
 
 	endif ()
 	
@@ -665,7 +659,6 @@ endfunction()
 # mk_target_deploy_libraries(<TARGET_NAME> [<...>])
 # This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
 # It does nothing for non-shared libraries
-# TODO rename parameter PROJECT to TARGET_NAME
 function(mk_target_deploy_libraries TARGET_NAME)
 
 	foreach (LIBRARY IN LISTS ARGN)
