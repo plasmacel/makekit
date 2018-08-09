@@ -63,7 +63,7 @@ This file is required to integrate all features of MakeKit into the Visual Studi
 | Dynamic library (.dll)                                      | Dynamic library target (`add_library(<NAME> SHARED)`)        |
 | Source Folders                                              | Source groups (`source_group(...)`)                          |
 | Project Folders                                             | Target folders (`set_property(TARGET PROPERTY FOLDER)`)      |
-| Properties->General->Output Directory                       | `set_target_properties(PROPERTIES RUNTIME_OUTPUT_DIRECTORY)` |
+| Properties->General->Output Directory                       | `set_target_properties(<TARGET> PROPERTIES RUNTIME_OUTPUT_DIRECTORY)` |
 | Properties->C/C++->Preprocessor->Preprocessor Definitions   | `target_compile_definitions(<TARGET> ...)`                   |
 | Properties->C/C++->General->Additional Include Directories  | `target_include_directories(<TARGET> ...)`                   |
 | Properties->Linker->General->Additional Library Directories | `link_directories(...) `                                     |
