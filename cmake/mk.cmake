@@ -181,21 +181,21 @@ function(mk_add_build_type NAME INHERIT)
 	set(OPTION_KEYWORDS "")
     set(SINGLE_VALUE_KEYWORDS "")
     set(MULTI_VALUE_KEYWORDS "C_FLAGS" "CXX_FLAGS" "LINKER_FLAGS" "EXE_LINKER_FLAGS" "SHARED_LINKER_FLAGS" "STATIC_LINKER_FLAGS")
-	cmake_parse_arguments(PARSE_ARGV 0 "ARGS" OPTION_KEYWORDS SINGLE_VALUE_KEYWORDS MULTI_VALUE_KEYWORDS)
+	cmake_parse_arguments(PARSE_ARGV 0 "ARGS" ${OPTION_KEYWORDS} ${SINGLE_VALUE_KEYWORDS} ${MULTI_VALUE_KEYWORDS})
 
 	#foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
 	#	if (${ARG} STREQUAL "C_FLAGS")
-	#		set(CURRENT_LIST "C_FLAGS")
+	#		set(CURRENT_LIST "ARGS_C_FLAGS")
 	#	elseif (${ARG} STREQUAL "CXX_FLAGS")
-	#		set(CURRENT_LIST "CXX_FLAGS")
+	#		set(CURRENT_LIST "ARGS_CXX_FLAGS")
 	#	elseif (${ARG} STREQUAL "LINKER_FLAGS")
-	#		set(CURRENT_LIST "LINKER_FLAGS")
+	#		set(CURRENT_LIST "ARGS_LINKER_FLAGS")
 	#	elseif (${ARG} STREQUAL "EXE_LINKER_FLAGS")
-	#		set(CURRENT_LIST "EXE_LINKER_FLAGS")
+	#		set(CURRENT_LIST "ARGS_EXE_LINKER_FLAGS")
 	#	elseif (${ARG} STREQUAL "SHARED_LINKER_FLAGS")
-	#		set(CURRENT_LIST "SHARED_LINKER_FLAGS")
+	#		set(CURRENT_LIST "ARGS_SHARED_LINKER_FLAGS")
 	#	elseif (${ARG} STREQUAL "STATIC_LINKER_FLAGS")
-	#		set(CURRENT_LIST "STATIC_LINKER_FLAGS")
+	#		set(CURRENT_LIST "ARGS_STATIC_LINKER_FLAGS")
 	#	else ()
 	#		list(APPEND ${CURRENT_LIST} ${ARG})
 	#	endif ()
@@ -214,23 +214,23 @@ function(mk_add_build_type NAME INHERIT)
 
 	# Set cache variables
 
-	set(CMAKE_C_FLAGS_${NAME_UPPERCASE} "${CMAKE_C_FLAGS_${INHERIT_UPPERCASE}} ${C_FLAGS}"
+	set(CMAKE_C_FLAGS_${NAME_UPPERCASE} "${CMAKE_C_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_C_FLAGS}"
 		CACHE STRING "Flags used by the C compiler during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_CXX_FLAGS_${NAME_UPPERCASE} "${CMAKE_CXX_FLAGS_${INHERIT_UPPERCASE}} ${CXX_FLAGS}"
+	set(CMAKE_CXX_FLAGS_${NAME_UPPERCASE} "${CMAKE_CXX_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_CXX_FLAGS}"
 		CACHE STRING "Flags used by the CXX compiler during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE} ${LINKER_FLAGS} ${EXE_LINKER_FLAGS}"
+	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_EXE_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of executables during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE} ${LINKER_FLAGS} ${SHARED_LINKER_FLAGS}"
+	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_SHARED_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of shared libraries during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE} ${LINKER_FLAGS} ${STATIC_LINKER_FLAGS}"
+	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_STATIC_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of static libraries during ${NAME} builds"
 		FORCE)
 
@@ -240,7 +240,8 @@ function(mk_add_build_type NAME INHERIT)
 		CMAKE_CXX_FLAGS_${NAME_UPPERCASE}
 		CMAKE_C_FLAGS_${NAME_UPPERCASE}
 		CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE}
-		CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE})
+		CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE}
+		CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE})
 
 	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
 
@@ -271,7 +272,7 @@ endfunction()
 # File operations
 #
 
-# mk_collect_files(<OUTPUT_LIST> <MODE> <PATH>)
+# mk_collect_files(<OUTPUT_LIST> <MODE> <PATH> <...>)
 # TODO should be a function
 macro(mk_collect_files OUTPUT_LIST MODE PATH)
 
@@ -304,13 +305,13 @@ macro(mk_collect_files_multipath OUTPUT_LIST)
 	set(OPTION_KEYWORDS "")
     set(SINGLE_VALUE_KEYWORDS "")
     set(MULTI_VALUE_KEYWORDS "PATH" "PATTERN")
-	cmake_parse_arguments("ARGS" OPTION_KEYWORDS SINGLE_VALUE_KEYWORDS MULTI_VALUE_KEYWORDS ${ARGN})
+	cmake_parse_arguments("ARGS" ${OPTION_KEYWORDS} ${SINGLE_VALUE_KEYWORDS} ${MULTI_VALUE_KEYWORDS} ${ARGN})
 
 	#foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
 	#	if (${ARG} STREQUAL "PATH")
-	#		set(CURRENT_LIST "GLOB_PATHS")
+	#		set(CURRENT_LIST "ARGS_PATH")
 	#	elseif (${ARG} STREQUAL "PATTERN")
-	#		set(CURRENT_LIST "GLOB_PATTERNS")
+	#		set(CURRENT_LIST "ARGS_PATTERN")
 	#	else ()
 	#		list(APPEND ${CURRENT_LIST} ${ARG})
 	#	endif ()
@@ -318,8 +319,8 @@ macro(mk_collect_files_multipath OUTPUT_LIST)
 
 	# Create GLOB expressions as combinations of GLOB_PATH/GLOB_PATTERN
 
-	foreach (GLOB_PATH IN LISTS GLOB_PATHS)
-		foreach(GLOB_PATTERN IN LISTS GLOB_PATTERNS)
+	foreach (GLOB_PATH IN LISTS ARGS_PATH)
+		foreach(GLOB_PATTERN IN LISTS ARGS_PATTERN)
 			list(APPEND GLOB_EXPRESSIONS ${GLOB_PATH}/${GLOB_PATTERN})
 		endforeach()
 	endforeach ()
@@ -345,25 +346,25 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# ASM files
 
-	mk_collect_files(${SOURCE_DIR} ${MK_ASM_SOURCE_SUFFIX} FILE_LIST)
+	mk_collect_files(FILE_LIST ABSOLUTE ${SOURCE_DIR} ${MK_ASM_SOURCE_SUFFIX})
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# C source files
 
-	mk_collect_files(${SOURCE_DIR} ${MK_C_SOURCE_SUFFIX} FILE_LIST)
+	mk_collect_files(FILE_LIST ABSOLUTE ${SOURCE_DIR} ${MK_C_SOURCE_SUFFIX})
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CXX source files
 
-	mk_collect_files(${SOURCE_DIR} ${MK_CXX_SOURCE_SUFFIX} FILE_LIST)
+	mk_collect_files(FILE_LIST ABSOLUTE ${SOURCE_DIR} ${MK_CXX_SOURCE_SUFFIX})
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CXX header files
 
-	mk_collect_files(${SOURCE_DIR} ${MK_CXX_HEADER_SUFFIX} FILE_LIST)
+	mk_collect_files(FILE_LIST ABSOLUTE ${SOURCE_DIR} ${MK_CXX_HEADER_SUFFIX})
 	foreach (CXX_HEADER ${FILE_LIST})
 		set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
 	endforeach ()
@@ -372,7 +373,7 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# CXX inline files
 
-	mk_collect_files(${SOURCE_DIR} ${MK_CXX_INLINE_SUFFIX} FILE_LIST)
+	mk_collect_files(FILE_LIST ABSOLUTE ${SOURCE_DIR} ${MK_CXX_INLINE_SUFFIX})
 	foreach (CXX_INLINE ${FILE_LIST})
 		set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
 	endforeach ()
@@ -381,7 +382,7 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# CUDA source files
 
-	mk_collect_files(${SOURCE_DIR} ${MK_CUDA_SOURCE_SUFFIX} FILE_LIST)
+	mk_collect_files(FILE_LIST ABSOLUTE ${SOURCE_DIR} ${MK_CUDA_SOURCE_SUFFIX})
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
@@ -532,36 +533,36 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 	set(OPTION_KEYWORDS "NATIVE_GUI")
     set(SINGLE_VALUE_KEYWORDS "")
     set(MULTI_VALUE_KEYWORDS "INCLUDE" "SOURCE")
-	cmake_parse_arguments("ARGS" OPTION_KEYWORDS SINGLE_VALUE_KEYWORDS MULTI_VALUE_KEYWORDS ${ARGN})
+	cmake_parse_arguments("ARGS" ${OPTION_KEYWORDS} ${SINGLE_VALUE_KEYWORDS} ${MULTI_VALUE_KEYWORDS} ${ARGN})
 
 	#foreach(ARG IN LISTS ARGN) # foreach(ARG IN ITEMS ${ARGN})
 	#	if (${ARG} STREQUAL "INCLUDE")
-	#		set(CURRENT_LIST "TARGET_INCLUDE_DIR")
+	#		set(CURRENT_LIST "ARGS_INCLUDE")
 	#	elseif (${ARG} STREQUAL "SOURCE")
-	#		set(CURRENT_LIST "TARGET_SOURCES_MIXED")
+	#		set(CURRENT_LIST "ARGS_SOURCE")
 	#	else ()
 	#		list(APPEND ${CURRENT_LIST} ${ARG})
 	#	endif ()
 	#endforeach()
 
-	message(STATUS "SOURCES MIXED: ${TARGET_SOURCES_MIXED}")
+	message(STATUS "SOURCES MIXED: ${ARGS_SOURCE}")
 
 	# Resolve mixed source paths/filepaths
 
-	if (TARGET_INCLUDE_DIR)
+	if (ARGS_INCLUDE)
 		set(TARGET_HAS_INCLUDE_DIRS TRUE)
 	else ()
 		set(TARGET_HAS_INCLUDE_DIRS FALSE)
 	endif ()
 
-	foreach(TARGET_SOURCE IN ITEMS ${TARGET_SOURCES_MIXED})
+	foreach(TARGET_SOURCE IN ITEMS ${ARGS_SOURCE})
 		if (IS_DIRECTORY ${TARGET_SOURCE}) # Find sources in the specified directory
-			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} ${MK_CXX_HEADER_SUFFIX} ${MK_CXX_INLINE_SUFFIX} ${MK_CXX_SOURCE_SUFFIX})
+			mk_collect_files(TARGET_SOURCES_TEMP ABSOLUTE ${TARGET_SOURCE} ${MK_CXX_HEADER_SUFFIX} ${MK_CXX_INLINE_SUFFIX} ${MK_CXX_SOURCE_SUFFIX})
 			list(APPEND TARGET_SOURCES ${TARGET_SOURCES_TEMP})
 			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCES_TEMP})
 
 			if (NOT TARGET_HAS_INCLUDE_DIRS)
-				list(APPEND TARGET_INCLUDE_DIR ${TARGET_SOURCE})
+				list(APPEND ARGS_INCLUDE ${TARGET_SOURCE})
 			endif ()
 		else ()
 			list(APPEND TARGET_SOURCES ${TARGET_SOURCE})
@@ -569,7 +570,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 		endif ()
 	endforeach()
 
-	message(STATUS "INCLUDES: ${TARGET_INCLUDE_DIR}")
+	message(STATUS "INCLUDES: ${ARGS_INCLUDE}")
 	message(STATUS "SOURCES: ${TARGET_SOURCES}")
 
 	# Check whether sources are specified
@@ -583,7 +584,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 	if (${TARGET_TYPE} STREQUAL "EXECUTABLE")
 
 		add_executable(${TARGET_NAME} ${TARGET_SOURCES}) # sources can be omitted here
-		target_include_directories(${TARGET_NAME} PRIVATE ${TARGET_INCLUDE_DIR})
+		target_include_directories(${TARGET_NAME} PRIVATE ${ARGS_INCLUDE})
 
 		# Set poperties to build as native GUI application
 		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
@@ -615,7 +616,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 			add_library(${TARGET_NAME} INTERFACE)
 			target_sources(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
-			target_include_directories(${TARGET_NAME} INTERFACE ${TARGET_INCLUDE_DIR} INTERFACE ${SOURCE_DIR})
+			target_include_directories(${TARGET_NAME} INTERFACE ${ARGS_INCLUDE} INTERFACE ${SOURCE_DIR})
 
 		else ()
 			
@@ -634,7 +635,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 			endif ()
 
 			add_library(${TARGET_NAME} ${TARGET_LIBRARY_TYPE} ${TARGET_SOURCES}) # sources can be omitted here, except for object libraries
-			target_include_directories(${TARGET_NAME} PUBLIC ${TARGET_INCLUDE_DIR} PRIVATE ${SOURCE_DIR})
+			target_include_directories(${TARGET_NAME} PUBLIC ${ARGS_INCLUDE} PRIVATE ${SOURCE_DIR})
 
 		endif ()
 
