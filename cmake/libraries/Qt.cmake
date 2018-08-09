@@ -28,8 +28,8 @@
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
-set(MK_CXX_QRCFILE_SUFFIX *.ui)
-set(MK_CXX_UIFILE_SUFFIX *.qrc)
+set(MK_CXX_QRCFILE_SUFFIX *.qrc)
+set(MK_CXX_UIFILE_SUFFIX *.ui)
 
 function(mk_target_link_Qt TARGET_NAME)
 
@@ -50,17 +50,24 @@ function(mk_target_link_Qt TARGET_NAME)
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 	# Setting Qt related target properties (AUTOMOC, AUTORCC, AUTOUIC)
+	#
 	# https://cmake.org/cmake/help/latest/prop_tgt/AUTOMOC.html
+	# https://cmake.org/cmake/help/latest/manual/cmake-qt.7.html#automoc
+	#
 	# https://cmake.org/cmake/help/latest/prop_tgt/AUTORCC.html
+	# https://cmake.org/cmake/help/latest/manual/cmake-qt.7.html#autorcc
+	#
 	# https://cmake.org/cmake/help/latest/prop_tgt/AUTOUIC.html
+	# https://cmake.org/cmake/help/latest/manual/cmake-qt.7.html#autouic
+	#
 	# These properties are automatically set if the following variables are set before adding the target
 	# set(CMAKE_AUTOMOC ON)
 	# set(CMAKE_AUTORCC ON)
 	# set(CMAKE_AUTOUIC ON)
 
-	set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC ON)
-	set_target_properties(${TARGET_NAME} PROPERTIES AUTORCC ON)
-	set_target_properties(${TARGET_NAME} PROPERTIES AUTOUIC ON)
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC ON) # Automatically execute moc on required C++ files
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTORCC ON) # Automatically execute rcc on .qrc files
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOUIC ON) # Automatically execute uic on .ui files
 
 	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
