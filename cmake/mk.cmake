@@ -25,6 +25,22 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 include_guard(GLOBAL)
 
+#
+# Check include location
+#
+
+if (NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+	message(FATAL_ERROR "This file should be included in the top-most level CMakeLists.txt")
+endif ()
+
+#
+# Check in-source build
+#
+
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+	message(WARNING "Configuring an in-source build. Out of source builds are highly recommended!")
+endif ()
+
 message(STATUS "MakeKit - Configuring project ${PROJECT_NAME}...")
 
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
