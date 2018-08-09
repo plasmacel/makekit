@@ -10,7 +10,7 @@ TODO
 
 ### Configuration errors
 
-#### **CMakes gives errors about a path that is cannot be found**
+#### **CMake gives errors about a path that is cannot be found**
 
 Check whether the path is existing and valid, then check the required `MK_*` environment variables incuding `PATH`.
 
