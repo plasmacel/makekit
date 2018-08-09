@@ -25,7 +25,7 @@
       "type": "launch",
       "contextType": "build",
       "command": "mk",
-      "args": [ "make ${cpp.activeConfiguration} -C" ]
+      "args": [ "make ${cpp.activeConfiguration}" ]
     },
     {
       "taskName": "Remake",
@@ -34,7 +34,7 @@
       "type": "launch",
       "contextType": "rebuild",
       "command": "mk",
-      "args": [ "remake ${cpp.activeConfiguration} -C" ]
+      "args": [ "remake ${cpp.activeConfiguration}" ]
     },
     {
       "taskName": "Configure",
