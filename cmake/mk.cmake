@@ -562,8 +562,8 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 		endif ()
 	endforeach()
 
-	message(STATUS "INCLUDES: ${ARGS_INCLUDE}")
-	message(STATUS "SOURCES: ${TARGET_SOURCES}")
+	#message(STATUS "INCLUDES: ${ARGS_INCLUDE}")
+	#message(STATUS "SOURCES: ${TARGET_SOURCES}")
 
 	# Check whether sources are specified
 
@@ -668,7 +668,7 @@ endfunction()
 # TODO rename parameter PROJECT to TARGET_NAME
 function(mk_target_deploy_libraries TARGET_NAME)
 
-	foreach (LIBRARY IN ITEMS "${ARGN}")
+	foreach (LIBRARY IN LISTS ARGN)
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
 			#mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
@@ -678,20 +678,30 @@ function(mk_target_deploy_libraries TARGET_NAME)
 				if (LIBRARY_IMPORTED)
 					#mk_message(STATUS "Imported library: ${LIBRARY}")
 
-					if (CMAKE_BUILD_TYPE)
-
+					if (CMAKE_BUILD_TYPE) # Get library location from TARGET poperties
+						
 						string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
 
-						# try IMPORTED_LOCATION_<CONFIG> (it is mandatory for Qt)
-						if (${CMAKE_BUILD_TYPE_UPPERCASE} MATCHES "DEBUG")
-							get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
-						else ()
-							get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
-						endif ()
-					
-						# if IMPORTED_LOCATION_<CONFIG> property is undefined, try LOCATION_<CONFIG>
+						# Try properties IMPORTED_LOCATION_<CONFIG> and LOCATION_<CONFIG>
+
+						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_${CMAKE_BUILD_TYPE})
+
 						if (NOT LIBRARY_RUNTIME)
-							if (${CMAKE_BUILD_TYPE_UPPERCASE} MATCHES "DEBUG")
+							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_${CMAKE_BUILD_TYPE})
+						endif ()
+
+						# Try properties IMPORTED_LOCATION_<DEBUG | RELEASE> and LOCATION_<DEBUG | RELEASE>
+
+						if (NOT LIBRARY_RUNTIME)
+							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
+							else ()
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
+							endif ()
+						endif ()
+
+						if (NOT LIBRARY_RUNTIME)
+							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
 								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_DEBUG)
 							else ()
 								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_RELEASE)
@@ -722,7 +732,7 @@ function(mk_target_deploy_libraries TARGET_NAME)
 				get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
 				get_filename_component(LIBRARY_NAME ${LIBRARY} NAME_WE)
 				find_file(LIBRARY_RUNTIME ${LIBRARY_NAME}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
-			else () # The corresponding ruintime library is the library itself
+			else () # The corresponding runtime library is the library itself
 				get_filename_component(LIBRARY_EXT ${LIBRARY} EXT)
 				if (LIBRARY_EXT IN_LIST ".dylib;.so")
 					set(LIBRARY_RUNTIME ${LIBRARY})
@@ -731,9 +741,8 @@ function(mk_target_deploy_libraries TARGET_NAME)
 		endif ()
 
 		if (LIBRARY_RUNTIME)
-			#mk_message(STATUS "Added runtime library: ${LIBRARY_RUNTIME}")
-			set(MK_${TARGET_NAME}_RUNTIME_LIBRARIES ${MK_${TARGET_NAME}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME} PARENT_SCOPE)
-			#list(APPEND MK_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
+			#mk_message(STATUS "Added runtime library: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
+			set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${LIBRARY_RUNTIME} CACHE INTERNAL "")
 		endif ()
 	endforeach ()
 
@@ -771,20 +780,20 @@ endmacro()
 
 # mk_target_deploy_resources(<TARGET_NAME> [<...>])
 # This macro adds FILES to the list of deploy resources
-# TODO use list
 macro(mk_target_deploy_resources TARGET_NAME)
 
 	#set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
-	list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
+	#list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
+	set(MK_${TARGET_NAME}_DEPLOY_RESOURCES ${MK_${TARGET_NAME}_DEPLOY_RESOURCES} ${ARGN} CACHE INTERNAL "")
 
 endmacro()
 
 # mk_target_deploy(<TARGET_NAME>)
 macro(mk_target_deploy TARGET_NAME)
 
-	#mk_message(STATUS "Deploying files: ${MK_${TARGET_NAME}_RUNTIME_LIBRARIES}")
+	#mk_message(STATUS "Deploying files: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
 
-	foreach (FILE ${MK_${TARGET_NAME}_RUNTIME_LIBRARIES})
+	foreach (FILE IN ITEMS ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${MK_${TARGET_NAME}_DEPLOY_RESOURCES})
 		if (IS_ABSOLUTE ${FILE})
 			set(FILE_ABSOLUTE_PATH ${FILE})
 		else ()
