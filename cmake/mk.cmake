@@ -126,9 +126,9 @@ include(CustomBuilds.cmake OPTIONAL)
 # Find sources
 #
 
-if (MK_AUTO_REFRESH)
+if (TRUE) # MK_AUTO_REFRESH
 	#cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
-	set(MK_CONFIGURE_DEPENDS CONFIGURE_DEPENDS)
+	set(MK_CONFIGURE_DEPENDS "CONFIGURE_DEPENDS")
 else ()
 	unset(MK_CONFIGURE_DEPENDS)
 endif ()
