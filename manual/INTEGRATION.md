@@ -43,7 +43,7 @@ For more info see https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visua
 Visual Studio integration is based on Visual Studio's [CMake](https://docs.microsoft.com/en-us/cpp/ide/cmake-tools-for-visual-cpp) and ["Open Folder"](https://docs.microsoft.com/en-us/visualstudio/ide/develop-code-in-visual-studio-without-projects-or-solutions) development features. The IDE and its built-in Build/Rebuild/Clean commands can be manipulated by the following files:
 
 - `CMakeSettings.json`
-This file is required to make IntelliSense work and to launch builds on a CMake projects. It enables to launch the default Build, Rebuild and Clean commands using CMake.
+This file is required to make IntelliSense work and to launch builds on CMake projects. It enables to launch the default Build, Rebuild and Clean commands using CMake.
 
 - `CppProperties.json`
 This file is currently not required for MakeKit integration.
