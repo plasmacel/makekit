@@ -6,7 +6,7 @@ MakeKit depends on CMake and Ninja, so you have to install them before installin
 
 ### Windows
 
-1. Download and install the latest version (3.10 or above is required) of CMake:
+1. Download and install the latest version (3.12 or above is required) of CMake:
    https://cmake.org/download
 2. Download the binary distribution of Ninja (if unavailable, then build it from source):
    https://github.com/ninja-build/ninja/releases
@@ -14,7 +14,7 @@ MakeKit depends on CMake and Ninja, so you have to install them before installin
    
  ### macOS
  
- 1. Download and install the latest version (3.10 or above is required) of CMake:
+ 1. Download and install the latest version (3.12 or above is required) of CMake:
    https://cmake.org/download
  2. Run `install`. This will install all up-to-date required packages.
    
@@ -22,7 +22,7 @@ MakeKit depends on CMake and Ninja, so you have to install them before installin
  
  *Currently only Debian based systems (like Debian, Raspbian, Ubuntu) are supported!*
  
- 1. Download and install the latest version (3.10 or above is required) of CMake:
+ 1. Download and install the latest version (3.12 or above is required) of CMake:
    https://cmake.org/download
  2. Run `install`. This will install all up-to-date required packages.
     
