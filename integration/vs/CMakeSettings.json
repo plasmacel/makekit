@@ -4,8 +4,10 @@
 
   "environments": [
     {
-      "MK_TOOLCHAIN": "llvm.native.toolchain",
-      "MK_MAX_CORES": "" // To limit the number of parallel build threads, set it to "-j N" where N is the number of threads
+      "MK_BUILD_DIR_PREFIX": "${workspaceRoot}\\build.",
+      "MK_INSTALL_DIR_PREFIX": "${workspaceRoot}\\build.",
+      "MK_MAX_THREADS": "", // To limit the number of parallel build threads, set it to "-j N" where N is the number of threads
+      "MK_TOOLCHAIN": "llvm.native"
     }
   ],
   "configurations": [
@@ -15,10 +17,10 @@
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64" ],
       "intelliSenseMode": "windows-msvc-x64",
-      "buildRoot": "${workspaceRoot}\\build.${name}",
-      "installRoot": "${workspaceRoot}\\build.${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "${env.MK_MAX_CORES}",
+      "buildRoot": "${env.MK_BUILD_DIR}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -28,10 +30,10 @@
       "configurationType": "Release",
       "inheritEnvironments": [ "msvc_x64" ],
       "intelliSenseMode": "windows-msvc-x64",
-      "buildRoot": "${workspaceRoot}\\build.${name}",
-      "installRoot": "${workspaceRoot}\\build.${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "${env.MK_MAX_CORES}",
+      "buildRoot": "${env.MK_BUILD_DIR}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -41,10 +43,10 @@
       "configurationType": "RelWithDebInfo",
       "inheritEnvironments": [ "msvc_x64" ],
       "intelliSenseMode": "windows-msvc-x64",
-      "buildRoot": "${workspaceRoot}\\build.${name}",
-      "installRoot": "${workspaceRoot}\\build.${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "${env.MK_MAX_CORES}",
+      "buildRoot": "${env.MK_BUILD_DIR}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -54,10 +56,10 @@
       "configurationType": "MinSizeRel",
       "inheritEnvironments": [ "msvc_x64" ],
       "intelliSenseMode": "windows-msvc-x64",
-      "buildRoot": "${workspaceRoot}\\build.${name}",
-      "installRoot": "${workspaceRoot}\\build.${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.cmake\"",
-      "buildCommandArgs": "${env.MK_MAX_CORES}",
+      "buildRoot": "${env.MK_BUILD_DIR}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     }
