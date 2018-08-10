@@ -150,13 +150,31 @@ set(MK_ASM_SOURCE_SUFFIX *.asm *.s)
 set(MK_C_SOURCE_SUFFIX *.c)
 set(MK_C_HEADER_SUFFIX *.h)
 
-set(MK_CXX_SOURCE_SUFFIX *.c *.cc *.c++ *.cpp *.cxx)
-set(MK_CXX_HEADER_SUFFIX *.h *.hh *.h++ *.hpp *.hxx)
-set(MK_CXX_INLINE_SUFFIX *.inc *.inl *.ipp *.ixx *.tpp *.txx)
+set(MK_CXX_SOURCE_PATTERN *.c *.cc *.c++ *.cpp *.cxx)
+set(MK_CXX_HEADER_PATTERN *.h *.hh *.h++ *.hpp *.hxx)
+set(MK_CXX_INLINE_PATTERN *.inc *.inl *.ipp *.ixx *.tpp *.txx)
+
 if (MK_OS_WINDOWS)
-	set(MK_CXX_OBJECT_SUFFIX *.obj)
+
+	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .obj) # Object (.obj)
+	set(MK_CXX_STATIC_LIBRARY_SUFFIX .lib) # Library (.lib)
+	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .lib) # Library (.lib)
+	set(MK_CXX_RUNTIME_LIBRARY_SUFFIX .dll) # Dynamic Link Library (.dll)
+
+elseif (MK_OS_MACOS)
+
+	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .o) # Object (.obj)
+	set(MK_CXX_STATIC_LIBRARY_SUFFIX .a) # Archive (.a)
+	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .dylib) # Mach-O Dynamic Library (.dylib)
+	set(MK_CXX_RUNTIME_LIBRARY_SUFFIX .dylib) # Mach-O Dynamic Library (.dylib)
+
 else ()
-	set(MK_CXX_OBJECT_SUFFIX *.o)
+
+	set(MK_CXX_STATIC_LIBRARY_SUFFIX .a) # Archive (.a)
+	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .so) # Shared Object (.so)
+	set(MK_CXX_RUNTIME_LIBRARY_SUFFIX .so) # Shared Object (.so)
+	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .o) # Object (.o)
+
 endif ()
 
 set(MK_CUDA_SOURCE_SUFFIX *.cu)
@@ -237,7 +255,7 @@ function(mk_add_build_type NAME INHERIT)
 
 	if (CMAKE_CONFIGURATION_TYPES) # This is defined for multi-configuration generators
 		set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES} ${NAME}"
-			CACHE STRING ""
+			CACHE STRING "List of configuration types for multi-configuration generators"
 			FORCE)
 	endif ()
 
@@ -247,7 +265,7 @@ function(mk_add_build_type NAME INHERIT)
 
 	if (${INHERIT_UPPERCASE} STREQUAL "DEBUG")
 		set(DEBUG_CONFIGURATIONS "${DEBUG_CONFIGURATIONS} ${NAME}"
-			CACHE STRING ""
+			CACHE STRING "List of debug configurations"
 			FORCE)
 		#list(APPEND DEBUG_CONFIGURATIONS ${NAME})
 	endif()
@@ -347,13 +365,13 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# CXX source files
 
-	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_SOURCE_SUFFIX} ABSOLUTE)
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_SOURCE_PATTERN} ABSOLUTE)
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
 	# CXX header files
 
-	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_HEADER_SUFFIX} ABSOLUTE)
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_HEADER_PATTERN} ABSOLUTE)
 	foreach (CXX_HEADER ${FILE_LIST})
 		set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
 	endforeach ()
@@ -362,7 +380,7 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# CXX inline files
 
-	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_INLINE_SUFFIX} ABSOLUTE)
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_INLINE_PATTERN} ABSOLUTE)
 	foreach (CXX_INLINE ${FILE_LIST})
 		set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
 	endforeach ()
@@ -474,48 +492,70 @@ function(mk_add_imported_library LIBRARY_NAME LIBRARY_TYPE LIBRARY_INCLUDE_DIREC
 			continue()
 		endif ()
 
-		set(LIBRARY_STATIC_IMPORT ${ARGS_${IMPORT}})
+		set(LIBRARY_IMPORT ${ARGS_${IMPORT}})
 
 		# Get extension
 
-		get_filename_component(IMPORTED_LIBRARY_EXT ${LIBRARY_STATIC_IMPORT} EXT)
+		get_filename_component(IMPORTED_LIBRARY_EXT ${LIBRARY_IMPORT} EXT)
 
-		# Find platform-specific library file and set ${LIBRARY_STATIC_IMPORT_FILE}
+		# Find platform-specific library file and set ${LIBRARY_IMPORT_FILE}
 
-		set(LIBRARY_STATIC_IMPORT_FILE "MK_${LIBRARY_NAME}_STATIC_${IMPORT}_FILE")
+		set(LIBRARY_IMPORT_FILE "MK_${LIBRARY_NAME}_STATIC_${IMPORT}_FILE")
 
 		if (IMPORTED_LIBRARY_EXT)
-			set(${LIBRARY_STATIC_IMPORT_FILE} ${LIBRARY_STATIC_IMPORT} CACHE FILEPATH "")
+			set(${LIBRARY_IMPORT_FILE} ${LIBRARY_IMPORT} CACHE FILEPATH "")
 		else ()
-			get_filename_component(IMPORTED_LIBRARY_DIRECTORY ${LIBRARY_STATIC_IMPORT} DIRECTORY)
-			get_filename_component(IMPORTED_LIBRARY_NAME ${LIBRARY_STATIC_IMPORT} NAME_WE)
+			get_filename_component(IMPORTED_LIBRARY_DIRECTORY ${LIBRARY_IMPORT} DIRECTORY)
+			get_filename_component(IMPORTED_LIBRARY_NAME ${LIBRARY_IMPORT} NAME_WE)
 
 			#set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
 
-			# The variable name stored in LIBRARY_STATIC_IMPORT_FILE is being cached
-			find_library(${LIBRARY_STATIC_IMPORT_FILE} ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH REQUIRED)
+			# The variable name stored in LIBRARY_IMPORT_FILE is being cached
+			if (${LIBRARY_TYPE} STREQUAL "OBJECT")
+				find_file(${LIBRARY_IMPORT_FILE} ${IMPORTED_LIBRARY_NAME}${MK_CXX_OBJECT_LIBRARY_SUFFIX} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH DOC "Path to imported library ${IMPORTED_LIBRARY_NAME}")
+			else ()
+				find_library(${LIBRARY_IMPORT_FILE} ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH DOC "Path to imported library ${IMPORTED_LIBRARY_NAME}")
+			endif ()
 		endif ()
 	
-		if (${LIBRARY_STATIC_IMPORT_FILE})
-			mk_message(STATUS "${LIBRARY_NAME} ${IMPORT} found: ${${LIBRARY_STATIC_IMPORT_FILE}}")
+		# Check whether the library is found
+
+		if (${LIBRARY_IMPORT_FILE})
+			mk_message(STATUS "${LIBRARY_NAME} ${IMPORT} found: ${${LIBRARY_IMPORT_FILE}}")
 		else ()
 			mk_message(FATAL_ERROR "${LIBRARY_NAME} ${IMPORT} cannot be found!")
 			return()
 		endif ()
 
-		set(LIBRARY_SHARED_FILE ${${LIBRARY_STATIC_IMPORT_FILE}})
-
-		if (MK_OS_WINDOWS AND ${LIBRARY_TYPE} STREQUAL "SHARED")
-			string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_SHARED_FILE ${${LIBRARY_STATIC_IMPORT_FILE}})
-		endif ()
+		# Set TARGET properties
 
 		string(REPLACE "IMPORT" "" PROPERTY_SUFFIX ${IMPORT})
 
-		set_target_properties(
-			${LIBRARY_NAME} PROPERTIES
-			IMPORTED_LOCATION${PROPERTY_SUFFIX} ${LIBRARY_SHARED_FILE}
-			IMPORTED_IMPLIB${PROPERTY_SUFFIX} ${${LIBRARY_STATIC_IMPORT_FILE}}
-		)
+		if (${LIBRARY_TYPE} STREQUAL "OBJECT") # Library is OBJECT
+			set_target_properties(
+				${LIBRARY_NAME} PROPERTIES
+				IMPORTED_OBJECTS${PROPERTY_SUFFIX} ${${LIBRARY_IMPORT_FILE}}
+				IMPORTED_IMPLIB${PROPERTY_SUFFIX} ${${LIBRARY_IMPORT_FILE}}
+			)
+		elseif (${LIBRARY_TYPE} STREQUAL "SHARED") # Library is SHARED
+			set(LIBRARY_RUNTIME_FILE ${${LIBRARY_IMPORT_FILE}})
+
+			if (MK_OS_WINDOWS)
+				string(REGEX REPLACE "\\.[^.]*$" ${MK_CXX_RUNTIME_LIBRARY_SUFFIX} LIBRARY_RUNTIME_FILE ${${LIBRARY_IMPORT_FILE}})
+			endif ()
+
+			set_target_properties(
+				${LIBRARY_NAME} PROPERTIES
+				IMPORTED_LOCATION${PROPERTY_SUFFIX} ${LIBRARY_RUNTIME_FILE}
+				IMPORTED_IMPLIB${PROPERTY_SUFFIX} ${${LIBRARY_IMPORT_FILE}}
+			)
+		else () # Library is MODULE, STATIC or UNKNOWN
+			set_target_properties(
+				${LIBRARY_NAME} PROPERTIES
+				IMPORTED_LOCATION${PROPERTY_SUFFIX} ${LIBRARY_RUNTIME_FILE}
+			)
+		endif ()
+
 	endforeach()
 	
 endfunction()
@@ -549,7 +589,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 	foreach(TARGET_SOURCE IN ITEMS ${ARGS_SOURCE})
 		if (IS_DIRECTORY ${TARGET_SOURCE}) # Find sources in the specified directory
-			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} PATTERN ${MK_CXX_HEADER_SUFFIX} ${MK_CXX_INLINE_SUFFIX} ${MK_CXX_SOURCE_SUFFIX} ABSOLUTE)
+			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} PATTERN ${MK_CXX_HEADER_PATTERN} ${MK_CXX_INLINE_PATTERN} ${MK_CXX_SOURCE_PATTERN} ABSOLUTE)
 			list(APPEND TARGET_SOURCES ${TARGET_SOURCES_TEMP})
 			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCES_TEMP})
 
