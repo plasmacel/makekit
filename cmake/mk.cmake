@@ -194,14 +194,14 @@ endmacro()
 
 set(MK_BUILD_TYPES NONE DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
 
-# mk_add_build_type(<NAME> <INHERIT> C_FLAGS <...> CXX_FLAGS <...> LINKER_FLAGS <...> EXE_LINKER_FLAGS <...> SHARED_LINKER_FLAGS <...> STATIC_LINKER_FLAGS <...>)
+# mk_add_build_type(<NAME> <INHERIT> C_FLAGS <...> CXX_FLAGS <...> LINKER_FLAGS <...> EXE_LINKER_FLAGS <...> SHARED_LINKER_FLAGS <...> STATIC_LINKER_FLAGS <...> [LIBRARY_POSTFIX <POSTFIX>])
 # This function must be invoked at the top level of the project and before the first target_link_libraries() command invocation.
 function(mk_add_build_type NAME INHERIT)
 
 	# Parse arguments
 
 	set(OPTION_KEYWORDS "")
-    set(SINGLE_VALUE_KEYWORDS "")
+    set(SINGLE_VALUE_KEYWORDS "LIBRARY_POSTFIX")
     set(MULTI_VALUE_KEYWORDS "C_FLAGS" "CXX_FLAGS" "LINKER_FLAGS" "EXE_LINKER_FLAGS" "SHARED_LINKER_FLAGS" "STATIC_LINKER_FLAGS")
 	cmake_parse_arguments(PARSE_ARGV 0 "ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}")
 
@@ -238,6 +238,10 @@ function(mk_add_build_type NAME INHERIT)
 		CACHE STRING "Flags used by the linker for the creation of static libraries during ${NAME} builds"
 		FORCE)
 
+	set(CMAKE_${NAME_UPPERCASE}_POSTFIX "${ARGS_LIBRARY_POSTFIX}"
+		CACHE STRING ""
+		FORCE)
+
 	# Mark variables as advanced
 
 	mark_as_advanced(
@@ -245,7 +249,8 @@ function(mk_add_build_type NAME INHERIT)
 		CMAKE_C_FLAGS_${NAME_UPPERCASE}
 		CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE}
 		CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE}
-		CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE})
+		CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE}
+		CMAKE_${NAME_UPPERCASE}_POSTFIX)
 
 	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
 
@@ -267,7 +272,6 @@ function(mk_add_build_type NAME INHERIT)
 		set(DEBUG_CONFIGURATIONS "${DEBUG_CONFIGURATIONS} ${NAME}"
 			CACHE STRING "List of debug configurations"
 			FORCE)
-		#list(APPEND DEBUG_CONFIGURATIONS ${NAME})
 	endif()
 
 endfunction()
