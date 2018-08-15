@@ -1,15 +1,65 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+#
+#	MIT License
+#
+#	Copyright (c) 2018 Celestin de Villa
+#
+#	Permission is hereby granted, free of charge, to any person obtaining a copy
+#	of this software and associated documentation files (the "Software"), to deal
+#	in the Software without restriction, including without limitation the rights
+#	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#	copies of the Software, and to permit persons to whom the Software is
+#	furnished to do so, subject to the following conditions:
+#	
+#	The above copyright notice and this permission notice shall be included in all
+#	copies or substantial portions of the Software.
+#
+#	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#	SOFTWARE.
+#
+
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+include_guard(GLOBAL)
+
+set(MK_LIB_VERSION "0.2.1")
+
+#
+# Check include location
+#
+
+if (NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+	message(FATAL_ERROR "This file should be included in the top-most level CMakeLists.txt")
+endif ()
+
+#
+# Check in-source build
+#
+
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+	message(WARNING "Configuring an in-source build. Out of source builds are highly recommended!")
+endif ()
+
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	message(WARNING "MakeKit - Not a valid LLVM/clang compiler!
+		You are maybe using the auto native toolchain or Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
+	#return()
+endif ()
 
 message(STATUS "MakeKit - Configuring project ${PROJECT_NAME}...")
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	message(FATAL_ERROR "MakeKit - Not a valid LLVM/clang compiler!
-		You are maybe using Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
-	return()
-endif ()
+#
+# Languages and standards
+#
 
 enable_language(C)
 enable_language(CXX)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 if (MK_ASM)
 	enable_language(ASM)
@@ -73,118 +123,639 @@ endif ()
 include(CustomBuilds.cmake OPTIONAL)
 
 #
-# Find source
+# Find sources
 #
 
-#file(GLOB_RECURSE C_SOURCES RELATIVE ${MK_SOURCE} *.c)
-#file(GLOB_RECURSE C_HEADERS RELATIVE ${MK_SOURCE} *.h)
-
-file(GLOB_RECURSE CXX_SOURCES RELATIVE ${MK_SOURCE} *.cc *.c++ *.cpp *.cxx)
-file(GLOB_RECURSE CXX_HEADERS RELATIVE ${MK_SOURCE} *.h *.hh *.h++ *.hpp *.hxx)
-file(GLOB_RECURSE CXX_INLINES RELATIVE ${MK_SOURCE} *.inc *.inl *.ipp *.ixx *.tpp *.txx)
-#file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} *.${CMAKE_CXX_OUTPUT_EXTENSION})
-if (MK_OS_WINDOWS)
-	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} *.obj)
+if (TRUE) # MK_AUTO_REFRESH
+	#cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+	set(MK_CONFIGURE_DEPENDS "CONFIGURE_DEPENDS")
 else ()
-	file(GLOB_RECURSE CXX_OBJECTS RELATIVE ${MK_SOURCE} *.o)
-endif ()
-
-# Qt related source files
-file(GLOB_RECURSE CXX_QRCFILES RELATIVE ${MK_SOURCE} *.qrc)
-file(GLOB_RECURSE CXX_UIFILES RELATIVE ${MK_SOURCE} *.ui)
-
-if (MK_ASM)
-	file(GLOB_RECURSE ASM_SOURCES RELATIVE ${MK_SOURCE} *.asm *.s)
-endif ()
-	
-if (MK_CUDA)
-	file(GLOB_RECURSE CUDA_SOURCES RELATIVE ${MK_SOURCE} *.cu)
+	unset(MK_CONFIGURE_DEPENDS)
 endif ()
 
 #
-# Set source properties
+# List of libraries with built-in support
 #
 
-foreach (CXX_HEADER ${CXX_HEADERS})
-	set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
-endforeach ()
-
-foreach (CXX_INLINE ${CXX_INLINES})
-	set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
-endforeach ()
-
-#
-# Excluding CMake generated files from source for safety
-#
-
-list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
-list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
-list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
-list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
-
-#
-# Functions and Macros
-#
-
-function(mk_message MESSAGE_TYPE)
-	message(${MESSAGE_TYPE} "MakeKit - ${ARGN}")
-endfunction()
-
-set(MK_SUPPORTED_LIBRARY_LIST OpenCL OpenGL OpenMP Qt Vulkan)
-
-macro(mk_library LIBRARY)
-	if (NOT ${LIBRARY} IN_LIST MK_SUPPORTED_LIBRARY_LIST)
-		mk_message(SEND_ERROR "Unsupported library: ${LIBRARY}")
-	endif ()
-
-	string(TOUPPER ${LIBRARY} LIBRARY_UPPERCASE)
-
-	set(MK_${LIBRARY_UPPERCASE} ${ARGN})
-	include($ENV{MK_DIR}/cmake/libraries/${LIBRARY}.cmake)
-endmacro()
-
-# Macro to preserve source files hierarchy in the IDE
-# http://www.rtrclass.type.pl/2018-05-29-how-to-setup-opengl-project-with-cmake/
-macro(mk_group_sources ROOT)
-    file(GLOB CHILDREN RELATIVE ${PROJECT_SOURCE_DIR}/${ROOT} ${PROJECT_SOURCE_DIR}/${ROOT}/*)
-    foreach (CHILD ${CHILDREN})
-        if (IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ROOT}/${CHILD})
-            mk_group_sources(${ROOT}/${CHILD})
-        else ()
-            string(REPLACE "/" "\\" GROUP_NAME ${ROOT})
-            string(REPLACE "src" "Sources" GROUP_NAME ${GROUP_NAME})
-            source_group(${GROUP_NAME} FILES ${PROJECT_SOURCE_DIR}/${ROOT}/${CHILD})
-        endif ()
-    endforeach ()
-endmacro()
-
-function(mk_save_list FILENAME LIST)
-	string(REPLACE ";" "\n" LIST_PROCESSED "${LIST}")
-	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${FILENAME}" "${LIST_PROCESSED}")
-endfunction()
-
+set(MK_SUPPORTED_LIBRARIES Boost OpenCL OpenGL OpenMP Qt Vulkan)
 set(MK_${PROJECT}_RUNTIME_LIBRARIES "")
 set(MK_DEPLOY_FILES "")
 
-# This macro adds FILELIST to the list of deploy libraries
-macro(mk_deploy_files FILELIST)
-	set(MK_DEPLOY_FILES ${MK_DEPLOY_FILES} ${FILELIST})
-	#list(APPEND MK_DEPLOY_FILES ${FILELIST})
+#
+# File extensions
+#
+
+set(MK_ASM_SOURCE_SUFFIX *.asm *.s)
+
+set(MK_C_SOURCE_SUFFIX *.c)
+set(MK_C_HEADER_SUFFIX *.h)
+
+set(MK_CXX_SOURCE_PATTERN *.c *.cc *.c++ *.cpp *.cxx)
+set(MK_CXX_HEADER_PATTERN *.h *.hh *.h++ *.hpp *.hxx)
+set(MK_CXX_INLINE_PATTERN *.inc *.inl *.ipp *.ixx *.tpp *.txx)
+
+if (MK_OS_WINDOWS)
+
+	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .obj) # Object (.obj)
+	set(MK_CXX_STATIC_LIBRARY_SUFFIX .lib) # Library (.lib)
+	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .lib) # Library (.lib)
+	set(MK_CXX_RUNTIME_LIBRARY_SUFFIX .dll) # Dynamic Link Library (.dll)
+
+elseif (MK_OS_MACOS)
+
+	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .o) # Object (.obj)
+	set(MK_CXX_STATIC_LIBRARY_SUFFIX .a) # Archive (.a)
+	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .dylib) # Mach-O Dynamic Library (.dylib)
+	set(MK_CXX_RUNTIME_LIBRARY_SUFFIX .dylib) # Mach-O Dynamic Library (.dylib)
+
+else ()
+
+	set(MK_CXX_STATIC_LIBRARY_SUFFIX .a) # Archive (.a)
+	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .so) # Shared Object (.so)
+	set(MK_CXX_RUNTIME_LIBRARY_SUFFIX .so) # Shared Object (.so)
+	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .o) # Object (.o)
+
+endif ()
+
+set(MK_CUDA_SOURCE_SUFFIX *.cu)
+
+#
+# Functions and macros
+#
+
+# mk_message(MESSAGE_TYPE MESSAGE)
+macro(mk_message MESSAGE_TYPE)
+	message(${MESSAGE_TYPE} "MakeKit - ${ARGN}")
 endmacro()
 
+#
+# Build types
+#
+
+set(MK_BUILD_TYPES NONE DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+
+# mk_add_build_type(<NAME> <INHERIT> C_FLAGS <...> CXX_FLAGS <...> LINKER_FLAGS <...> EXE_LINKER_FLAGS <...> SHARED_LINKER_FLAGS <...> STATIC_LINKER_FLAGS <...> [LIBRARY_POSTFIX <POSTFIX>])
+# This function must be invoked at the top level of the project and before the first target_link_libraries() command invocation.
+function(mk_add_build_type NAME INHERIT)
+
+	# Parse arguments
+
+	set(OPTION_KEYWORDS "")
+    set(SINGLE_VALUE_KEYWORDS "LIBRARY_POSTFIX")
+    set(MULTI_VALUE_KEYWORDS "C_FLAGS" "CXX_FLAGS" "LINKER_FLAGS" "EXE_LINKER_FLAGS" "SHARED_LINKER_FLAGS" "STATIC_LINKER_FLAGS")
+	cmake_parse_arguments(PARSE_ARGV 0 "ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}")
+
+	# Check against existing build types
+
+	string(TOUPPER ${NAME} NAME_UPPERCASE)
+	string(TOUPPER ${INHERIT} INHERIT_UPPERCASE)
+
+	if (${NAME_UPPERCASE} IN_LIST ${MK_BUILD_TYPES})
+		mk_message(FATAL_ERROR "This is an already defined build type: ${NAME}")	
+	else ()
+		set(MK_BUILD_TYPES ${MK_BUILD_TYPES} ${NAME_UPPERCASE} PARENT_SCOPE)
+	endif ()
+
+	# Set cache variables
+
+	set(CMAKE_C_FLAGS_${NAME_UPPERCASE} "${CMAKE_C_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_C_FLAGS}"
+		CACHE STRING "Flags used by the C compiler during ${NAME} builds"
+		FORCE)
+
+	set(CMAKE_CXX_FLAGS_${NAME_UPPERCASE} "${CMAKE_CXX_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_CXX_FLAGS}"
+		CACHE STRING "Flags used by the CXX compiler during ${NAME} builds"
+		FORCE)
+
+	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_EXE_LINKER_FLAGS}"
+		CACHE STRING "Flags used by the linker for the creation of executables during ${NAME} builds"
+		FORCE)
+
+	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_SHARED_LINKER_FLAGS}"
+		CACHE STRING "Flags used by the linker for the creation of shared libraries during ${NAME} builds"
+		FORCE)
+
+	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_STATIC_LINKER_FLAGS}"
+		CACHE STRING "Flags used by the linker for the creation of static libraries during ${NAME} builds"
+		FORCE)
+
+	set(CMAKE_${NAME_UPPERCASE}_POSTFIX "${ARGS_LIBRARY_POSTFIX}"
+		CACHE STRING ""
+		FORCE)
+
+	# Mark variables as advanced
+
+	mark_as_advanced(
+		CMAKE_CXX_FLAGS_${NAME_UPPERCASE}
+		CMAKE_C_FLAGS_${NAME_UPPERCASE}
+		CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE}
+		CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE}
+		CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE}
+		CMAKE_${NAME_UPPERCASE}_POSTFIX)
+
+	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
+
+	set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
+		CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ${NAME}"
+		FORCE)
+
+	if (CMAKE_CONFIGURATION_TYPES) # This is defined for multi-configuration generators
+		set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES} ${NAME}"
+			CACHE STRING "List of configuration types for multi-configuration generators"
+			FORCE)
+	endif ()
+
+	# If ${NAME} is a debug configuration, then add it to the list DEBUG_CONFIGURATIONS
+	# This property must be set at the top level of the project and before the first target_link_libraries() command invocation.
+	# https://cmake.org/cmake/help/v3.12/prop_gbl/DEBUG_CONFIGURATIONS.html
+
+	if (${INHERIT_UPPERCASE} STREQUAL "DEBUG")
+		set(DEBUG_CONFIGURATIONS "${DEBUG_CONFIGURATIONS} ${NAME}"
+			CACHE STRING "List of debug configurations"
+			FORCE)
+	endif()
+
+endfunction()
+
+#
+# File operations
+#
+
+# mk_collect_files(<OUTPUT_LIST> <PATH> PATTERN <...> EXCLUDE <...> [ABSOLUTE | RELATIVE])
+# TODO should be a function maybe
+macro(mk_collect_files OUTPUT_LIST PATH)
+
+	# Parse arguments
+
+	set(OPTION_KEYWORDS "ABSOLUTE" "RELATIVE")
+    set(SINGLE_VALUE_KEYWORDS "")
+    set(MULTI_VALUE_KEYWORDS "PATTERN" "EXCLUDE")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
+
+	# Set relative arguments
+
+	if (ARGS_RELATIVE)
+		set(RELATIVE_ARGS "RELATIVE ${PATH}")
+	else ()
+		set(RELATIVE_ARGS "")
+	endif ()
+
+	# Transform pattern
+
+	list(TRANSFORM ARGS_PATTERN PREPEND "${PATH}/")
+
+	#mk_message(STATUS "Collecting files: ${ARGS_PATTERN}")
+	file(GLOB_RECURSE ${OUTPUT_LIST} ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${ARGS_PATTERN})
+	#mk_message(STATUS "Collected files: ${${OUTPUT_LIST}}")
+	
+	# Excluding CMake generated files from the results just for safety
+	if (ARGS_EXCLUDE)
+		list(FILTER ${OUTPUT_LIST} EXCLUDE REGEX ".*CMakeFiles/.*")
+		list(FILTER ${OUTPUT_LIST} EXCLUDE REGEX ${ARGS_EXCLUDE})
+	endif ()
+
+endmacro()
+
+# mk_collect_files(<OUTPUT_LIST> PATH <...> PATTERN <...> EXCLUDE <...>)
+macro(mk_collect_files_multipath OUTPUT_LIST)
+
+	# Parse arguments
+
+	set(OPTION_KEYWORDS "")
+    set(SINGLE_VALUE_KEYWORDS "")
+    set(MULTI_VALUE_KEYWORDS "PATH" "PATTERN" "EXCLUDE")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
+
+	# Create GLOB expressions as combinations of GLOB_PATH/GLOB_PATTERN
+
+	foreach (GLOB_PATH IN LISTS ARGS_PATH)
+		foreach(GLOB_PATTERN IN LISTS ARGS_PATTERN)
+			list(APPEND GLOB_EXPRESSIONS ${GLOB_PATH}/${GLOB_PATTERN})
+		endforeach()
+	endforeach ()
+
+	# Perform GLOB
+
+	#mk_message(STATUS "Collecting files: ${GLOB_EXPRESSIONS}")
+	file(GLOB_RECURSE ${OUTPUT_LIST} ${MK_CONFIGURE_DEPENDS} ${GLOB_EXPRESSIONS})
+	#mk_message(STATUS "Collected files: ${${OUTPUT_LIST}}")
+	
+	# Excluding CMake generated files from the results just for safety
+
+	if (ARGS_EXCLUDE)
+		list(FILTER ${OUTPUT_LIST} EXCLUDE REGEX ".*CMakeFiles/.*")
+		list(FILTER ${OUTPUT_LIST} EXCLUDE REGEX ${ARGS_EXCLUDE})
+	endif ()
+
+endmacro()
+
+# mk_collect_sources(<OUTPUT_LIST> <SOURCE_DIR>)
+macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
+
+	#list(APPEND OUTPUT_LIST ${FILE_LIST})
+
+	unset(${OUTPUT_LIST})
+
+	# ASM files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_ASM_SOURCE_SUFFIX} ABSOLUTE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+
+	# C source files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_C_SOURCE_SUFFIX} ABSOLUTE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+
+	# CXX source files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_SOURCE_PATTERN} ABSOLUTE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+
+	# CXX header files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_HEADER_PATTERN} ABSOLUTE)
+	foreach (CXX_HEADER ${FILE_LIST})
+		set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
+	endforeach ()
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+
+	# CXX inline files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CXX_INLINE_PATTERN} ABSOLUTE)
+	foreach (CXX_INLINE ${FILE_LIST})
+		set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
+	endforeach ()
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+
+	# CUDA source files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CUDA_SOURCE_SUFFIX} ABSOLUTE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+
+endmacro()
+
+# mk_find_sources
+# DEPRECATED
+macro(mk_find_sources SOURCE_DIR)
+	message(STATUS "Finding sources in ${SOURCE_DIR}")
+
+	if (${ARGC} GREATER 1 AND ARGV1)
+		set(RELATIVE_ARGS "RELATIVE ${SOURCE_DIR}")
+	else ()
+		unset(RELATIVE_ARGS)
+	endif ()
+
+	#file(GLOB_RECURSE C_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.c)
+	#file(GLOB_RECURSE C_HEADERS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.h)
+
+	file(GLOB_RECURSE CXX_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.cc ${SOURCE_DIR}/*.c++ ${SOURCE_DIR}/*.cpp ${SOURCE_DIR}/*.cxx)
+	file(GLOB_RECURSE CXX_HEADERS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.h ${SOURCE_DIR}/*.hh ${SOURCE_DIR}/*.h++ ${SOURCE_DIR}/*.hpp ${SOURCE_DIR}/*.hxx)
+	file(GLOB_RECURSE CXX_INLINES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.inc ${SOURCE_DIR}/*.inl ${SOURCE_DIR}/*.ipp ${SOURCE_DIR}/*.ixx ${SOURCE_DIR}/*.tpp ${SOURCE_DIR}/*.txx)
+	#file(GLOB_RECURSE CXX_OBJECTS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${CMAKE_CXX_OUTPUT_EXTENSION})
+	if (MK_OS_WINDOWS)
+		file(GLOB_RECURSE CXX_OBJECTS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.obj)
+	else ()
+		file(GLOB_RECURSE CXX_OBJECTS ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.o)
+	endif ()
+
+	# if ("ASM" IN_LIST ${ENABLED_LANGUAGES})
+	if (MK_ASM)
+		file(GLOB_RECURSE ASM_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.asm ${SOURCE_DIR}/*.s)
+	endif ()
+
+	# if ("CUDA" IN_LIST ${ENABLED_LANGUAGES})
+	if (MK_CUDA)
+		file(GLOB_RECURSE CUDA_SOURCES ${RELATIVE_ARGS} ${MK_CONFIGURE_DEPENDS} ${SOURCE_DIR}/*.cu)
+	endif ()
+
+	#
+	# Set source properties
+	#
+
+	foreach (CXX_HEADER ${CXX_HEADERS})
+		set_property(SOURCE ${CXX_HEADER} PROPERTY HEADER_FILE_ONLY ON)
+	endforeach ()
+
+	foreach (CXX_INLINE ${CXX_INLINES})
+		set_property(SOURCE ${CXX_INLINE} PROPERTY HEADER_FILE_ONLY ON)
+	endforeach ()
+
+	#
+	# Excluding CMake generated files from source for safety
+	#
+
+	list(FILTER CXX_SOURCES EXCLUDE REGEX ".*CMakeFiles/.*")
+	list(FILTER CXX_HEADERS EXCLUDE REGEX ".*CMakeFiles/.*")
+	list(FILTER CXX_INLINES EXCLUDE REGEX ".*CMakeFiles/.*")
+	list(FILTER CXX_OBJECTS EXCLUDE REGEX ".*CMakeFiles/.*")
+endmacro()
+
+# mk_save_list(<FILENAME> <LIST> [<SEPARATOR>])
+function(mk_save_list FILENAME LIST)
+
+	if (ARGV3)
+		string(REPLACE ";" ${ARGV3} LIST "${LIST}")
+	endif ()
+	
+	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${FILENAME}" "${LIST}")
+
+endfunction()
+
+#
+# Target operations
+#
+
+# mk_add_imported_library(<LIBRARY_NAME> <LIBRARY_TYPE> <LIBRARY_INCLUDE_DIRECTORIES> [IMPORT <LIBRARY_IMPORT_FILE>] [IMPORT_<CONFIG> <LIBRARY_IMPORT_FILE>])
+# where LIBRARY_TYPE can be INTERFACE, OBJECT, SHARED, STATIC
+function(mk_add_imported_library LIBRARY_NAME LIBRARY_TYPE LIBRARY_INCLUDE_DIRECTORIES)
+
+	# Parse arguments
+
+	set(OPTION_KEYWORDS "")
+    set(SINGLE_VALUE_KEYWORDS ${MK_BUILD_TYPES})
+	list(TRANSFORM SINGLE_VALUE_KEYWORDS PREPEND "IMPORT_")
+	list(APPEND SINGLE_VALUE_KEYWORDS "IMPORT")
+    set(MULTI_VALUE_KEYWORDS "")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
+	
+	add_library(${LIBRARY_NAME} ${LIBRARY_TYPE} IMPORTED GLOBAL)
+
+	set_target_properties(
+		${LIBRARY_NAME} PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES ${LIBRARY_INCLUDE_DIRECTORIES}
+	)
+
+	foreach(IMPORT IN ITEMS ${SINGLE_VALUE_KEYWORDS})
+
+		if (NOT ARGS_${IMPORT})
+			continue()
+		endif ()
+
+		set(LIBRARY_IMPORT ${ARGS_${IMPORT}})
+
+		# Get extension
+
+		get_filename_component(IMPORTED_LIBRARY_EXT ${LIBRARY_IMPORT} EXT)
+
+		# Find platform-specific library file and set ${LIBRARY_IMPORT_FILE}
+
+		set(LIBRARY_IMPORT_FILE "MK_${LIBRARY_NAME}_STATIC_${IMPORT}_FILE")
+
+		if (IMPORTED_LIBRARY_EXT)
+			set(${LIBRARY_IMPORT_FILE} ${LIBRARY_IMPORT} CACHE FILEPATH "")
+		else ()
+			get_filename_component(IMPORTED_LIBRARY_DIRECTORY ${LIBRARY_IMPORT} DIRECTORY)
+			get_filename_component(IMPORTED_LIBRARY_NAME ${LIBRARY_IMPORT} NAME_WE)
+
+			#set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
+
+			# The variable name stored in LIBRARY_IMPORT_FILE is being cached
+			if (${LIBRARY_TYPE} STREQUAL "OBJECT")
+				find_file(${LIBRARY_IMPORT_FILE} ${IMPORTED_LIBRARY_NAME}${MK_CXX_OBJECT_LIBRARY_SUFFIX} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH DOC "Path to imported library ${IMPORTED_LIBRARY_NAME}")
+			else ()
+				find_library(${LIBRARY_IMPORT_FILE} ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH DOC "Path to imported library ${IMPORTED_LIBRARY_NAME}")
+			endif ()
+		endif ()
+	
+		# Check whether the library is found
+
+		if (${LIBRARY_IMPORT_FILE})
+			mk_message(STATUS "${LIBRARY_NAME} ${IMPORT} found: ${${LIBRARY_IMPORT_FILE}}")
+		else ()
+			mk_message(FATAL_ERROR "${LIBRARY_NAME} ${IMPORT} cannot be found!")
+			return()
+		endif ()
+
+		# Set TARGET properties
+
+		string(REPLACE "IMPORT" "" PROPERTY_SUFFIX ${IMPORT})
+
+		if (${LIBRARY_TYPE} STREQUAL "OBJECT") # Library is OBJECT
+			set_target_properties(
+				${LIBRARY_NAME} PROPERTIES
+				IMPORTED_OBJECTS${PROPERTY_SUFFIX} ${${LIBRARY_IMPORT_FILE}}
+				IMPORTED_IMPLIB${PROPERTY_SUFFIX} ${${LIBRARY_IMPORT_FILE}}
+			)
+		elseif (${LIBRARY_TYPE} STREQUAL "SHARED") # Library is SHARED
+			set(LIBRARY_RUNTIME_FILE ${${LIBRARY_IMPORT_FILE}})
+
+			if (MK_OS_WINDOWS)
+				string(REGEX REPLACE "\\.[^.]*$" ${MK_CXX_RUNTIME_LIBRARY_SUFFIX} LIBRARY_RUNTIME_FILE ${${LIBRARY_IMPORT_FILE}})
+			endif ()
+
+			set_target_properties(
+				${LIBRARY_NAME} PROPERTIES
+				IMPORTED_LOCATION${PROPERTY_SUFFIX} ${LIBRARY_RUNTIME_FILE}
+				IMPORTED_IMPLIB${PROPERTY_SUFFIX} ${${LIBRARY_IMPORT_FILE}}
+			)
+		else () # Library is MODULE, STATIC or UNKNOWN
+			set(LIBRARY_RUNTIME_FILE ${${LIBRARY_IMPORT_FILE}})
+
+			set_target_properties(
+				${LIBRARY_NAME} PROPERTIES
+				IMPORTED_LOCATION${PROPERTY_SUFFIX} ${LIBRARY_RUNTIME_FILE}
+			)
+		endif ()
+
+	endforeach()
+	
+endfunction()
+
+# mk_target_exclude(<TARGET_NAME> <TARGET_EXCLUDE>)
+macro(mk_target_exclude TARGET_NAME TARGET_EXCLUDE)
+	set_target_properties(
+		${TARGET_NAME} PROPERTIES
+		EXCLUDE_FROM_ALL ${TARGET_EXCLUDE}
+	)
+endmacro()
+
+#
+# mk_add_target(<TARGET_NAME> <TARGET_TYPE> [INCLUDE <...>] [SOURCE <...>])
+function(mk_add_target TARGET_NAME TARGET_TYPE)
+
+	# Parse arguments
+
+	set(OPTION_KEYWORDS "NATIVE_GUI")
+    set(SINGLE_VALUE_KEYWORDS "MACOS_BUNDLE_INFO_PLIST" "MACOS_FRAMEWORK_INFO_PLIST")
+    set(MULTI_VALUE_KEYWORDS "INCLUDE" "SOURCE")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
+
+	# Resolve mixed source paths/filepaths
+
+	if (ARGS_INCLUDE)
+		set(TARGET_HAS_INCLUDE_DIRS TRUE)
+	else ()
+		set(TARGET_HAS_INCLUDE_DIRS FALSE)
+	endif ()
+
+	foreach(TARGET_SOURCE IN ITEMS ${ARGS_SOURCE})
+		if (IS_DIRECTORY ${TARGET_SOURCE}) # Find sources in the specified directory
+			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} PATTERN ${MK_CXX_HEADER_PATTERN} ${MK_CXX_INLINE_PATTERN} ${MK_CXX_SOURCE_PATTERN} ABSOLUTE)
+			list(APPEND TARGET_SOURCES ${TARGET_SOURCES_TEMP})
+			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCES_TEMP})
+
+			if (NOT TARGET_HAS_INCLUDE_DIRS)
+				list(APPEND ARGS_INCLUDE ${TARGET_SOURCE})
+			endif ()
+		else ()
+			list(APPEND TARGET_SOURCES ${TARGET_SOURCE})
+			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCE})
+		endif ()
+	endforeach()
+
+	#message(STATUS "INCLUDES: ${ARGS_INCLUDE}")
+	#message(STATUS "SOURCES: ${TARGET_SOURCES}")
+
+	# Check whether sources are specified
+
+	if (NOT TARGET_SOURCES)
+		mk_message(STATUS "No C/C++ sources specified.")
+	endif ()
+
+	# Add target and set its properties
+
+	if (${TARGET_TYPE} STREQUAL "EXECUTABLE")
+
+		add_executable(${TARGET_NAME} ${TARGET_SOURCES}) # sources can be omitted here
+		target_include_directories(${TARGET_NAME} PRIVATE ${ARGS_INCLUDE})
+
+		# Set poperties to build as native GUI application
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
+		if (ARGS_NATIVE_GUI)
+				if (MK_OS_WINDOWS)
+					set_target_properties(
+						${TARGET_NAME} PROPERTIES
+						WIN32_EXECUTABLE TRUE
+					)
+				elseif (MK_OS_MACOS)
+					set_target_properties(
+						${TARGET_NAME} PROPERTIES
+						MACOSX_BUNDLE TRUE
+						MACOSX_BUNDLE_INFO_PLIST ${ARGS_MACOS_BUNDLE_INFO_PLIST}
+					)
+				endif ()
+		endif ()
+
+	else ()
+		
+		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+
+			set(TARGET_INCLUDE_SCOPE "INTERFACE")
+			set(TARGET_SOURCE_SCOPE "INTERFACE")
+
+			add_library(${TARGET_NAME} INTERFACE)
+			target_sources(${TARGET_NAME} INTERFACE ${TARGET_SOURCES})
+			target_include_directories(${TARGET_NAME} INTERFACE ${ARGS_INCLUDE} INTERFACE ${SOURCE_DIR})
+
+		else ()
+
+			if (${TARGET_TYPE} STREQUAL "OBJECT_LIBRARY")
+				set(TARGET_LIBRARY_TYPE "OBJECT")
+			elseif (${TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
+				set(TARGET_LIBRARY_TYPE "STATIC")
+			elseif (${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")
+				set(TARGET_LIBRARY_TYPE "SHARED")
+			else()
+				mk_message(FATAL_ERROR "Invalid target type: ${TARGET_TYPE}")
+				return()
+			endif ()
+
+			add_library(${TARGET_NAME} ${TARGET_LIBRARY_TYPE} ${TARGET_SOURCES}) # sources can be omitted here, except for object libraries
+			target_include_directories(${TARGET_NAME} PUBLIC ${ARGS_INCLUDE} PRIVATE ${SOURCE_DIR})
+
+			if (ARGS_MACOS_FRAMEWORK_INFO_PLIST AND MK_OS_MACOS)
+				set_target_properties(
+					${TARGET_NAME} PROPERTIES
+					MACOSX_FRAMEWORK_INFO_PLIST ${ARGS_MACOS_FRAMEWORK_INFO_PLIST}
+				)
+			endif ()
+
+		endif ()
+
+	endif ()
+	
+	# Set C/C++ language standard of the target
+	#set_property(TARGET ${TARGET_NAME} PROPERTY C_STANDARD 11)
+	#set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
+
+	# Add pthreads on macOS and Linux
+	# This is to avoid an issue when the compiler and/or the dependent libraries don't do this automatically
+	# https://cmake.org/cmake/help/v3.12/module/FindThreads.html
+	if (NOT MK_OS_WINDOWS)
+		set(THREADS_PREFER_PTHREAD_FLAG ON)
+		find_package(Threads REQUIRED)
+
+		if (NOT Threads_FOUND)
+			mk_message(FATAL_ERROR "POSIX Threads (pthreads) libraries cannot be found!")
+			return()
+		endif ()
+
+		target_link_libraries(${TARGET_NAME} ${TARGET_LINK_SCOPE} Threads::Threads)
+	endif ()
+
+endfunction()
+
+# mk_target_deploy_libraries(<TARGET_NAME> [<...>])
 # This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
 # It does nothing for non-shared libraries
-macro(mk_target_deploy_libraries PROJECT LIBRARIES)
-	foreach (LIBRARY "${LIBRARIES}")
+function(mk_target_deploy_libraries TARGET_NAME)
+
+	foreach (LIBRARY IN LISTS ARGN)
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-			mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
+			#mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
 				get_target_property(LIBRARY_IMPORTED ${LIBRARY} IMPORTED)
+
 				if (LIBRARY_IMPORTED)
 					#mk_message(STATUS "Imported library: ${LIBRARY}")
-					get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION)
-					if (NOT LIBRARY_RUNTIME) # IMPORTED_LOCATION is undefined, try LOCATION (it is mandatory for Qt)
+
+					if (CMAKE_BUILD_TYPE) # Get library location from TARGET poperties
+						
+						string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
+
+						# Try properties IMPORTED_LOCATION_<CONFIG> and LOCATION_<CONFIG>
+
+						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_${CMAKE_BUILD_TYPE})
+
+						if (NOT LIBRARY_RUNTIME)
+							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_${CMAKE_BUILD_TYPE})
+						endif ()
+
+						# Try properties IMPORTED_LOCATION_<DEBUG | RELEASE> and LOCATION_<DEBUG | RELEASE>
+
+						if (NOT LIBRARY_RUNTIME)
+							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
+							else ()
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
+							endif ()
+						endif ()
+
+						if (NOT LIBRARY_RUNTIME)
+							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_DEBUG)
+							else ()
+								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_RELEASE)
+							endif ()
+						endif ()
+
+					endif ()
+
+					# if LOCATION_<CONFIG> property is undefined, try IMPORTED_LOCATION
+					if (NOT LIBRARY_RUNTIME)
+						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION)
+					endif ()
+
+					# if IMPORTED_LOCATION property is undefined, try LOCATION
+					if (NOT LIBRARY_RUNTIME)
 						get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
 					endif ()
 				else ()
@@ -200,7 +771,7 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 				get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
 				get_filename_component(LIBRARY_NAME ${LIBRARY} NAME_WE)
 				find_file(LIBRARY_RUNTIME ${LIBRARY_NAME}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
-			else () # The corresponding ruintime library is the library itself
+			else () # The corresponding runtime library is the library itself
 				get_filename_component(LIBRARY_EXT ${LIBRARY} EXT)
 				if (LIBRARY_EXT IN_LIST ".dylib;.so")
 					set(LIBRARY_RUNTIME ${LIBRARY})
@@ -209,137 +780,74 @@ macro(mk_target_deploy_libraries PROJECT LIBRARIES)
 		endif ()
 
 		if (LIBRARY_RUNTIME)
-			#mk_message(STATUS "Added runtime library: ${LIBRARY_RUNTIME}")
-			set(MK_${PROJECT}_RUNTIME_LIBRARIES ${MK_${PROJECT}_RUNTIME_LIBRARIES} ${LIBRARY_RUNTIME})
-			#list(APPEND MK_RUNTIME_LIBRARIES ${LIBRARY_RUNTIME})
+			#mk_message(STATUS "Added runtime library: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
+			set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${LIBRARY_RUNTIME} CACHE INTERNAL "")
 		endif ()
 	endforeach ()
-endmacro()
 
+endfunction()
+
+# mk_target_link_libraries(<TARGET_NAME> [<...>])
 # This macro performs target_link_libraries(${PROJECT} ${LIBRARIES}) and mk_target_deploy_libraries(${LIBRARIES})
 # appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
-macro(mk_target_link_libraries PROJECT LIBRARIES)
-	target_link_libraries(${PROJECT} ${LIBRARIES})
-	mk_target_deploy_libraries(${LIBRARIES})
+# EXPERIMENTAL
+macro(mk_target_link_libraries TARGET_NAME)
 
-	# Add shared libraries to MK_RUNTIME_LIBRARIES
-	#foreach (LIBRARY "${LIBRARIES}")
-	#	if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
-	#		get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-	#		if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY") # LIBRARY is a SHARED_LIBRARY TARGET
-	#			mk_shared_libraries(${LIBRARY})
-	#		endif ()
-	#	endif ()
-	#endforeach ()
+	target_link_libraries(${TARGET_NAME} ${ARGN})
+	mk_target_deploy_libraries(${ARGN})
+
 endmacro()
 
-# MODE can be STATIC, SHARED
-macro(mk_import_shared_library NAME LIBRARY_INCLUDE_DIRECTORIES LIBRARY_SHARED_IMPORT LIBRARY_STATIC_IMPORT)
-	add_library(${NAME} SHARED IMPORTED GLOBAL)
-	
-	if (NOT LIBRARY_STATIC_IMPORT) # In case of macOS and Linux, .dylib and .so files are needed for linking
-		set(LIBRARY_STATIC_IMPORT ${LIBRARY_SHARED_IMPORT})
-	endif ()
+# mk_group_sources(<SOURCE_DIR>)
+# Macro to preserve source files hierarchy in the IDE
+# http://www.rtrclass.type.pl/2018-05-29-how-to-setup-opengl-project-with-cmake/
+macro(mk_group_sources SOURCE_DIR)
 
-	set_target_properties(
-		${NAME} PROPERTIES
-		INTERFACE_INCLUDE_DIRECTORIES ${LIBRARY_INCLUDE_DIRECTORIES}
-		IMPORTED_LOCATION ${LIBRARY_SHARED_IMPORT}
-		IMPORTED_IMPLIB ${LIBRARY_STATIC_IMPORT}
-	)
+    file(GLOB CHILDREN RELATIVE ${PROJECT_SOURCE_DIR}/${SOURCE_DIR} ${MK_CONFIGURE_DEPENDS} ${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/*)
+
+    foreach (CHILD ${CHILDREN})
+        if (IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/${CHILD})
+            mk_group_sources(${SOURCE_DIR}/${CHILD})
+        else ()
+            string(REPLACE "/" "\\" GROUP_NAME ${SOURCE_DIR})
+            string(REPLACE "src" "Sources" GROUP_NAME ${GROUP_NAME})
+            source_group(${GROUP_NAME} FILES ${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/${CHILD})
+        endif ()
+    endforeach ()
+
 endmacro()
 
-macro(mk_add_imported_library NAME MODE LIBRARY_INCLUDE_DIRECTORIES LIBRARY_STATIC_IMPORT)
-	add_library(${NAME} ${MODE} IMPORTED GLOBAL)
+# mk_target_deploy_resources(<TARGET_NAME> [<...>])
+# This macro adds FILES to the list of deploy resources
+macro(mk_target_deploy_resources TARGET_NAME)
 
-	# Get extension
+	#set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
+	#list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
+	set(MK_${TARGET_NAME}_DEPLOY_RESOURCES ${MK_${TARGET_NAME}_DEPLOY_RESOURCES} ${ARGN} CACHE INTERNAL "")
 
-	get_filename_component(IMPORTED_LIBRARY_EXT ${LIBRARY_STATIC_IMPORT} EXT)
-
-	# Find platform-specific library file and set LIBRARY_STATIC_FILE
-
-	if (IMPORTED_LIBRARY_EXT)
-		set(LIBRARY_STATIC_FILE ${LIBRARY_STATIC_IMPORT})
-	else ()
-		get_filename_component(IMPORTED_LIBRARY_DIRECTORY ${LIBRARY_STATIC_IMPORT} DIRECTORY)
-		get_filename_component(IMPORTED_LIBRARY_NAME ${LIBRARY_STATIC_IMPORT} NAME_WE)
-
-		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
-		find_library(LIBRARY_STATIC_FILE ${IMPORTED_LIBRARY_NAME} PATHS ${IMPORTED_LIBRARY_DIRECTORY} NO_DEFAULT_PATH REQUIRED)
-	endif ()
-	
-	if (LIBRARY_STATIC_FILE)
-		mk_message(STATUS "${NAME} found: ${LIBRARY_STATIC_FILE}")
-	else ()
-		mk_message(FATAL_ERROR "${NAME} cannot be found!")
-		return()
-	endif ()
-
-	set(LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
-
-	if (MK_OS_WINDOWS AND ${MODE} STREQUAL "SHARED")
-		string(REGEX REPLACE "\\.[^.]*$" ".dll" LIBRARY_SHARED_FILE ${LIBRARY_STATIC_FILE})
-	endif ()
-
-	set_target_properties(
-		${NAME} PROPERTIES
-		INTERFACE_INCLUDE_DIRECTORIES ${LIBRARY_INCLUDE_DIRECTORIES}
-		IMPORTED_LOCATION ${LIBRARY_SHARED_FILE}
-		IMPORTED_IMPLIB ${LIBRARY_STATIC_FILE}
-	)
 endmacro()
 
-#
-# Add target
-#	
+# mk_target_deploy(<TARGET_NAME>)
+macro(mk_target_deploy TARGET_NAME)
 
-if (CXX_SOURCES)
-	if (${MK_MODULE_MODE} STREQUAL "NONE")
-		return() # Do nothing
-	elseif (${MK_MODULE_MODE} STREQUAL "EXECUTABLE")
-		add_executable(${PROJECT_NAME} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_QRCFILES} ${CXX_UIFILES})
-	else ()
-		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-			set(MK_MODULE_VISIBILITY INTERFACE)
-		elseif (${MK_MODULE_MODE} STREQUAL "STATIC_LIBRARY")
-			set(MK_MODULE_VISIBILITY STATIC)
-		elseif (${MK_MODULE_MODE} STREQUAL "SHARED_LIBRARY")
-			set(MK_MODULE_VISIBILITY SHARED)
-		else()
-			mk_message(FATAL_ERROR "Invalid MK_MODULE_MODE!")
-			return()
-		endif ()
-		
-		add_library(${PROJECT_NAME} ${MK_MODULE_VISIBILITY} ${CXX_HEADERS} ${CXX_INLINES} ${CXX_SOURCES} ${CXX_OBJECTS} ${CXX_UIFILES})
-		
-		# For header-only libraries this line is required
-		if (${MK_MODULE_MODE} STREQUAL "INTERFACE_LIBRARY")
-			target_include_directories(${PROJECT_NAME} INTERFACE ${CXX_HEADERS} ${CXX_INLINES})
-		endif ()
-	endif ()
-	
-	# Set C/C++ language standard of the target
-	set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
-	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+	#mk_message(STATUS "Deploying files: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
 
-	# Add pthreads on macOS and Linux
-	# This is to avoid an issue when the compiler and/or the dependent libraries don't do this automatically
-	# https://cmake.org/cmake/help/v3.12/module/FindThreads.html
-	if (NOT MK_OS_WINDOWS)
-		set(THREADS_PREFER_PTHREAD_FLAG ON)
-		find_package(Threads REQUIRED)
-
-		if (NOT Threads_FOUND)
-			mk_message(FATAL_ERROR "POSIX Threads (pthreads) libraries cannot be found!")
-			return()
+	foreach (FILE IN ITEMS ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${MK_${TARGET_NAME}_DEPLOY_RESOURCES})
+		if (IS_ABSOLUTE ${FILE})
+			set(FILE_ABSOLUTE_PATH ${FILE})
+		else ()
+			find_file(FILE_ABSOLUTE_PATH ${FILE})
 		endif ()
 
-		target_link_libraries(${PROJECT_NAME} Threads::Threads)
-	endif ()
-else ()
-	mk_message(STATUS "No C/C++ sources found.")
-	return()
-endif ()
+		if (FILE_ABSOLUTE_PATH)
+			get_filename_component(FILE_NAME ${FILE} NAME)
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
+		else ()
+			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
+		endif ()
+	endforeach ()
+
+endmacro()
 
 #
 # Create source groups for IDE project generators
@@ -366,34 +874,3 @@ include($ENV{MK_DIR}/cmake/libraries/OpenGL.cmake)
 include($ENV{MK_DIR}/cmake/libraries/OpenMP.cmake)
 include($ENV{MK_DIR}/cmake/libraries/Qt.cmake)
 include($ENV{MK_DIR}/cmake/libraries/Vulkan.cmake)
-
-#
-# Pre-build commands
-#
-
-#
-# Post-build deploy
-#
-
-macro(mk_deploy_list)
-	mk_save_list("DeployLists.txt" "${MK_${PROJECT_NAME}_RUNTIME_LIBRARIES}")
-endmacro()
-
-macro(mk_deploy)
-	mk_message(STATUS "Deploying files: ${MK_${PROJECT_NAME}_RUNTIME_LIBRARIES}")
-
-	foreach (FILE ${MK_${PROJECT_NAME}_RUNTIME_LIBRARIES})
-		if (IS_ABSOLUTE ${FILE})
-			set(FILE_ABSOLUTE_PATH ${FILE})
-		else ()
-			find_file(FILE_ABSOLUTE_PATH ${FILE})
-		endif ()
-
-		if (FILE_ABSOLUTE_PATH)
-			get_filename_component(FILE_NAME ${FILE} NAME)
-			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
-		else ()
-			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
-		endif ()
-	endforeach ()
-endmacro()

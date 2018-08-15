@@ -1,27 +1,26 @@
 {
+  // MakeKit CMakeSettings.json
   // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
+
+  "environments": [
+    {
+      "MK_BUILD_DIR_PREFIX": "${workspaceRoot}\\build.",
+      "MK_INSTALL_DIR_PREFIX": "${workspaceRoot}\\build.",
+      "MK_MAX_THREADS": "", // To limit the number of parallel build threads, set it to "-j N" where N is the number of threads
+      "MK_TOOLCHAIN": "llvm.native"
+    }
+  ],
   "configurations": [
     {
       "name": "Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
-      "buildCommandArgs": "-j 8",
-      "ctestCommandArgs": "",
-      "variables": []
-    },
-    {
-      "name": "Release - DebugInfo",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
-      "buildCommandArgs": "-j 8",
+      "intelliSenseMode": "windows-msvc-x64",
+      "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     },
@@ -30,22 +29,37 @@
       "generator": "Ninja",
       "configurationType": "Release",
       "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
-      "buildCommandArgs": "-j 8",
+      "intelliSenseMode": "windows-msvc-x64",
+      "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     },
     {
-      "name": "Release - MinSize",
+      "name": "RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "intelliSenseMode": "windows-msvc-x64",
+      "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
+      "ctestCommandArgs": "",
+      "variables": []
+    },
+    {
+      "name": "MinSizeRel",
       "generator": "Ninja",
       "configurationType": "MinSizeRel",
       "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-D CMAKE_C_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_CXX_COMPILER:FILEPATH=clang-cl.exe -D CMAKE_RC_COMPILER::FILEPATH=rc.exe -D CMAKE_LINKER:FILEPATH=lld-link.exe",
-      "buildCommandArgs": "-j 8",
+      "intelliSenseMode": "windows-msvc-x64",
+      "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
+      "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": []
     }

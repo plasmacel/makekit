@@ -1,47 +1,12 @@
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 project(untitled)
 
-#
-# MK Variables
-#
+# Set CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH $ENV{MK_DIR}/cmake)
 
-set(MK_ASM OFF)
-set(MK_BOOST OFF)
-set(MK_CUDA OFF)
-set(MK_OPENCL OFF)
-set(MK_OPENGL OFF)
-set(MK_OPENMP OFF)
-set(MK_VULKAN OFF)
-set(MK_QT OFF)
-
-set(MK_MODULE_MODE EXECUTABLE)
-set(MK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
-
-#
 # Include MakeKit
-#
+include(mk)
 
-include($ENV{MK_DIR}/cmake/mk.cmake)
-
-#
-# Additional imported libraries
-#
-
-
-
-#
-# Additional include directories
-#
-
-
-
-#
-# Additional link libraries
-#
-
-
-
-#
-# Deploy
-#
-
-
+# Add subdirectories
+# add_subdirectory(MyDirectory)

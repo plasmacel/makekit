@@ -1,12 +1,37 @@
+/*
+	MIT License
+
+	Copyright (c) 2018 Celestin de Villa
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "argh.h"
 
-static const std::string VERSION = "0.1";
-
+static const std::string VERSION = "0.2";
 static const std::string BUILD_DIR_PREFIX = "build.";
-static const std::string DEFAULT_BUILD_TYPE = "release";
+static const std::string DEFAULT_CONFIG = "Release";
+static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
 
 struct system_commands
 {
@@ -36,9 +61,9 @@ struct system_commands
 	}
 };
 
-std::string get_dir(const std::string& build_type)
+std::string get_dir(const std::string& config)
 {
-	return BUILD_DIR_PREFIX + build_type;
+	return BUILD_DIR_PREFIX + config;
 }
 
 std::string get_env_var(const std::string& variable)
@@ -51,7 +76,7 @@ std::string get_env_var(const std::string& variable)
 
 	if ((_dupenv_s(&buf, &n, variable.c_str()) == 0) && (buf != nullptr))
 	{
-		value.assign(buf, n);
+		value.assign(buf, n-1);
 		std::free(buf);
 	}
 #else
@@ -61,7 +86,12 @@ std::string get_env_var(const std::string& variable)
 	return value;
 }
 
-void where_path(const std::string& filename, system_commands& cmd)
+inline void message(system_commands& cmd, const std::string& msg)
+{
+	cmd.append("echo " + msg);
+}
+
+inline void where_path(system_commands& cmd, const std::string& filename)
 {
 #ifdef _WIN32
 	cmd.append("where " + filename);
@@ -70,10 +100,10 @@ void where_path(const std::string& filename, system_commands& cmd)
 #endif
 }
 
-bool has_path(const std::string& filename)
+inline bool has_path(const std::string& filename)
 {
 #ifdef _WIN32
-	std::system(std::string{"where /q " + filename}.c_str());
+	std::system(std::string{"where /q \"" + filename + "\""}.c_str());
 	return get_env_var("ERRORLEVEL") == "0";
 #else
 	std::system(std::string{"which " + filename}.c_str());
@@ -82,23 +112,33 @@ bool has_path(const std::string& filename)
 }
 
 #ifdef _WIN32
-void add_set_environment_command(const std::string& host_arch, const std::string& target_arch, system_commands& cmd)
+void add_set_environment_command(system_commands& cmd, const std::string& host_arch, const std::string& target_arch)
 {
 	std::string current_host_arch = get_env_var("VSCMD_ARG_HOST_ARCH");
 	std::string current_target_arch = get_env_var("VSCMD_ARG_TGT_ARCH");
 
+	/*
+	std::cout << "Current host architecture: " << current_host_arch << std::endl;
+	std::cout << "Current target architecture: " << current_target_arch << std::endl;
+
+	std::cout << "New host architecture:" << host_arch << std::endl;
+	std::cout << "New target architecture: " << target_arch << std::endl;
+	*/
+
 	if ((current_host_arch != host_arch) || (current_target_arch != target_arch))
 	{
-		cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
-		cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
-		cmd.append("del vsdevcmd_dir.txt");
-		cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
+		//cmd.append("vswhere -nologo -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vsdevcmd_dir.txt");
+		//cmd.append("set /p VSDEVCMD_DIR=< vsdevcmd_dir.txt");
+		//cmd.append("del vsdevcmd_dir.txt");
+		//cmd.append("set VSCMD_ARG_no_logo=1");
+		//cmd.append("call \"%VSDEVCMD_DIR%\\Common7\\Tools\\VsDevCmd.bat\" -arch=" +  target_arch + " -host_arch=" + host_arch);
+		cmd.append("call vsdevcmd_proxy.bat -arch=" +  target_arch + " -host_arch=" + host_arch);
 	}
 }
 
-void add_set_environment_command(const std::string& arch, system_commands& cmd)
+inline void add_set_environment_command(system_commands& cmd, const std::string& arch)
 {
-	add_set_environment_command(arch, arch, cmd);
+	add_set_environment_command(cmd, arch, arch);
 }
 #endif
 
@@ -122,58 +162,33 @@ std::string read_file(const std::string& filename)
 	return str;
 }
 
-int config(const std::string& build_type, system_commands& cmd)
+int configure(system_commands& cmd, std::string config, std::string toolchain)
 {
-	std::string cmake_build_type;
+	if (config.empty()) config = DEFAULT_CONFIG;
+	if (toolchain.empty()) toolchain = DEFAULT_TOOLCHAIN;
 
-	if (build_type == "debug")
-	{
-		cmake_build_type = "Debug";
-	}
-	else if (build_type == "release-debuginfo")
-	{
-		cmake_build_type = "RelWithDebInfo";
-	}
-	else if (build_type == "release")
-	{
-		cmake_build_type = "Release";
-	}
-	else if (build_type == "release-minsize")
-	{
-		cmake_build_type = "MinSizeRel";
-	}
-	else
-	{
-		// Using a custom build type.
-	}
+	message(cmd, "Configuring " + config + " build.");
 
 	// Compose terminal commands
 	
-	const std::string build_dir = get_dir(build_type);
+	const std::string build_dir = get_dir(config);
 
 	// Append set environment command (required on Windows only)
 
 #ifdef _WIN32
-	add_set_environment_command("x64", cmd);
-	//cmd.append("set MK_CURRENT_DIR=%cd%");
-	//cmd.append("pushd \"%MK_CURRENT_DIR%\"");
-	//cmd.append("echo good so far");
+	add_set_environment_command(cmd, "x64");
 #endif
 
 	// Append run CMake command
 
 	std::string cmake_command = "cmake .";
 	cmake_command += " -GNinja";
-	cmake_command += " -B" + build_dir;
-	cmake_command += " -DCMAKE_BUILD_TYPE=" + cmake_build_type;
+	cmake_command += " -B\"" + build_dir + "\"";
+	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
 #ifdef _WIN32
-	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/llvm.native.toolchain.cmake\"";
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/" + toolchain + ".toolchain.cmake\"";
 #else
-	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/cmake/toolchains/llvm.native.toolchain.cmake\"";
-#endif
-
-#ifdef _WIN32
-	//cmd.append("popd");
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/cmake/toolchains/" + toolchain + ".toolchain.cmake\"";
 #endif
 
 	cmd.append(cmake_command);
@@ -181,72 +196,267 @@ int config(const std::string& build_type, system_commands& cmd)
 	return 0;
 }
 
-int make(const std::string& build_type, system_commands& cmd)
+int refresh(system_commands& cmd, std::string config)
 {
-	const std::string build_dir = get_dir(build_type);
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	message(cmd, "Refreshing " + config + " build.");
+
+	// Compose terminal commands
+
+	const std::string build_dir = get_dir(config);
+
+	//#ifdef _WIN32
+	//	cmd.append("if not exist \"" + build_dir + "/CMakeCache.txt\" ( echo " + config + " config cannot be found. )");
+	//#else
+	//	cmd.append("if [ ! -f \"" + build_dir + "/CMakeCache.txt\" ]; then echo " + config + " config cannot be found.; fi");
+	//#endif
+
+	// Append run CMake command
+
+	std::string cmake_command = "cmake .";
+	cmake_command += " -GNinja";
+	cmake_command += " -B\"" + build_dir + "\"";
+	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
+
+	cmd.append(cmake_command);
+
+	return 0;
+}
+
+int make(system_commands& cmd, std::string config, const std::string& toolchain, std::string target, const std::string& max_threads, bool configure_flag, bool refresh_flag)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	const std::string build_dir = get_dir(config);
 	
-	// Config or refresh
+	// Configure or refresh
 	
-	if (config(build_type, cmd) != 0) return 1;
-	
-	// Add Ninja build command
+	if (configure_flag)
+	{
+		if (configure(cmd, config, toolchain) != 0) return 1;
+	}
+	else
+	{
+		if (!toolchain.empty())
+		{
+			message(cmd, "Toolchain is ignored without the config (-C) flag.");
+		}
+
+		if (refresh_flag)
+		{
+			if (refresh(cmd, config)) return 1;
+		}
+
+		add_set_environment_command(cmd, "x64");
+	}
+
+	// Append build commands
+
+#if 0
 
 	std::string ninja_status = read_file("mk_status.txt");
 	
 	if (!ninja_status.empty())
 	{
-	#ifdef _WIN32
+#	ifdef _WIN32
 		cmd.append("set \"NINJA_STATUS=" + ninja_status + " \"");
-	#else
+#	else
 		cmd.append("export \"NINJA_STATUS=" + ninja_status + " \"");
-	#endif
+#	endif
 	}
 
-	cmd.append("ninja -C " + build_dir);
-#ifdef _WIN32
+#endif
+
+	std::string ninja_command;
+
+	if (target.back() == '^') // Compiling a single source
+	{
+		message(cmd, "Compiling " + target.substr(0, target.size() - 1) + " using " + config + " build.");
+		ninja_command = "ninja -C \"" + build_dir + "\" \"../" + target + "\"";
+	}
+	else
+	{
+		ninja_command = "ninja -C \"" + build_dir + "\"";
+
+		if (!target.empty())
+		{
+			message(cmd, "Building target " + target + " using " + config + " build.");
+			ninja_command += " " + target;
+		}
+		else
+		{
+			message(cmd, "Building all targets using " + config + " build.");
+		}
+
+		if (!max_threads.empty() && (max_threads != "0"))
+		{
+			//message(cmd, "Maximum number of parallel build threads are limited to " + std::to_string(max_threads));
+			ninja_command += " -j " + max_threads;
+		}
+	}
+
+	cmd.append(ninja_command);
+
+#	ifdef _WIN32
 	cmd.append("if %ERRORLEVEL% == 0 ( echo Build succeeded. ) else ( echo Build failed. )");
-#else
+#	else
 	cmd.append("if [ $? -eq 0 ]; then echo Build succeeded.; else echo Build failed.; fi");
-#endif
-	//cmd.append("cmake --build " + build_dir + " --target " + build_target + " --config " + build_type);
+#	endif
+
 	return 0;
 }
 
-int clean_all(const std::string& build_type, system_commands& cmd)
+int clean_config(system_commands& cmd, const std::string& config)
 {
-	const std::string build_dir = get_dir(build_type);
+	if (config.empty()) // Clean CMakeCache.txt of ALL build configurations
+	{
+		message(cmd, "Cleaning the configuration of all builds.");
+
+#	ifdef _WIN32
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\\CMakeCache.txt\" > NUL");
+#	else
+		cmd.append("find . -mindepth 2 -maxdepth 2 -name CMakeCache.txt | xargs /bin/rm -f");
+#	endif
+	}
+	else
+	{
+		message(cmd, "Cleaning the configuration of " + config + " build.");
+
+		const std::string build_dir = get_dir(config);
+
+#	ifdef _WIN32
+		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /s /q \"" + build_dir + "\\CMakeCache.txt\" > NUL");
+#	else
+		cmd.append("/bin/rm -f \"" + build_dir + "/CMakeCache.txt\"");
+#	endif
+	}
 	
-#ifdef _WIN32
-	cmd.append("@if exist " + build_dir + " @rd /s /q " + build_dir);
-#else
-	cmd.append("rm -r -f " + build_dir);
-#endif
 	return 0;
 }
 
-int clean_config(const std::string& build_type, system_commands& cmd)
+int clean_make(system_commands& cmd, const std::string& config, const std::string& target)
 {
-	const std::string build_dir = get_dir(build_type);
+	if (config.empty())
+	{
+		if (target.empty())
+		{
+			message(cmd, "Cleaning the built binaries in all builds.");
+		}
+		else
+		{
+			message(cmd, "Cleaning the built binaries of target(s) " + target + " in all builds.");
+		}
 
-#ifdef _WIN32
-	cmd.append("@if exist " + build_dir + "\\CMakeCache.txt" + " @del /f /q " + build_dir + "\\CMakeCache.txt");
-#else
-	cmd.append("rm -f " + build_dir + "/CMakeCache.txt");
-#endif
+#	ifdef _WIN32
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @ninja -C \"%X\" -t clean " + target);
+#	else
+		cmd.append("for build_dir in `ls | grep \"" + BUILD_DIR_PREFIX + "\"`; do ninja -C \"$build_dir\" -t clean " + target + "; done");
+#	endif
+	}
+	else
+	{
+		if (target.empty())
+		{
+			message(cmd, "Cleaning the built binaries in " + config + " build.");
+		}
+		else
+		{
+			message(cmd, "Cleaning the built binaries of target(s) " + target + " in " + config + " build.");
+		}
+
+		const std::string build_dir = get_dir(config);
+
+	#if 1
+		cmd.append("ninja -C \"" + build_dir + "\" -t clean " + target);
+	#else
+		cmd.append("cmake --build \"" + build_dir + "\" --target clean"); // ONLY IF TARGET IS EMPTY
+	#endif
+	}
+	
 	return 0;
 }
 
-int clean_make(const std::string& build_type, system_commands& cmd)
+int clean_config_and_make(system_commands& cmd, const std::string& config)
 {
-	const std::string build_dir = get_dir(build_type);
+	if (config.empty()) // Clean ALL build directories
+	{
+		message(cmd, "Cleaning all builds.");
 
-	cmd.append("ninja -C " + build_dir + " -t clean");
+#	ifdef _WIN32
+		// First delete all files in the build directory and its subdirectories recursively to avoid the common problem
+		// that removing the build directory fails with error message "The directory is not empty".
+		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\" > NUL && @rd /s /q \"%X\"");
+#	else
+		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
+#	endif
+	}
+	else // Clean config build directory
+	{
+		message(cmd, "Cleaning " + config + " build.");
+
+		const std::string build_dir = get_dir(config);
+
+#	ifdef _WIN32
+		cmd.append("if exist \"" + build_dir + "\" @del /f /s /q \"" + build_dir + "\" > NUL && @rd /s /q \"" + build_dir + "\"");
+#	else
+		cmd.append("/bin/rm -rf \"" + build_dir + "\"");
+#	endif
+	}
+
+	return 0;
+}
+
+int clean(system_commands& cmd, const std::string& config, const std::string& target, bool make_flag)
+{
+	if (make_flag || !target.empty()) // Clean only the built binaries created by the make command
+	{
+		return clean_make(cmd, config, target);
+	}
+	else // Clean the whole build directory
+	{
+		return clean_config_and_make(cmd, config);
+	}
+
+	return 0;
+}
+
+int commands(system_commands& cmd, std::string config, const std::string& target)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	if (target.empty())
+	{
+		message(cmd, "Listing commands of " + config + " build.");
+	}
+	else
+	{
+		message(cmd, "Listing commands of " + config + " build target " + target + ".");
+	}
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("ninja -C \"" +  build_dir + "\" -t commands " + target);
+
+	return 0;
+}
+
+int deps(system_commands& cmd, std::string config)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	message(cmd, "Listing dependencies of " + config + " build.");
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("ninja -C \"" +  build_dir + "\" -t deps");
+
 	return 0;
 }
 
 int help(system_commands& cmd)
 {
-	cmd.append("echo God helps those who help themselves.");
+	message(cmd, "God helps those who help themselves.");
 	return 0;
 }
 
@@ -256,95 +466,136 @@ int hostinfo(system_commands& cmd)
 	return 0;
 }
 
-int refresh(const std::string& build_type, system_commands& cmd)
+int reconfig(system_commands& cmd, std::string config, const std::string& toolchain)
 {
-	return config(build_type, cmd);
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	if (clean_config(cmd, config) != 0) return 1;
+	return configure(cmd, config, toolchain);
 }
 
-int reconfig(const std::string& build_type, system_commands& cmd)
+int remake(system_commands& cmd, std::string config, const std::string& target, const std::string& max_threads, bool refresh_flag)
 {
-	if (clean_config(build_type, cmd) != 0) return 1;
-	return config(build_type, cmd);
-}
+	if (config.empty()) config = DEFAULT_CONFIG;
 
-int remake(const std::string& build_type, system_commands& cmd)
-{
-	if (clean_make(build_type, cmd) != 0) return 1;
-	return make(build_type, cmd);
+#if 1
+
+	if (clean_make(cmd, config, target) != 0) return 1;
+	return make(cmd, config, "", target, max_threads, false, refresh_flag);
+
+#else
+
+	const std::string build_dir = get_dir(config);
+
+	cmd.append("cmake --build \"" + build_dir + "\" --clean-first");
+	return 0;
+
+#endif
 }
 
 int version(system_commands& cmd)
 {
-	std::cout << VERSION << std::endl;
+	message(cmd, VERSION);
+	return 0;
+}
+
+int check_args_count(const argh::parser& args, size_t max)
+{
+	if ((args.size() + args.flags().size() + args.params().size()) > max)
+	{
+		std::cout << "WARNING Too many arguments for this command." << std::endl;
+		return 1;
+	}
+
 	return 0;
 }
 
 int main(int argc, char** argv)
 {
-	std::string command;
-	std::string build_type;
+	// Parsing arguments
+
+	std::initializer_list<char const* const> exclusive_param{ "-x", "-X", "--exclusive" };
+	std::initializer_list<char const* const> maxthreads_param{ "-j", "-J", "--maxthreads" };
+	std::initializer_list<char const* const> toolchain_param{ "-t", "-T", "--toolchain" };
+
+	argh::parser args;
+	args.add_params(exclusive_param);
+	args.add_params(maxthreads_param);
+	args.add_params(toolchain_param);
+	args.parse(argc, argv);
+
+	// Perform command
 
 	system_commands cmd;
 	int retval;
 
-	if (argc > 1) command = argv[1];
-	if (argc > 2) build_type = argv[2];
+	std::string command = args(1).str();
 
-	if (!command.empty() && build_type.empty()) build_type = DEFAULT_BUILD_TYPE;
-
+	if (command == "deps")
+	{
+		if (check_args_count(args, 3)) return 1;
+		retval = deps(cmd, args(2).str());
+		if (retval != 0) return retval;
+	}
 	if (command == "help")
 	{
-		if (argc > 2) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = help(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "host")
 	{
-		if (argc > 2) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = hostinfo(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "version")
 	{
-		if (argc > 2) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = version(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "clean")
 	{
-		retval = clean_all(build_type, cmd);
+		if (check_args_count(args, 5)) return 1;
+		retval = clean(cmd, args(2).str(), args(exclusive_param).str(), args[exclusive_param]);
 		if (retval != 0) return retval;
-		std::cout << "Cleaning " << build_type << " build..." << std::endl;
+	}
+	else if (command == "commands")
+	{
+		if (check_args_count(args, 4)) return 1;
+		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
+		if (retval != 0) return retval;
 	}
 	else if (command == "config")
 	{
-		retval = config(build_type, cmd);
+		if (check_args_count(args, 4)) return 1;
+		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
-		std::cout << "Configuring " << build_type << " build..." << std::endl;
 	}
 	else if (command == "make")
 	{
-		retval = make(build_type, cmd);
+		if (check_args_count(args, 8)) return 1;
+		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
-		std::cout << "Making " << build_type << " build..." << std::endl;
 	}
 	else if (command == "reconfig")
 	{
-		retval = reconfig(build_type, cmd);
+		if (check_args_count(args, 4)) return 1;
+		retval = reconfig(cmd, args(2).str(), args(toolchain_param).str());
 		if (retval != 0) return retval;
-		std::cout << "Reconfiguring " << build_type << " build..." << std::endl;
 	}
 	else if (command == "refresh")
 	{
-		retval = refresh(build_type, cmd);
+		if (check_args_count(args, 3)) return 1;
+		retval = refresh(cmd, args(2).str());
 		if (retval != 0) return retval;
-		std::cout << "Refresh " << build_type << " build..." << std::endl;
 	}
 	else if (command == "remake")
 	{
-		retval = remake(build_type, cmd);
+		if (check_args_count(args, 6)) return 1;
+		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
-		std::cout << "Remaking " << build_type << " build..." << std::endl;
 	}
 	else
 	{
