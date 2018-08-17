@@ -36,6 +36,17 @@ else
     exit 1
 fi
 
+echo "Detecting CMake..."
+
+if ! [ -x "$(command -v cmake)" ] ; then
+    # Install CMake
+    echo "CMake not found, installing via package manager..."
+    sudo ${PACKAGE_MANAGER} install -y cmake
+else
+    # Print CMake version
+    echo "CMake found, version: "`cmake --version | grep -Po "version \K[0-9]+.[0-9]+.*"`
+fi
+
 echo "Detecting Ninja..."
 
 if ! [ -x "$(command -v ninja)" ] ; then
@@ -112,6 +123,7 @@ fi
 
 echo "Compiling MakeKit executable..."
 
+mkdir ${DIR}/bin
 clang++ -o ${DIR}/bin/mk ${DIR}/src/mk.cpp
 
 echo "Copying files to '${MK_DIR}'..."
@@ -128,3 +140,8 @@ if [ -f /usr/local/bin/mk ] ; then
 fi
 
 sudo ln -s ${MK_DIR}/bin/mk /usr/local/bin/mk
+
+echo "Cleaning up..."
+
+rm -rf ${DIR}/bin
+

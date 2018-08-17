@@ -718,7 +718,7 @@ function(mk_target_deploy_libraries TARGET_NAME)
 					#mk_message(STATUS "Imported library: ${LIBRARY}")
 
 					if (CMAKE_BUILD_TYPE) # Get library location from TARGET poperties
-						
+
 						string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
 
 						# Try properties IMPORTED_LOCATION_<CONFIG> and LOCATION_<CONFIG>
@@ -727,6 +727,7 @@ function(mk_target_deploy_libraries TARGET_NAME)
 
 						if (NOT LIBRARY_RUNTIME)
 							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_${CMAKE_BUILD_TYPE})
+						
 						endif ()
 
 						# Try properties IMPORTED_LOCATION_<DEBUG | RELEASE> and LOCATION_<DEBUG | RELEASE>
@@ -747,6 +748,19 @@ function(mk_target_deploy_libraries TARGET_NAME)
 							endif ()
 						endif ()
 
+						if (LIBRARY_RUNTIME AND MK_OS_LINUX)
+							get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} IMPORTED_SONAME_${CMAKE_BUILD_TYPE_UPPERCASE})
+							
+							if (NOT LIBRARY_RUNTIME_SONAME)
+								get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} SONAME_${CMAKE_BUILD_TYPE_UPPERCASE})
+							endif()
+
+							if (LIBRARY_RUNTIME_SONAME)
+								get_filename_component(LIBRARY_RUNTIME_DIR ${LIBRARY_RUNTIME} DIRECTORY)
+								set(LIBRARY_RUNTIME "${LIBRARY_RUNTIME_DIR}/${LIBRARY_RUNTIME_SONAME}")
+							endif ()
+						endif ()
+
 					endif ()
 
 					# if LOCATION_<CONFIG> property is undefined, try IMPORTED_LOCATION
@@ -757,6 +771,19 @@ function(mk_target_deploy_libraries TARGET_NAME)
 					# if IMPORTED_LOCATION property is undefined, try LOCATION
 					if (NOT LIBRARY_RUNTIME)
 						get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
+					endif ()
+
+					if (LIBRARY_RUNTIME AND MK_OS_LINUX)
+						get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} IMPORTED_SONAME)
+						
+						if (NOT LIBRARY_RUNTIME_SONAME)
+							get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} SONAME)
+						endif()
+
+						if (LIBRARY_RUNTIME_SONAME)
+							get_filename_component(LIBRARY_RUNTIME_DIR ${LIBRARY_RUNTIME} DIRECTORY)
+							set(LIBRARY_RUNTIME "${LIBRARY_RUNTIME_DIR}/${LIBRARY_RUNTIME_SONAME}")
+						endif ()
 					endif ()
 				else ()
 					#mk_message(STATUS "Not an imported library: ${LIBRARY}")
