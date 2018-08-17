@@ -25,7 +25,7 @@ if (WIN32) # True when the target system is Windows, including Win64.
 	#set(CMAKE_SHARED_LINKER_FLAGS_INIT -flavor link)
 	#set(CMAKE_STATIC_LINKER_FLAGS_INIT -flavor link)
 
-	set(CMAKE_CXX_FLAGS_INIT "/std:c++17" CACHE STRING "" FORCE) # Avoid a bug with clang-cl
+	set(CMAKE_CXX_FLAGS_INIT "/std:c++17" "-Xclang -fno-delayed-template-parsing" CACHE STRING "" FORCE) # Avoid a bug with clang-cl
 
 elseif (UNIX) # True when the target system is Unix or Unix-like, including Apple Darwin and Linux.
 
