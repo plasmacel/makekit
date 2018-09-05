@@ -41,7 +41,7 @@ echo "Detecting CMake..."
 if ! [ -x "$(command -v cmake)" ] ; then
     # Install CMake
     echo "CMake not found, installing via package manager..."
-    sudo ${PACKAGE_MANAGER} install -y cmake
+    sudo ${PACKAGE_MANAGER} install -y --allow-unauthenticated cmake
 else
     # Print CMake version
     echo "CMake found, version: "`cmake --version | grep -Po "version \K[0-9]+.[0-9]+.*"`
@@ -52,7 +52,7 @@ echo "Detecting Ninja..."
 if ! [ -x "$(command -v ninja)" ] ; then
     # Install Ninja
     echo "Ninja not found, installing via package manager..."
-    sudo ${PACKAGE_MANAGER} install -y ninja-build
+    sudo ${PACKAGE_MANAGER} install -y --allow-unauthenticated ninja-build
 else
     # Print Ninja version
     echo "Ninja found, version: "`ninja --version`
@@ -84,14 +84,18 @@ else
         echo "Installing LLVM ${CLANG_LATEST_VERSION}..."
         sudo apt-add-repository "deb http://apt.llvm.org/${DIST}/ llvm-toolchain-${DIST}-${CLANG_LATEST_VERSION} main"
         sudo ${PACKAGE_MANAGER} update
-        sudo ${PACKAGE_MANAGER} install -y clang-${CLANG_LATEST_VERSION} lldb-${CLANG_LATEST_VERSION} lld-${CLANG_LATEST_VERSION}
+        sudo ${PACKAGE_MANAGER} install -y --allow-unauthenticated clang-${CLANG_LATEST_VERSION} lldb-${CLANG_LATEST_VERSION} lld-${CLANG_LATEST_VERSION}
         sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_LATEST_VERSION} 1000
         sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_LATEST_VERSION} 1000
         sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${CLANG_LATEST_VERSION} 1000
+        sudo update-alternatives --install /usr/bin/llvm-ar llvm-ar /usr/bin/llvm-ar-${CLANG_LATEST_VERSION} 1000
+        sudo update-alternatives --install /usr/bin/llvm-ranlib llvm-ranlib /usr/bin/llvm-ranlib-${CLANG_LATEST_VERSION} 1000
 
         sudo update-alternatives --config clang
         sudo update-alternatives --config clang++
         sudo update-alternatives --config ld.lld
+        sudo update-alternatives --config llvm-ar
+        sudo update-alternatives --config llvm-ranlib
     else
         echo "LLVM already at the latest version"
     fi
@@ -99,7 +103,7 @@ fi
 
 echo "installing LLVM OpenMP"
 
-sudo ${PACKAGE_MANAGER} install -y libomp5
+sudo ${PACKAGE_MANAGER} install -y --allow-unauthenticated libomp5
 
 echo "Creating required environment variables..."
 
