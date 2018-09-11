@@ -248,7 +248,10 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 			if (refresh(cmd, config)) return 1;
 		}
 
+		
+#ifdef _WIN32
 		add_set_environment_command(cmd, "x64");
+#endif
 	}
 
 	// Append build commands
