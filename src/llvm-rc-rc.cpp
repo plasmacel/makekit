@@ -28,9 +28,9 @@
 
 int main(int argc, char** argv)
 {
-	const std::regex pattern{ "((\\-D)|(\\/D)|(\\-I)|(\\/I))" };
+	const std::regex pattern{ "((\\-\\?)|(\\/\\?)|(\\-c)|(\\/c)|(\\-d)|(\\/d)|(\\-fm)|(\\/fm)|(\\-fo)|(\\/fo)|(\\-g1)|(\\/g1)|(\\-h)|(\\/h)|(\\-i)|(\\/i)|(\\-j)|(\\/j)|(\\-k)|(\\/k)|(\\-l)|(\\/l)|(\\-n)|(\\/n)|(\\-q)|(\\/q)|(\\-r)|(\\/r)|(\\-u)|(\\/u)|(\\-v)|(\\/v)|(\\-x)|(\\/x))" };
 
-	std::string cmd{ "llvm-rc " };
+	std::string cmd{ "llvm-rc ", std::regex_constants::icase };
 
 	for (int i = 1; i < argc; ++i)
 	{
