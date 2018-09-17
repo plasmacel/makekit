@@ -28,9 +28,9 @@
 
 int main(int argc, char** argv)
 {
-	const std::regex pattern{ "((\\-\\?)|(\\/\\?)|(\\-c)|(\\/c)|(\\-d)|(\\/d)|(\\-fm)|(\\/fm)|(\\-fo)|(\\/fo)|(\\-g1)|(\\/g1)|(\\-h)|(\\/h)|(\\-i)|(\\/i)|(\\-j)|(\\/j)|(\\-k)|(\\/k)|(\\-l)|(\\/l)|(\\-n)|(\\/n)|(\\-q)|(\\/q)|(\\-r)|(\\/r)|(\\-u)|(\\/u)|(\\-v)|(\\/v)|(\\-x)|(\\/x))" };
+	const std::regex pattern{ "\\s((\\-\\?)|(\\/\\?)|(\\-c)|(\\/c)|(\\-d)|(\\/d)|(\\-fm)|(\\/fm)|(\\-fo)|(\\/fo)|(\\-g1)|(\\/g1)|(\\-h)|(\\/h)|(\\-i)|(\\/i)|(\\-j)|(\\/j)|(\\-k)|(\\/k)|(\\-l)|(\\/l)|(\\-n)|(\\/n)|(\\-q)|(\\/q)|(\\-r)|(\\/r)|(\\-u)|(\\/u)|(\\-v)|(\\/v)|(\\-x)|(\\/x))", std::regex_constants::icase };
 
-	std::string cmd{ "llvm-rc ", std::regex_constants::icase };
+	std::string cmd{ "llvm-rc " };
 
 	for (int i = 1; i < argc; ++i)
 	{
@@ -38,5 +38,5 @@ int main(int argc, char** argv)
 		cmd.append(argv[i]).append(" ");
 	}
 
-	std::system(std::regex_replace(cmd, pattern, "$1 ").c_str());
+	std::system(std::regex_replace(cmd, pattern, " $1 ").c_str());
 }
