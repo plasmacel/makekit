@@ -108,7 +108,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
-		mk_message(SEND_ERROR "Qt deployment requires an EXECUTABLE target")
+		mk_message(SEND_ERROR "mk_target_deploy_Qt(...) requires an EXECUTABLE target")
 		return()
 	endif ()
 	
