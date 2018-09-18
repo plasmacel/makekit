@@ -29,6 +29,9 @@
 
 function(mk_target_link_OpenGL TARGET_NAME)
 
+	set(OPTION_KEYWORDS "DEPLOY")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
+
 	find_package(OpenGL REQUIRED)
 		
 	if (NOT OpenGL_FOUND)
@@ -45,7 +48,10 @@ function(mk_target_link_OpenGL TARGET_NAME)
 	endif ()
 
 	target_link_libraries(${TARGET_NAME} ${MK_LINK_SCOPE} OpenGL::GL)
-	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
+
+	if (ARGS_DEPLOY)
+		mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
+	endif ()
 
 	#if (OpenGL::OpenGL)
 	#	target_link_libraries(${TARGET_NAME} OpenGL::OpenGL)

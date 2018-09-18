@@ -703,6 +703,30 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 endfunction()
 
+# mk_target_deploy_files(<TARGET_NAME> [<...>])
+function(mk_target_deploy_files TARGET_NAME)
+
+	#mk_message(STATUS "Deploying files: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
+
+	foreach (FILE IN LISTS ARGN)
+		mk_message(STATUS "Deploying file: ${FILE}")
+
+		if (IS_ABSOLUTE ${FILE})
+			set(FILE_ABSOLUTE_PATH ${FILE})
+		else ()
+			find_file(FILE_ABSOLUTE_PATH ${FILE})
+		endif ()
+
+		if (FILE_ABSOLUTE_PATH)
+			get_filename_component(FILE_NAME ${FILE} NAME)
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
+		else ()
+			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
+		endif ()
+	endforeach ()
+
+endfunction()
+
 # mk_target_deploy_libraries(<TARGET_NAME> [<...>])
 # This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
 # It does nothing for non-shared libraries
@@ -781,12 +805,23 @@ function(mk_target_deploy_libraries TARGET_NAME)
 		endif ()
 
 		if (LIBRARY_RUNTIME)
-			#mk_message(STATUS "Added runtime library: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
 			set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${LIBRARY_RUNTIME} CACHE INTERNAL "")
+			mk_target_deploy_files(${TARGET_NAME} ${LIBRARY_RUNTIME})
 		endif ()
 	endforeach ()
 
 endfunction()
+
+# mk_target_deploy_resources(<TARGET_NAME> [<...>])
+# This macro adds FILES to the list of deploy resources
+macro(mk_target_deploy_resources TARGET_NAME)
+
+	#set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
+	#list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
+	set(MK_${TARGET_NAME}_DEPLOY_RESOURCES ${MK_${TARGET_NAME}_DEPLOY_RESOURCES} ${ARGN} CACHE INTERNAL "")
+	mk_target_deploy_files(${TARGET_NAME} ${ARGN})
+
+endmacro()
 
 # mk_target_link_libraries(<TARGET_NAME> [<...>])
 # This macro performs target_link_libraries(${PROJECT} ${LIBRARIES}) and mk_target_deploy_libraries(${LIBRARIES})
@@ -794,8 +829,14 @@ endfunction()
 # EXPERIMENTAL
 macro(mk_target_link_libraries TARGET_NAME)
 
-	target_link_libraries(${TARGET_NAME} ${ARGN})
-	mk_target_deploy_libraries(${ARGN})
+	set(OPTION_KEYWORDS "DEPLOY")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
+
+	target_link_libraries(${TARGET_NAME} ${ARGS_UNPARSED_ARGUMENTS})
+
+	if (ARGS_DEPLOY)
+		mk_target_deploy_libraries(${TARGET_NAME} ${ARGS_UNPARSED_ARGUMENTS})
+	endif ()
 
 endmacro()
 
@@ -815,38 +856,6 @@ macro(mk_group_sources SOURCE_DIR)
             source_group(${GROUP_NAME} FILES ${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/${CHILD})
         endif ()
     endforeach ()
-
-endmacro()
-
-# mk_target_deploy_resources(<TARGET_NAME> [<...>])
-# This macro adds FILES to the list of deploy resources
-macro(mk_target_deploy_resources TARGET_NAME)
-
-	#set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
-	#list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
-	set(MK_${TARGET_NAME}_DEPLOY_RESOURCES ${MK_${TARGET_NAME}_DEPLOY_RESOURCES} ${ARGN} CACHE INTERNAL "")
-
-endmacro()
-
-# mk_target_deploy(<TARGET_NAME>)
-macro(mk_target_deploy TARGET_NAME)
-
-	#mk_message(STATUS "Deploying files: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
-
-	foreach (FILE IN ITEMS ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${MK_${TARGET_NAME}_DEPLOY_RESOURCES})
-		if (IS_ABSOLUTE ${FILE})
-			set(FILE_ABSOLUTE_PATH ${FILE})
-		else ()
-			find_file(FILE_ABSOLUTE_PATH ${FILE})
-		endif ()
-
-		if (FILE_ABSOLUTE_PATH)
-			get_filename_component(FILE_NAME ${FILE} NAME)
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
-		else ()
-			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
-		endif ()
-	endforeach ()
 
 endmacro()
 

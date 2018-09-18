@@ -29,6 +29,9 @@
 
 function(mk_target_link_Vulkan TARGET_NAME)
 
+	set(OPTION_KEYWORDS "DEPLOY")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
+
 	find_package(Vulkan REQUIRED)
     
 	if (NOT Vulkan_FOUND)
@@ -45,6 +48,9 @@ function(mk_target_link_Vulkan TARGET_NAME)
 	endif ()
     
 	target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Vulkan::Vulkan)
-	mk_target_deploy_libraries(${TARGET_NAME} Vulkan::Vulkan)
+
+	if (ARGS_DEPLOY)
+		mk_target_deploy_libraries(${TARGET_NAME} Vulkan::Vulkan)
+	endif ()
 
 endfunction()
