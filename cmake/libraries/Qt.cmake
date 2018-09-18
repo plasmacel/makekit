@@ -111,6 +111,8 @@ function(mk_target_deploy_Qt TARGET_NAME)
 		mk_message(SEND_ERROR "Qt deployment requires an EXECUTABLE target")
 		return()
 	endif ()
+	
+	mk_message(STATUS "Deploying Qt5")
 
 	if (MK_OS_WINDOWS)
 
