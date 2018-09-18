@@ -125,7 +125,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			return()
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_FILE:${TARGET_NAME}>)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}>)
 
 	elseif (MK_OS_LINUX)
 
