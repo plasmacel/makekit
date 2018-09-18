@@ -99,7 +99,7 @@ function(mk_target_link_Qt TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
+		#mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
 	endforeach ()
 	
 endfunction()
