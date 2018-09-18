@@ -24,7 +24,7 @@
 
 #
 # Qt
-# Preconiditon: The MK_QT_DIR environmental variable must be set to a valid Qt path.
+# Precondition: The MK_QT_DIR environmental variable must be set to a valid Qt path.
 # http://doc.qt.io/qt-5/qtmodules.html
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
