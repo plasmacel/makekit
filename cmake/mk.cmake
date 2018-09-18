@@ -727,6 +727,13 @@ endfunction()
 
 function(mk_target_deploy TARGET_NAME)
 
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+
+	if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
+		mk_message(SEND_ERROR "mk_target_deploy(...) requires an EXECUTABLE target")
+		return()
+	endif ()
+
 	foreach (LIBRARY IN LISTS MK_${TARGET_NAME}_DEPLOY_LIBRARIES)
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
