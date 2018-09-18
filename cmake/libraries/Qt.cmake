@@ -33,14 +33,10 @@ set(MK_CXX_UIFILE_SUFFIX *.ui)
 
 function(mk_target_link_Qt TARGET_NAME)
 
-	set(OPTION_KEYWORDS "DEPLOY")
-	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
-	set(ARGS_MODULES ${ARGS_UNPARSED_ARGUMENTS})
-
 	# Find Qt5
 
 	set(Qt5_DIR $ENV{MK_QT_DIR}/lib/cmake/Qt5)
-	find_package(Qt5 COMPONENTS ${ARGS_MODULES} REQUIRED)
+	find_package(Qt5 COMPONENTS ${ARGN} REQUIRED)
 
 	if (NOT Qt5_FOUND)
 		mk_message(FATAL_ERROR "Qt5 libraries cannot be found!")
@@ -95,46 +91,45 @@ function(mk_target_link_Qt TARGET_NAME)
 		unset(LINK_SCOPE)
 	endif ()
 
-	foreach (QT_MODULE IN ITEMS ${ARGS_MODULES})
+	foreach (QT_MODULE IN ITEMS ${ARGN})
 		if (NOT ${QT_MODULE} IN_LIST ALL_QT_MODULES)
 			mk_message(SEND_ERROR "Skipping invalid Qt module: ${QT_MODULE}")
 			continue()
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		#mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
+		mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
 	endforeach ()
+	
+endfunction()
 
-	# DEPLOYMENT
+function(mk_target_deploy_Qt TARGET_NAME)
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
-	if (ARGS_DEPLOY)
-		get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+	if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
+		mk_message(SEND_ERROR "Qt deployment requires an EXECUTABLE target")
+		return()
+	endif ()
 
-		if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
-			mk_message(SEND_ERROR "Qt deployment requires an EXECUTABLE target")
+	if (MK_OS_WINDOWS)
+
+		#add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "windeployqt "${TARGET_NAME}".exe")
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
+
+	elseif (MK_OS_MACOS)
+			
+		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+
+		if (NOT TARGET_IS_BUNDLE)
+			mk_message(SEND_ERROR "Qt deployment on macOS requires an application bundle target")
 			return()
 		endif ()
 
-		if (MK_OS_WINDOWS)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_FILE:${TARGET_NAME}>)
 
-			#add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "windeployqt "${TARGET_NAME}".exe")
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
+	elseif (MK_OS_LINUX)
 
-		elseif (MK_OS_MACOS)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake)
 
-			get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
-
-			if (NOT TARGET_IS_BUNDLE)
-				mk_message(SEND_ERROR "Qt deployment on macOS requires an application bundle target")
-				return()
-			endif ()
-
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_FILE:${TARGET_NAME}>)
-
-		elseif (MK_OS_LINUX)
-
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake)
-
-		endif ()
 	endif ()
 endfunction()

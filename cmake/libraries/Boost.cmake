@@ -28,12 +28,8 @@
 #
 
 function(mk_target_link_boost TARGET_NAME)
-
-	set(OPTION_KEYWORDS "DEPLOY")
-	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
-	set(ARGS_MODULES ${ARGS_UNPARSED_ARGUMENTS})
-
-	find_package(Boost COMPONENTS ${ARGS_MODULES} REQUIRED)
+	
+	find_package(Boost COMPONENTS ${ARGN} REQUIRED)
     
 	if (NOT Boost_FOUND)
 		mk_message(FATAL_ERROR "Boost libraries cannot be found!")
@@ -48,12 +44,9 @@ function(mk_target_link_boost TARGET_NAME)
 		unset(LINK_SCOPE)
 	endif ()
 
-	foreach (BOOST_MODULE IN ITEMS ${ARGS_MODULES})
+	foreach (BOOST_MODULE IN ITEMS ${ARGN})
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Boost::${BOOST_MODULE})
-
-		if (ARGS_DEPLOY)
-			mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
-		endif ()
+		mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
 	endforeach ()
 
 endfunction()

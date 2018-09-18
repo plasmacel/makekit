@@ -704,9 +704,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 endfunction()
 
 # mk_target_deploy_files(<TARGET_NAME> [<...>])
-function(mk_target_deploy_files TARGET_NAME)
-
-	#mk_message(STATUS "Deploying files: ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES}")
+function(__mk_target_deploy_files TARGET_NAME)
 
 	foreach (FILE IN LISTS ARGN)
 		mk_message(STATUS "Deploying file: ${FILE}")
@@ -727,12 +725,9 @@ function(mk_target_deploy_files TARGET_NAME)
 
 endfunction()
 
-# mk_target_deploy_libraries(<TARGET_NAME> [<...>])
-# This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
-# It does nothing for non-shared libraries
-function(mk_target_deploy_libraries TARGET_NAME)
+function(mk_target_deploy TARGET_NAME)
 
-	foreach (LIBRARY IN LISTS ARGN)
+	foreach (LIBRARY IN LISTS MK_${TARGET_NAME}_DEPLOY_LIBRARIES)
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
 			#mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
@@ -805,12 +800,23 @@ function(mk_target_deploy_libraries TARGET_NAME)
 		endif ()
 
 		if (LIBRARY_RUNTIME)
-			set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${LIBRARY_RUNTIME} CACHE INTERNAL "")
-			mk_target_deploy_files(${TARGET_NAME} ${LIBRARY_RUNTIME})
+			__mk_target_deploy_files(${TARGET_NAME} ${LIBRARY_RUNTIME})
 		endif ()
 	endforeach ()
 
+	__mk_target_deploy_files(${TARGET_NAME} ${MK_${TARGET_NAME}_DEPLOY_RESOURCES})
+	mk_target_deploy_Qt(${TARGET_NAME})
+
 endfunction()
+
+# mk_target_deploy_libraries(<TARGET_NAME> [<...>])
+# This macro appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
+# It does nothing for non-shared libraries
+macro(mk_target_deploy_libraries TARGET_NAME)
+
+	set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${ARGN} CACHE INTERNAL "")
+
+endmacro()
 
 # mk_target_deploy_resources(<TARGET_NAME> [<...>])
 # This macro adds FILES to the list of deploy resources
@@ -819,7 +825,6 @@ macro(mk_target_deploy_resources TARGET_NAME)
 	#set(MK_${TARGET_NAME}_DEPLOY_FILES ${MK_DEPLOY_FILES} ${ARGN})
 	#list(APPEND MK_${TARGET_NAME}_DEPLOY_FILES ${ARGN})
 	set(MK_${TARGET_NAME}_DEPLOY_RESOURCES ${MK_${TARGET_NAME}_DEPLOY_RESOURCES} ${ARGN} CACHE INTERNAL "")
-	mk_target_deploy_files(${TARGET_NAME} ${ARGN})
 
 endmacro()
 
@@ -828,15 +833,9 @@ endmacro()
 # appends the runtime library (.dll; .dylib; .so) of shared libraries to MK_RUNTIME_LIBRARIES
 # EXPERIMENTAL
 macro(mk_target_link_libraries TARGET_NAME)
-
-	set(OPTION_KEYWORDS "DEPLOY")
-	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
-
-	target_link_libraries(${TARGET_NAME} ${ARGS_UNPARSED_ARGUMENTS})
-
-	if (ARGS_DEPLOY)
-		mk_target_deploy_libraries(${TARGET_NAME} ${ARGS_UNPARSED_ARGUMENTS})
-	endif ()
+	
+	target_link_libraries(${TARGET_NAME} ${ARGN})
+	mk_target_deploy_libraries(${TARGET_NAME} ${ARGN})
 
 endmacro()
 

@@ -28,10 +28,7 @@
 #
 
 function(mk_target_link_OpenMP TARGET_NAME)
-
-	set(OPTION_KEYWORDS "DEPLOY")
-	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "" "" ${ARGN})
-
+	
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
@@ -58,10 +55,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} ${LIBOMP_LIB})
-
-		if (ARGS_DEPLOY)
-			mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
-		endif ()
+		mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
 	else ()
 		find_package(OpenMP REQUIRED)
 
@@ -71,10 +65,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenMP::OpenMP_CXX)
-
-		if (ARGS_DEPLOY)
-			mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
-		endif ()
+		mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
 	endif ()
 
 endfunction()
