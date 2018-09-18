@@ -24,7 +24,7 @@
 
 #
 # Qt
-# Set the global MK_QT_DIR variable to the desired Qt path before calling any function in this module.
+# Preconiditon: The QTDIR environmental variable must be set to a valid Qt path.
 # http://doc.qt.io/qt-5/qtmodules.html
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
@@ -36,7 +36,7 @@ function(mk_target_link_Qt TARGET_NAME)
 
 	# Find Qt5
 
-	set(Qt5_DIR ${MK_QT_DIR}/lib/cmake/Qt5)
+	set(Qt5_DIR $ENV{QTDIR}/lib/cmake/Qt5)
 	find_package(Qt5 COMPONENTS ${ARGN} REQUIRED)
 
 	if (NOT Qt5_FOUND)
@@ -115,7 +115,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 	if (MK_OS_WINDOWS)
 
 		#add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "windeployqt "${TARGET_NAME}".exe")
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{QTDIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
 
 	elseif (MK_OS_MACOS)
 			
@@ -126,11 +126,11 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			return()
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}>)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{QTDIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}>)
 
 	elseif (MK_OS_LINUX)
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=${MK_QT_DIR}/bin/qmake)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{QTDIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{QTDIR}/bin/qmake)
 
 	endif ()
 endfunction()
