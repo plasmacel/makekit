@@ -1,4 +1,4 @@
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd | xargs dirname | xargs dirname )
 
 echo Detecting Homebrew...
 
@@ -51,6 +51,13 @@ echo Creating required environment variables...
 echo 'export MK_DIR="/usr/local/makekit"' >> ~/.bash_profile
 echo 'export MK_LLVM_DIR="/usr/local/opt/llvm"' >> ~/.bash_profile
 echo 'export MK_QT_DIR=""' >> ~/.bash_profile
+
+source ~/.bash_profile
+
+echo Compiling MakeKit executable...
+
+mkdir ${DIR}/bin
+clang++ ${DIR}/src/mk.cpp -o ${DIR}/bin/mk
 
 echo Copying files to ${MK_DIR}...
 
