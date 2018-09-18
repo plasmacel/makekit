@@ -639,7 +639,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 					set_target_properties(
 						${TARGET_NAME} PROPERTIES
 						MACOSX_BUNDLE TRUE
-						MACOSX_BUNDLE_INFO_PLIST ${ARGS_MACOS_BUNDLE_INFO_PLIST}
+						MACOSX_BUNDLE_INFO_PLIST "${ARGS_MACOS_BUNDLE_INFO_PLIST}"
 					)
 				endif ()
 		endif ()
