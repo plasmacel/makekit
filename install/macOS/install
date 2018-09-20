@@ -59,14 +59,16 @@ echo Compiling MakeKit executable...
 mkdir ${DIR}/bin
 clang++ ${DIR}/src/mk.cpp -o ${DIR}/bin/mk
 
+[ -d ${MK_DIR} ] && rm -rf ${MK_DIR}
+
 echo Copying files to ${MK_DIR}...
 
 sudo mkdir ${MK_DIR}
-sudo cp -r -v ${DIR}/bin ${MK_DIR}/bin
-sudo cp -r -v ${DIR}/cmake ${MK_DIR}/cmake
-sudo cp -r -v ${DIR}/integration ${MK_DIR}/integration
+sudo cp -r -v ${DIR}/bin ${MK_DIR}/
+sudo cp -r -v ${DIR}/cmake ${MK_DIR}/
+sudo cp -r -v ${DIR}/integration ${MK_DIR}/
 
 echo Creating required symbolic links...
 
-ln -s ${MK_LLVM_DIR}/lib/libomp.dylib /usr/local/lib/libomp.dylib
-ln -s ${MK_DIR}/bin/mk /usr/local/bin/mk
+ln -f -s ${MK_LLVM_DIR}/lib/libomp.dylib /usr/local/lib/libomp.dylib
+ln -f -s ${MK_DIR}/bin/mk /usr/local/bin/mk
