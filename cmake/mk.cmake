@@ -744,11 +744,18 @@ function(mk_target_deploy TARGET_NAME)
 
 				get_target_property(LIBRARY_IS_IMPORTED ${LIBRARY} IMPORTED)
 				
-				if (MK_OS_MACOS AND LIBRARY_IS_IMPORTED)
+				if (MK_OS_MACOS)
 					if (LIBRARY_IS_IMPORTED)
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
-							$<IF: $<EQUAL: $<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework>, $<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
+							$<IF:
+								$<EQUAL:
+									$<TARGET_FILE_DIR:${LIBRARY}>,
+									$<TARGET_FILE_NAME:${LIBRARY}>.framework>
+								>
+								$<TARGET_FILE_DIR:${LIBRARY}>,
+								$<TARGET_FILE:${LIBRARY}>
+							>
 							${TARGET_DEPLOY_PATH}/)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
