@@ -849,7 +849,6 @@ function(mk_target_deploy TARGET_NAME)
 	# Deploy Qt
 
 	mk_target_deploy_Qt(${TARGET_NAME})
-)
 
 endfunction()
 
