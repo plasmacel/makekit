@@ -742,14 +742,20 @@ function(mk_target_deploy TARGET_NAME)
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
 				mk_message(STATUS "Deploy ${LIBRARY}")
 
-				if (MK_OS_MACOS)
-					set(SRC $<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>)
-					set(DST $<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework, $<TARGET_FILE_NAME:${LIBRARY}> >)
-
-					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-						${CMAKE_COMMAND} -E copy_if_different
-						$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
-						${TARGET_DEPLOY_PATH}/$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework, $<TARGET_FILE_NAME:${LIBRARY}>>)
+				get_target_property(LIBRARY_IS_IMPORTED ${LIBRARY} IMPORTED)
+				
+				if (MK_OS_MACOS AND LIBRARY_IS_IMPORTED)
+					if (LIBRARY_IS_IMPORTED)
+						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							${CMAKE_COMMAND} -E copy_if_different
+							$<IF: $<EQUAL:$<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework>, $<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
+							${TARGET_DEPLOY_PATH}/$<IF: $<EQUAL:$<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework>, $<TARGET_FILE_NAME:${LIBRARY}>.framework, $<TARGET_FILE_NAME:${LIBRARY}>>)
+					else ()
+						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							${CMAKE_COMMAND} -E copy_if_different
+							$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
+							${TARGET_DEPLOY_PATH}/$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework, $<TARGET_FILE_NAME:${LIBRARY}>>)
+					endif ()
 				else ()
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 						${CMAKE_COMMAND} -E copy_if_different
