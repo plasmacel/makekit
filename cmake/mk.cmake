@@ -25,7 +25,8 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 include_guard(GLOBAL)
 
-set(MK_LIB_VERSION "0.2.1")
+set(MK_MODULE_VERSION "0.3")
+set(MK_FULL_DEPLOY FALSE)
 
 #
 # Check include location
@@ -178,7 +179,7 @@ else ()
 
 endif ()
 
-set(MK_CUDA_SOURCE_SUFFIX *.cu)
+set(MK_CUDA_SOURCE_PATTERN *.cu)
 
 #
 # Functions and macros
@@ -394,7 +395,7 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# CUDA source files
 
-	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CUDA_SOURCE_SUFFIX} ABSOLUTE)
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CUDA_SOURCE_PATTERN} ABSOLUTE)
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
@@ -740,7 +741,15 @@ function(mk_target_deploy TARGET_NAME)
 			
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
 				mk_message(STATUS "Deploy ${LIBRARY}")
-				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${LIBRARY}> ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
+
+				get_target_property(LIBRARY_IS_BUNDLE ${LIBRARY} MACOSX_BUNDLE)
+
+				if (MK_OS_MACOS AND LIBRARY_IS_BUNDLE)
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_BUNDLE_DIR:${LIBRARY}> ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
+				else ()
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${LIBRARY}> ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
+				endif ()
+				
 			else ()
 				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
 				continue() # Go to next iteration
@@ -761,6 +770,9 @@ function(mk_target_deploy TARGET_NAME)
 				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
 				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
 				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+			else ()
+				mk_message(SEND_ERROR "${LIBRARY_RUNTIME_FILE_NAME} cannot be found!")
+				continue()
 			endif ()
 
 		endif ()
