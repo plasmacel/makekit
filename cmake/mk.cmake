@@ -703,47 +703,6 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 endfunction()
 
-# mk_target_deploy_files(<TARGET_NAME> [<...>])
-function(__mk_target_deploy_files TARGET_NAME)
-
-	foreach (FILE IN LISTS ARGN)
-		mk_message(STATUS "Deploying file: ${FILE}")
-
-		if (IS_ABSOLUTE ${FILE})
-			set(FILE_ABSOLUTE_PATH ${FILE})
-		else ()
-			find_file(FILE_ABSOLUTE_PATH ${FILE})
-		endif ()
-		
-		# Deploy if the absolute path of the file is found
-
-		if (FILE_ABSOLUTE_PATH)
-			get_filename_component(FILE_NAME ${FILE} NAME)
-			
-			# Set deploy path
-			
-			if (MK_OS_MACOS)
-				get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
-			
-				if (TARGET_IS_BUNDLE)
-					set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
-				else ()
-					set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)	
-				endif ()
-			else ()
-				set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
-			endif ()
-		
-			# Add post-build deploy command
-		
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${TARGET_DEPLOY_PATH}/${FILE_NAME})
-		else ()
-			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
-		endif ()
-	endforeach ()
-
-endfunction()
-
 function(mk_target_deploy TARGET_NAME)
 
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
@@ -752,98 +711,73 @@ function(mk_target_deploy TARGET_NAME)
 		mk_message(SEND_ERROR "mk_target_deploy(...) requires an EXECUTABLE target")
 		return()
 	endif ()
+
+	# Set deploy path
+
+	if (MK_OS_MACOS)
+		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+			
+		if (TARGET_IS_BUNDLE)
+			set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
+		else ()
+			set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)	
+		endif ()
+	else ()
+		set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
+	endif ()
 	
 	# Deploy runtime libraries
 
-	foreach (LIBRARY IN LISTS MK_${TARGET_NAME}_DEPLOY_LIBRARIES)
+	get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
+
+	mk_message(STATUS ${TARGET_LINK_LIBRARIES})
+
+	foreach (LIBRARY IN ITEMS ${TARGET_LINK_LIBRARIES})
+
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
+
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-			#mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
+			
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-				get_target_property(LIBRARY_IMPORTED ${LIBRARY} IMPORTED)
-
-				if (LIBRARY_IMPORTED)
-					#mk_message(STATUS "Imported library: ${LIBRARY}")
-
-					if (CMAKE_BUILD_TYPE) # Get library location from TARGET poperties
-						
-						string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
-
-						# Try properties IMPORTED_LOCATION_<CONFIG> and LOCATION_<CONFIG>
-
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_${CMAKE_BUILD_TYPE})
-
-						if (NOT LIBRARY_RUNTIME)
-							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_${CMAKE_BUILD_TYPE})
-						endif ()
-
-						# Try properties IMPORTED_LOCATION_<DEBUG | RELEASE> and LOCATION_<DEBUG | RELEASE>
-
-						if (NOT LIBRARY_RUNTIME)
-							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
-							else ()
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
-							endif ()
-						endif ()
-
-						if (NOT LIBRARY_RUNTIME)
-							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_DEBUG)
-							else ()
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_RELEASE)
-							endif ()
-						endif ()
-
-					endif ()
-
-					# if LOCATION_<CONFIG> property is undefined, try IMPORTED_LOCATION
-					if (NOT LIBRARY_RUNTIME)
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION)
-					endif ()
-
-					# if IMPORTED_LOCATION property is undefined, try LOCATION
-					if (NOT LIBRARY_RUNTIME)
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
-					endif ()
-				else ()
-					#mk_message(STATUS "Not an imported library: ${LIBRARY}")
-					get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
-				endif ()
+				mk_message(STATUS "Deploying ${LIBRARY}")
+				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${LIBRARY}> ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
 			else ()
 				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
 				continue() # Go to next iteration
 			endif ()
+
 		else () # LIBRARY is a FILEPATH
-			if (MK_OS_WINDOWS) # Find corresponding .dll in ${LIBRARY_DIRECTORY} or ${LIBRARY_DIRECTORY}/../bin
+
+			if (IS_ABSOLUTE ${LIBRARY})
 				get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
-				get_filename_component(LIBRARY_NAME ${LIBRARY} NAME_WE)
-				find_file(LIBRARY_RUNTIME ${LIBRARY_NAME}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
-			else () # The corresponding runtime library is the library itself
-				get_filename_component(LIBRARY_EXT ${LIBRARY} EXT)
-				if (LIBRARY_EXT IN_LIST ".dylib;.so")
-					set(LIBRARY_RUNTIME ${LIBRARY})
-				endif ()
+				get_filename_component(LIBRARY_NAME_WE ${LIBRARY} NAME_WE)
+				find_file(LIBRARY_RUNTIME_FILE ${LIBRARY_NAME_WE}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
+			else ()
+				get_filename_component(LIBRARY_NAME_WE ${LIBRARY} NAME_WE)
+				find_file(LIBRARY_RUNTIME_FILE ${LIBRARY_NAME_WE}.dll PATHS ${CMAKE_SOURCE_DIR} NO_DEFAULT_PATH REQUIRED)
 			endif ()
+
+			if (LIBRARY_RUNTIME_FILE)
+				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
+				mk_message(STATUS "Deploying ${LIBRARY_RUNTIME_FILE_NAME}")
+				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+			endif ()
+
 		endif ()
 
-		if (LIBRARY_RUNTIME)
-			__mk_target_deploy_files(${TARGET_NAME} ${LIBRARY_RUNTIME})
-		endif ()
 	endforeach ()
 	
 	# Deploy resources
+
+	get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
 	
-	if (MK_OS_MACOS)
-		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
-		
-		if (TARGET_IS_BUNDLE)
-			set_target_properties(${TARGET_NAME} PROPERTIES RESOURCE "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
-		else ()
-			__mk_target_deploy_files(${TARGET_NAME} "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
-		endif ()
+	if (MK_OS_MACOS AND TARGET_IS_BUNDLE)
+		set_target_properties(${TARGET_NAME} PROPERTIES RESOURCE "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
 	else ()
-		__mk_target_deploy_files(${TARGET_NAME} "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
+		foreach (RESOURCE_FILE IN LISTS MK_${TARGET_NAME}_DEPLOY_RESOURCES)
+			get_filename_component(RESOURCE_FILE_NAME ${RESOURCE_FILE} NAME)
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${TARGET_DEPLOY_PATH}/${RESOURCE_FILE_NAME})
+		endforeach ()
 	endif ()
 	
 	# Deploy Qt
@@ -857,7 +791,7 @@ endfunction()
 # It does nothing for non-shared libraries
 macro(mk_target_deploy_libraries TARGET_NAME)
 
-	set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${ARGN} CACHE INTERNAL "")
+	#set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${ARGN} CACHE INTERNAL "")
 
 endmacro()
 
