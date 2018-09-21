@@ -27,6 +27,8 @@
 # https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 #
 
+set(MK_USE_LLVM_LIBOMP TRUE)
+
 function(mk_target_link_OpenMP TARGET_NAME)
 	
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
@@ -39,7 +41,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		set(COMPILE_OPTIONS_SCOPE PRIVATE)
 	endif ()
 
-	if (TRUE) # Use LLVM libomp
+	if (MK_USE_LLVM_LIBOMP) # Use LLVM libomp
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
 		find_library(LIBOMP_LIB libomp PATHS $ENV{MK_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
