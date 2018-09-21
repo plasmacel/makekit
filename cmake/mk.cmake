@@ -751,7 +751,7 @@ function(mk_target_deploy TARGET_NAME)
 							$<IF:
 								$<STREQUAL:
 									$<TARGET_FILE_DIR:${LIBRARY}>,
-									$<TARGET_FILE_NAME:${LIBRARY}>.framework>
+									$<TARGET_FILE_NAME:${LIBRARY}>.framework
 								>,
 								$<TARGET_FILE_DIR:${LIBRARY}>,
 								$<TARGET_FILE:${LIBRARY}>
