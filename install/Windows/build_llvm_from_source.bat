@@ -61,7 +61,7 @@ svn co http://llvm.org/svn/llvm-project/polly/trunk polly
 
 cd %MK_LLVM_INSTALL_DIR%
 mkdir build
-vsdevcmd -arch=x64 -host_arch=x64
+call vsdevcmd.bat -arch=x64 -host_arch=x64
 cmake llvm -Bbuild -GNinja -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=directory -DLIBOMP_ARCH=x86_64 -DLIBOMP_CXXFLAGS=/D_GNU_SOURCE -DLLVM_ENABLE_ASSERTIONS=OFF -DLIBOMP_HAVE_WEAK_ATTRIBUTE=FALSE
 ninja -C build
 
