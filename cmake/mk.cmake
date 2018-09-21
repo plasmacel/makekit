@@ -728,9 +728,9 @@ function(mk_target_deploy TARGET_NAME)
 	
 	# Deploy runtime libraries
 
-	get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
+	mk_message(STATUS "Configuring deployment")
 
-	mk_message(STATUS ${TARGET_LINK_LIBRARIES})
+	get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
 
 	foreach (LIBRARY IN ITEMS ${TARGET_LINK_LIBRARIES})
 
@@ -739,7 +739,7 @@ function(mk_target_deploy TARGET_NAME)
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
 			
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-				mk_message(STATUS "Deploying ${LIBRARY}")
+				mk_message(STATUS "Deploy ${LIBRARY}")
 				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${LIBRARY}> ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
 			else ()
 				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
@@ -759,7 +759,7 @@ function(mk_target_deploy TARGET_NAME)
 
 			if (LIBRARY_RUNTIME_FILE)
 				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
-				mk_message(STATUS "Deploying ${LIBRARY_RUNTIME_FILE_NAME}")
+				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
 				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
 			endif ()
 
