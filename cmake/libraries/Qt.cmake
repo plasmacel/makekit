@@ -112,7 +112,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 		return()
 	endif ()
 	
-	mk_message(STATUS "Deploying Qt5")
+	mk_message(STATUS "Deploy Qt5")
 
 	if (MK_OS_WINDOWS)
 
