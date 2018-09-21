@@ -726,7 +726,7 @@ function(__mk_target_deploy_files TARGET_NAME)
 				get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
 			
 				if (TARGET_IS_BUNDLE)
-					set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>)
+					set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
 				else ()
 					set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)	
 				endif ()
