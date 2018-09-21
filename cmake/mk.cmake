@@ -748,19 +748,19 @@ function(mk_target_deploy TARGET_NAME)
 					if (LIBRARY_IS_IMPORTED)
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
-							$<IF: $<EQUAL:$<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework>, $<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
-							${TARGET_DEPLOY_PATH}/$<IF: $<EQUAL:$<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework>, $<TARGET_FILE_NAME:${LIBRARY}>.framework, $<TARGET_FILE_NAME:${LIBRARY}>>)
+							$<IF: $<EQUAL: $<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework>, $<TARGET_FILE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
+							${TARGET_DEPLOY_PATH}/)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
 							$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
-							${TARGET_DEPLOY_PATH}/$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE_NAME:${LIBRARY}>.framework, $<TARGET_FILE_NAME:${LIBRARY}>>)
+							${TARGET_DEPLOY_PATH}/)
 					endif ()
 				else ()
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 						${CMAKE_COMMAND} -E copy_if_different
 						$<TARGET_FILE:${LIBRARY}>
-						${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
+						${TARGET_DEPLOY_PATH}/)
 				endif ()
 			else ()
 				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
