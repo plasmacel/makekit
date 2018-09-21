@@ -116,7 +116,6 @@ function(mk_target_deploy_Qt TARGET_NAME)
 
 	if (MK_OS_WINDOWS)
 
-		#add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "windeployqt "${TARGET_NAME}".exe")
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
 
 	elseif (MK_OS_MACOS)
