@@ -726,8 +726,11 @@ function(mk_target_deploy TARGET_NAME)
 			
 		if (TARGET_IS_BUNDLE)
 			set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
+
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+				${CMAKE_COMMAND} -E make_directory ${TARGET_DEPLOY_PATH})
 		else ()
-			set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)	
+			set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
 		endif ()
 	else ()
 		set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
@@ -749,12 +752,21 @@ function(mk_target_deploy TARGET_NAME)
 				mk_message(STATUS "Deploy ${LIBRARY}")
 
 				get_target_property(LIBRARY_IS_FRAMEWORK ${LIBRARY} FRAMEWORK)
-				
+
 				if (MK_OS_MACOS AND LIBRARY_IS_FRAMEWORK)
-					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-						${CMAKE_COMMAND} -E copy_if_different
-						$<TARGET_FILE_DIR:${LIBRARY}>
-						${TARGET_DEPLOY_PATH}/)
+					get_target_property(LIBRARY_IS_IMPORTED ${LIBRARY} IMPORTED)
+
+					if (LIBRARY_IS_IMPORTED) # $<TARGET_BUNDLE_DIR:${LIBRARY}> is not available for IMPORTED targets
+						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							${CMAKE_COMMAND} -E copy_if_different
+							$<TARGET_FILE_DIR:${LIBRARY}>
+							${TARGET_DEPLOY_PATH}/)
+					else ()
+						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							${CMAKE_COMMAND} -E copy_if_different
+							$<TARGET_BUNDLE_DIR:${LIBRARY}>
+							${TARGET_DEPLOY_PATH}/)
+					endif ()
 				else ()
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 						${CMAKE_COMMAND} -E copy_if_different
