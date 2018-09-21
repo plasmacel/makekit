@@ -714,10 +714,29 @@ function(__mk_target_deploy_files TARGET_NAME)
 		else ()
 			find_file(FILE_ABSOLUTE_PATH ${FILE})
 		endif ()
+		
+		# Deploy if the absolute path of the file is found
 
 		if (FILE_ABSOLUTE_PATH)
 			get_filename_component(FILE_NAME ${FILE} NAME)
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FILE_NAME})
+			
+			# Set deploy path
+			
+			if (MK_OS_MACOS)
+				get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+			
+				if (TARGET_IS_BUNDLE)
+					set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>)
+				else ()
+					set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)	
+				endif ()
+			else ()
+				set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
+			endif ()
+		
+			# Add post-build deploy command
+		
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${TARGET_DEPLOY_PATH}/${FILE_NAME})
 		else ()
 			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
 		endif ()
