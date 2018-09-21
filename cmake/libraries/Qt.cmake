@@ -29,9 +29,6 @@
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
-set(MK_CXX_QRCFILE_SUFFIX *.qrc)
-set(MK_CXX_UIFILE_SUFFIX *.ui)
-
 function(mk_target_link_Qt TARGET_NAME)
 
 	# Find Qt5
@@ -105,10 +102,16 @@ function(mk_target_link_Qt TARGET_NAME)
 endfunction()
 
 function(mk_target_deploy_Qt TARGET_NAME)
+
+	if (CMAKE_CROSSCOMPILING)
+		mk_message(SEND_ERROR "The Qt deployment tool supports only the native target platform!")
+		return()
+	endif ()
+
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
-		mk_message(SEND_ERROR "mk_target_deploy_Qt(...) requires an EXECUTABLE target")
+		mk_message(SEND_ERROR "mk_target_deploy_Qt(...) requires an EXECUTABLE target!")
 		return()
 	endif ()
 	
@@ -116,25 +119,42 @@ function(mk_target_deploy_Qt TARGET_NAME)
 
 	if (MK_OS_WINDOWS)
 
-		#set_target_properties(${TARGET_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
+		if (MK_FULL_DEPLOY)
+			set_target_properties(${TARGET_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+			set(QT_DEPLOY_OPTIONS --force)
+		endif ()
+
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt ${QT_DEPLOY_OPTIONS} $<TARGET_FILE:${TARGET_NAME}>)
 
 	elseif (MK_OS_MACOS)
 		
-		#set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
-		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+		if (MK_FULL_DEPLOY)
+			set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
+			set(QT_DEPLOY_OPTIONS -always-overwrite)
+		else ()
+			get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
 
-		if (NOT TARGET_IS_BUNDLE)
-			mk_message(SEND_ERROR "Qt deployment on macOS requires an application bundle target")
-			return()
+			if (NOT TARGET_IS_BUNDLE)
+				mk_message(SEND_ERROR "The Qt deployment tool on macOS requires an application bundle target")
+				return()
+			endif ()
 		endif ()
 
 		# macdeployqt strictly requires a macOS application bundle
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}>)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS})
 
 	elseif (MK_OS_LINUX)
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake)
+		if (MK_FULL_DEPLOY)
+			set(QT_DEPLOY_OPTIONS -always-overwrite)
+		endif ()
+
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS})
+
+	else ()
+
+		mk_message(SEND_ERROR "The Qt deployment tool doesn't support the target operation system!")
+		return()
 
 	endif ()
 endfunction()
