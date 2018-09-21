@@ -582,7 +582,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 	# Parse arguments
 
-	set(OPTION_KEYWORDS "NATIVE_GUI")
+	set(OPTION_KEYWORDS "WINDOWS_GUI" "MACOS_BUNDLE")
     set(SINGLE_VALUE_KEYWORDS "MACOS_BUNDLE_INFO_PLIST" "MACOS_FRAMEWORK_INFO_PLIST")
     set(MULTI_VALUE_KEYWORDS "INCLUDE" "SOURCE")
 	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
@@ -625,27 +625,30 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 		add_executable(${TARGET_NAME} ${TARGET_SOURCES}) # sources can be omitted here
 		target_include_directories(${TARGET_NAME} PRIVATE ${ARGS_INCLUDE})
-
-		# Set poperties to build as native GUI application
-		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
-		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		
 		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
-		if (ARGS_NATIVE_GUI)
-				if (MK_OS_WINDOWS)
-					set_target_properties(
-						${TARGET_NAME} PROPERTIES
-						WIN32_EXECUTABLE TRUE
-					)
-				elseif (MK_OS_MACOS)
-					set_target_properties(
-						${TARGET_NAME} PROPERTIES
-						MACOSX_BUNDLE TRUE
-						MACOSX_BUNDLE_INFO_PLIST "${ARGS_MACOS_BUNDLE_INFO_PLIST}"
-					)
-				endif ()
+		if (MK_OS_WINDOWS AND ARGS_WINDOWS_GUI)
+			set_target_properties(
+				${TARGET_NAME} PROPERTIES
+				WIN32_EXECUTABLE TRUE
+			)
 		endif ()
 
-	else ()
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		if (MK_OS_MACOS AND ARGS_MACOS_BUNDLE)
+			set_target_properties(
+				${TARGET_NAME} PROPERTIES
+				MACOSX_BUNDLE TRUE
+				MACOSX_BUNDLE_INFO_PLIST "${ARGS_MACOS_BUNDLE_INFO_PLIST}"
+			)
+		endif ()
+
+	else () # Library
+
+		if (MK_OS_WINDOWS AND ARGS_WINDOWS_GUI)
+			mk_message(WARNING "WINDOWS_GUI option is ignored for library targets")
+		endif ()
 		
 		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
 
@@ -672,9 +675,12 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 			add_library(${TARGET_NAME} ${TARGET_LIBRARY_TYPE} ${TARGET_SOURCES}) # sources can be omitted here, except for object libraries
 			target_include_directories(${TARGET_NAME} PUBLIC ${ARGS_INCLUDE} PRIVATE ${SOURCE_DIR})
 
-			if (ARGS_MACOS_FRAMEWORK_INFO_PLIST AND MK_OS_MACOS)
+			# https://cmake.org/cmake/help/latest/prop_tgt/FRAMEWORK.html
+			# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_FRAMEWORK_INFO_PLIST.html
+			if (MK_OS_MACOS AND ARGS_MACOS_BUNDLE)
 				set_target_properties(
 					${TARGET_NAME} PROPERTIES
+					FRAMEWORK TRUE
 					MACOSX_FRAMEWORK_INFO_PLIST "${ARGS_MACOS_FRAMEWORK_INFO_PLIST}"
 				)
 			endif ()
@@ -742,31 +748,13 @@ function(mk_target_deploy TARGET_NAME)
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
 				mk_message(STATUS "Deploy ${LIBRARY}")
 
-				get_target_property(LIBRARY_IS_IMPORTED ${LIBRARY} IMPORTED)
+				get_target_property(LIBRARY_IS_FRAMEWORK ${LIBRARY} FRAMEWORK)
 				
-				if (MK_OS_MACOS)
-					if (LIBRARY_IS_IMPORTED)
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_if_different
-							$<IF:
-								$<STREQUAL:
-									$<TARGET_FILE_DIR:${LIBRARY}>,
-									$<TARGET_FILE_NAME:${LIBRARY}>.framework
-								>,
-								$<TARGET_FILE_DIR:${LIBRARY}>,
-								$<TARGET_FILE:${LIBRARY}>
-							>
-							${TARGET_DEPLOY_PATH}/)
-					else ()
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_if_different
-							$<IF:
-								$<TARGET_BUNDLE_DIR:${LIBRARY}>,
-								$<TARGET_BUNDLE_DIR:${LIBRARY}>,
-								$<TARGET_FILE:${LIBRARY}>
-							>
-							${TARGET_DEPLOY_PATH}/)
-					endif ()
+				if (MK_OS_MACOS AND LIBRARY_IS_FRAMEWORK)
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+						${CMAKE_COMMAND} -E copy_if_different
+						$<TARGET_FILE_DIR:${LIBRARY}>
+						${TARGET_DEPLOY_PATH}/)
 				else ()
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 						${CMAKE_COMMAND} -E copy_if_different
@@ -800,7 +788,7 @@ function(mk_target_deploy TARGET_NAME)
 			if (LIBRARY_RUNTIME_FILE)
 				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
 				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
-				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/)
 			else ()
 				mk_message(SEND_ERROR "${LIBRARY_NAME_WE} runtime library cannot be found!")
 				continue()
@@ -819,7 +807,7 @@ function(mk_target_deploy TARGET_NAME)
 	else ()
 		foreach (RESOURCE_FILE IN LISTS MK_${TARGET_NAME}_DEPLOY_RESOURCES)
 			get_filename_component(RESOURCE_FILE_NAME ${RESOURCE_FILE} NAME)
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${TARGET_DEPLOY_PATH}/${RESOURCE_FILE_NAME})
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${TARGET_DEPLOY_PATH}/)
 		endforeach ()
 	endif ()
 	
