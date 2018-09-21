@@ -752,6 +752,8 @@ function(mk_target_deploy TARGET_NAME)
 		mk_message(SEND_ERROR "mk_target_deploy(...) requires an EXECUTABLE target")
 		return()
 	endif ()
+	
+	# Deploy runtime libraries
 
 	foreach (LIBRARY IN LISTS MK_${TARGET_NAME}_DEPLOY_LIBRARIES)
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
@@ -829,8 +831,23 @@ function(mk_target_deploy TARGET_NAME)
 			__mk_target_deploy_files(${TARGET_NAME} ${LIBRARY_RUNTIME})
 		endif ()
 	endforeach ()
+	
+	# Deploy resources
+	
+	if (MK_OS_MACOS)
+		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+		
+		if (TARGET_IS_BUNDLE)
+			set_target_properties(${TARGET_NAME} PROPERTIES RESOURCE "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
+		else ()
+			__mk_target_deploy_files(${TARGET_NAME} "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
+		endif ()
+	else ()
+		__mk_target_deploy_files(${TARGET_NAME} "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
+	endif ()
+	
+	# Deploy Qt
 
-	__mk_target_deploy_files(${TARGET_NAME} ${MK_${TARGET_NAME}_DEPLOY_RESOURCES})
 	mk_target_deploy_Qt(${TARGET_NAME})
 
 endfunction()
