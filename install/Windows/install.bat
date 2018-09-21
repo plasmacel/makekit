@@ -99,6 +99,7 @@ if %ERRORLEVEL% == 0 (
 	echo CMake is OK!
 ) else (
 	echo Error: CMake cannot be found in PATH!
+	set /p dummy=Press ENTER...
 	exit /b 1
 )
 
@@ -108,6 +109,7 @@ if %ERRORLEVEL% == 0 (
 	echo Ninja is OK!
 ) else (
 	echo Error: Ninja cannot be found in PATH!
+	set /p dummy=Press ENTER...
 	exit /b 1
 )
 
@@ -117,6 +119,7 @@ if %ERRORLEVEL% == 0 (
 	echo clang-cl is OK!
 ) else (
 	echo Error: clang-cl cannot be found in PATH!
+	set /p dummy=Press ENTER...
 	exit /b 1
 )
 
@@ -136,6 +139,7 @@ cd "%~dp0\..\.."
 ::	echo Build configuration succeeded.
 ::) else (
 ::	echo Error: Build configuration failed!
+::	set /p dummy=Press ENTER...
 ::	exit /b 1
 ::)
 
@@ -148,6 +152,7 @@ if %ERRORLEVEL% == 0 (
 	echo Build succeeded.
 ) else (
 	echo Error: Build failed!
+	set /p dummy=Press ENTER...
 	exit /b 1
 )
 
