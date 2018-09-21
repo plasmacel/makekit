@@ -125,7 +125,7 @@ if %ERRORLEVEL% == 0 (
 echo.
 echo Building source...
 
-call vsdevcmd_proxy.bat -arch=x64 -host_arch=x64
+call %~dp0\vsdevcmd_proxy.bat -arch=x64 -host_arch=x64
 
 cd "%~dp0\..\.."
 ::cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
