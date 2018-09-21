@@ -749,10 +749,10 @@ function(mk_target_deploy TARGET_NAME)
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
 							$<IF:
-								$<EQUAL:
+								$<STREQUAL:
 									$<TARGET_FILE_DIR:${LIBRARY}>,
 									$<TARGET_FILE_NAME:${LIBRARY}>.framework>
-								>
+								>,
 								$<TARGET_FILE_DIR:${LIBRARY}>,
 								$<TARGET_FILE:${LIBRARY}>
 							>
