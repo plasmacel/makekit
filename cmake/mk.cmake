@@ -760,7 +760,11 @@ function(mk_target_deploy TARGET_NAME)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
-							$<IF:$<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_BUNDLE_DIR:${LIBRARY}>, $<TARGET_FILE:${LIBRARY}>>
+							$<IF:
+								$<TARGET_BUNDLE_DIR:${LIBRARY}>,
+								$<TARGET_BUNDLE_DIR:${LIBRARY}>,
+								$<TARGET_FILE:${LIBRARY}>
+							>
 							${TARGET_DEPLOY_PATH}/)
 					endif ()
 				else ()
