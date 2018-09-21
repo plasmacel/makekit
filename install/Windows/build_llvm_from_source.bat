@@ -41,21 +41,22 @@ cd %MK_LLVM_INSTALL_DIR%/tools
 svn co http://llvm.org/svn/llvm-project/polly/trunk polly
 
 :: libc++ and libc++abi
-cd %MK_LLVM_INSTALL_DIR%/projects
-svn co http://llvm.org/svn/llvm-project/libcxx/trunk libcxx
-svn co http://llvm.org/svn/llvm-project/libcxxabi/trunk libcxxabi
+:: cd %MK_LLVM_INSTALL_DIR%/projects
+:: svn co http://llvm.org/svn/llvm-project/libcxx/trunk libcxx
+:: svn co http://llvm.org/svn/llvm-project/libcxxabi/trunk libcxxabi
 
 :: Test Suite
-cd %MK_LLVM_INSTALL_DIR%/projects
-svn co http://llvm.org/svn/llvm-project/test-suite/trunk test-suite
+:: cd %MK_LLVM_INSTALL_DIR%/projects
+:: svn co http://llvm.org/svn/llvm-project/test-suite/trunk test-suite
 
 :: Build LLVM
 
 cd %MK_LLVM_INSTALL_DIR%
-mkdir build && cd build
-cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=directory -DLIBOMP_ARCH=x86_64 -DLIBOMP_CXXFLAGS=/D_GNU_SOURCE -DLLVM_ENABLE_ASSERTIONS=OFF -DLIBOMP_HAVE_WEAK_ATTRIBUTE=FALSE
+mkdir build
+cmake llvm -Bbuild -GNinja -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=directory -DLIBOMP_ARCH=x86_64 -DLIBOMP_CXXFLAGS=/D_GNU_SOURCE -DLLVM_ENABLE_ASSERTIONS=OFF -DLIBOMP_HAVE_WEAK_ATTRIBUTE=FALSE
+ninja -C build
+
 :: /usr/local
 :: %ProgramFiles%/LLVM
-ninja
 
 exit /b %ERRORLEVEL%
