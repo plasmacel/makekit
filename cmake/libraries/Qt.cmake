@@ -24,6 +24,7 @@
 
 #
 # Qt
+# Precondition: The MK_QT_DIR environmental variable must be set to a valid Qt path.
 # http://doc.qt.io/qt-5/qtmodules.html
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
@@ -98,7 +99,40 @@ function(mk_target_link_Qt TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
-		mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
+		#mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
 	endforeach ()
+	
+endfunction()
 
+function(mk_target_deploy_Qt TARGET_NAME)
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+
+	if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
+		mk_message(SEND_ERROR "mk_target_deploy_Qt(...) requires an EXECUTABLE target")
+		return()
+	endif ()
+	
+	mk_message(STATUS "Deploying Qt5")
+
+	if (MK_OS_WINDOWS)
+
+		#add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "windeployqt "${TARGET_NAME}".exe")
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
+
+	elseif (MK_OS_MACOS)
+			
+		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+
+		if (NOT TARGET_IS_BUNDLE)
+			mk_message(SEND_ERROR "Qt deployment on macOS requires an application bundle target")
+			return()
+		endif ()
+
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}>)
+
+	elseif (MK_OS_LINUX)
+
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake)
+
+	endif ()
 endfunction()

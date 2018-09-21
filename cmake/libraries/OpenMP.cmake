@@ -28,7 +28,7 @@
 #
 
 function(mk_target_link_OpenMP TARGET_NAME)
-
+	
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")

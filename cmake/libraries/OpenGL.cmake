@@ -28,7 +28,7 @@
 #
 
 function(mk_target_link_OpenGL TARGET_NAME)
-
+	
 	find_package(OpenGL REQUIRED)
 		
 	if (NOT OpenGL_FOUND)

@@ -28,7 +28,7 @@
 #
 
 function(mk_target_link_OpenCL TARGET_NAME)
-
+	
 	find_package(OpenCL REQUIRED)
     
 	if (NOT OpenCL_FOUND)
