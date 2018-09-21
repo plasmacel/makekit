@@ -1,5 +1,13 @@
 @echo off
 set DEFAULT_LLVM_DIR=%ProgramFiles%\LLVM
+set MK_LLVM_BRANCH=trunk
+
+set /p MK_LLVM_VER=LLVM version to install (without dots):
+if "%MK_LLVM_VER%" == "" (
+	set MK_LLVM_BRANCH=trunk
+) else (
+	set MK_LLVM_BRANCH=branches/release_%MK_LLVM_VER%
+)
 
 set /p MK_LLVM_INSTALL_DIR=LLVM installation directory (default is %DEFAULT_LLVM_DIR%):
 if "%MK_LLVM_INSTALL_DIR%" == "" (
@@ -14,48 +22,48 @@ if exist "%MK_LLVM_INSTALL_DIR%" (
 
 :: LLVM
 cd %MK_LLVM_INSTALL_DIR%
-svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm
+svn co http://llvm.org/svn/llvm-project/llvm/%MK_LLVM_BRANCH% llvm
 
 :: Compiler-RT
 cd %MK_LLVM_INSTALL_DIR%
 cd llvm/projects
-svn co http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt
+svn co http://llvm.org/svn/llvm-project/compiler-rt/%MK_LLVM_BRANCH% compiler-rt
 
 :: OpenMP
 cd %MK_LLVM_INSTALL_DIR%
 cd llvm/projects
-svn co http://llvm.org/svn/llvm-project/openmp/trunk openmp
+svn co http://llvm.org/svn/llvm-project/openmp/%MK_LLVM_BRANCH% openmp
 
 :: clang
 cd %MK_LLVM_INSTALL_DIR%
 cd llvm/tools
-svn co http://llvm.org/svn/llvm-project/cfe/trunk clang
+svn co http://llvm.org/svn/llvm-project/cfe/%MK_LLVM_BRANCH% clang
 
 :: clang-tools-extra
 cd %MK_LLVM_INSTALL_DIR%
 cd llvm/tools/clang/tools
-svn co http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra
+svn co http://llvm.org/svn/llvm-project/clang-tools-extra/%MK_LLVM_BRANCH% extra
 
 :: LLD
 cd %MK_LLVM_INSTALL_DIR%
 cd llvm/tools
-svn co http://llvm.org/svn/llvm-project/lld/trunk lld
+svn co http://llvm.org/svn/llvm-project/lld/%MK_LLVM_BRANCH% lld
 
 :: Polly Loop Optimizer
 cd %MK_LLVM_INSTALL_DIR%
 cd llvm/tools
-svn co http://llvm.org/svn/llvm-project/polly/trunk polly
+svn co http://llvm.org/svn/llvm-project/polly/%MK_LLVM_BRANCH% polly
 
 :: libc++ and libc++abi
 :: cd %MK_LLVM_INSTALL_DIR%
 :: cd llvm/projects
-:: svn co http://llvm.org/svn/llvm-project/libcxx/trunk libcxx
-:: svn co http://llvm.org/svn/llvm-project/libcxxabi/trunk libcxxabi
+:: svn co http://llvm.org/svn/llvm-project/libcxx/%MK_LLVM_BRANCH% libcxx
+:: svn co http://llvm.org/svn/llvm-project/libcxxabi/%MK_LLVM_BRANCH% libcxxabi
 
 :: Test Suite
 :: cd %MK_LLVM_INSTALL_DIR%
 :: cd llvm/projects
-:: svn co http://llvm.org/svn/llvm-project/test-suite/trunk test-suite
+:: svn co http://llvm.org/svn/llvm-project/test-suite/%MK_LLVM_BRANCH% test-suite
 
 :: Build LLVM
 
