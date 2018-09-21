@@ -116,10 +116,12 @@ function(mk_target_deploy_Qt TARGET_NAME)
 
 	if (MK_OS_WINDOWS)
 
+		#set_target_properties(${TARGET_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt $<TARGET_FILE:${TARGET_NAME}>)
 
 	elseif (MK_OS_MACOS)
-			
+		
+		#set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
 		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
 
 		if (NOT TARGET_IS_BUNDLE)
@@ -127,6 +129,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			return()
 		endif ()
 
+		# macdeployqt strictly requires a macOS application bundle
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}>)
 
 	elseif (MK_OS_LINUX)
