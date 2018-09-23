@@ -763,7 +763,7 @@ function(mk_target_deploy TARGET_NAME)
 							${TARGET_DEPLOY_PATH}/)
 
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_DIR_NAME:${LIBRARY}>)
+							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
