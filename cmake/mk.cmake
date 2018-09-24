@@ -812,8 +812,8 @@ function(mk_target_deploy TARGET_NAME)
 
 	if (MK_OS_UNIX)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-			COMMAND for f in $$(find ${TARGET_DEPLOY_PATH} -type f); do chmod u=rw- $f; done
-			COMMAND for f in $$(find ${TARGET_DEPLOY_PATH} -type d); do chmod u=rwx $f; done)
+			COMMAND for f in \$(find ${TARGET_DEPLOY_PATH} -type f); do chmod u=rw- $f; done
+			COMMAND for f in \$(find ${TARGET_DEPLOY_PATH} -type d); do chmod u=rwx $f; done)
 	endif ()
 	
 	# Deploy resources
