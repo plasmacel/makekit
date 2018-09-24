@@ -469,6 +469,17 @@ int hostinfo(system_commands& cmd)
 	return 0;
 }
 
+int install(system_commands& cmd, std::string config)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+	
+	const std::string build_dir = get_dir(config);
+	
+	cmd.append("cmake --build " + build_dir + " --target install");
+	
+	return 0;
+}
+
 int reconfig(system_commands& cmd, std::string config, const std::string& toolchain)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
@@ -574,6 +585,12 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 4)) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
+		if (retval != 0) return retval;
+	}
+	else if (command == "install")
+	{
+		if (check_args_count(args, 4)) return 1;
+		retval = install(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "make")

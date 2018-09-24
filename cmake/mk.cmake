@@ -761,28 +761,17 @@ function(mk_target_deploy TARGET_NAME)
 							${CMAKE_COMMAND} -E copy_if_different
 							$<TARGET_FILE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
-
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
 							$<TARGET_BUNDLE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
-
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
 					endif ()
 				else ()
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 						${CMAKE_COMMAND} -E copy_if_different
 						$<TARGET_FILE:${LIBRARY}>
 						${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
-
-					if (MK_OS_MACOS OR MK_OS_LINUX)
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
-					endif ()
 				endif ()
 			else ()
 				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
@@ -820,6 +809,12 @@ function(mk_target_deploy TARGET_NAME)
 		endif ()
 
 	endforeach ()
+
+	if (MK_OS_UNIX)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+			COMMAND for f in \$(find ${TARGET_DEPLOY_PATH} -type f); do chmod u=rw- $f; done
+			COMMAND for f in \$(find ${TARGET_DEPLOY_PATH} -type d); do chmod u=rwx $f; done)
+	endif ()
 	
 	# Deploy resources
 
