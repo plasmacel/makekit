@@ -760,7 +760,7 @@ function(mk_target_deploy TARGET_NAME)
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
 							$<TARGET_FILE_DIR:${LIBRARY}>
-							${TARGET_DEPLOY_PATH}/)
+							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
 
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
@@ -768,7 +768,7 @@ function(mk_target_deploy TARGET_NAME)
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							${CMAKE_COMMAND} -E copy_if_different
 							$<TARGET_BUNDLE_DIR:${LIBRARY}>
-							${TARGET_DEPLOY_PATH}/)
+							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
 
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 							chmod u+rw- ${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
@@ -777,7 +777,7 @@ function(mk_target_deploy TARGET_NAME)
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
 						${CMAKE_COMMAND} -E copy_if_different
 						$<TARGET_FILE:${LIBRARY}>
-						${TARGET_DEPLOY_PATH}/)
+						${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
 
 					if (MK_OS_MACOS OR MK_OS_LINUX)
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
