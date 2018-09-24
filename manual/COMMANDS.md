@@ -44,6 +44,12 @@ Outputs the list of available commands and their basic descriptions.
 
 Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
+#### `mk install [<CONFIG>]`
+
+Runs the install script of `<CONFIG>` build.
+
+If `<CONFIG>` is not specified, it defaults to `Release`.
+
 #### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-J <MAX_THREADS>] [-C [-T <TOOLCHAIN>]] [-R]`
 
 Creates or refreshes the build configuration specified by `<CONFIG>` and executes it, i.e. it starts the build process.
