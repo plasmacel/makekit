@@ -641,8 +641,8 @@ int main(int argc, char** argv)
 	}
 	else if (command == "get")
 	{
-		if (check_args_count(args, 4)) return 1;
-		retval = get(cmd, args(2).str(), args(3).str());
+		if (check_args_count(args, 3)) return 1;
+		retval = get(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "set")
