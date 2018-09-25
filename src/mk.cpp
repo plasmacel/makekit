@@ -457,6 +457,28 @@ int deps(system_commands& cmd, std::string config)
 	return 0;
 }
 
+int get(system_commands& cmd, const std::string& var)
+{
+#	ifdef _WIN32
+	cmd.append("echo %" + var + "%");
+#	else
+	cmd.append("echo ${" + var + "}");
+#	endif
+	
+	return 0;
+}
+
+int set(system_commands& cmd, const std::string& var, const std::string& value)
+{
+#	ifdef _WIN32
+	cmd.append("setx " + var + " " + value);
+#	else
+	cmd.append("echo 'export " + var + "=" + value + "' >> ~/.bash_profile");
+#	endif
+	
+	return 0;
+}
+
 int help(system_commands& cmd)
 {
 	message(cmd, "God helps those who help themselves.");
@@ -589,7 +611,7 @@ int main(int argc, char** argv)
 	}
 	else if (command == "install")
 	{
-		if (check_args_count(args, 4)) return 1;
+		if (check_args_count(args, 3)) return 1;
 		retval = install(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
@@ -615,6 +637,18 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 6)) return 1;
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
+		if (retval != 0) return retval;
+	}
+	else if (command == "get")
+	{
+		if (check_args_count(args, 4)) return 1;
+		retval = get(cmd, args(2).str(), args(3).str());
+		if (retval != 0) return retval;
+	}
+	else if (command == "set")
+	{
+		if (check_args_count(args, 4)) return 1;
+		retval = set(cmd, args(2).str(), args(3).str());
 		if (retval != 0) return retval;
 	}
 	else
