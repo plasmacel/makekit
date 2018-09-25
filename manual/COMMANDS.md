@@ -93,7 +93,7 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk set <VARIABLE> [<VALUE>]`
 
-Set environment variable <VARIABLE> to value <VALUE>.
+Set environment variable `<VARIABLE>` to value `<VALUE>`.
   
 If `<VALUE>` is not specified, it defaults to an empyt string.
 
