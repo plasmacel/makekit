@@ -36,6 +36,10 @@ Lists the dependencies of `<CONFIG>` build, which are available only after a suc
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
+#### `mk get [<VARIABLE>]`
+
+Get environment variable `<VARIABLE>`.
+
 #### `mk help`
 
 Outputs the list of available commands and their basic descriptions.
@@ -86,6 +90,12 @@ Arguments
 `-J` limit the number of parallel build threads
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
+
+#### `mk set <VARIABLE> [<VALUE>]`
+
+Set environment variable <VARIABLE> to value <VALUE>.
+  
+If `<VALUE>` is not specified, it defaults to an empyt string.
 
 #### `mk version`
 
