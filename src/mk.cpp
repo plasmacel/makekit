@@ -473,7 +473,7 @@ int set(system_commands& cmd, const std::string& var, const std::string& value)
 #	ifdef _WIN32
 	cmd.append("setx " + var + " " + value);
 #	else
-	cmd.append("echo 'export " + var + "=" + value + "' >> ~/.bash_profile");
+	cmd.append("echo 'export " + var + "=\"" + value + "\"' >> ~/.bash_profile");
 #	endif
 	
 	return 0;
