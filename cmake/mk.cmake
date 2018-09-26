@@ -758,12 +758,12 @@ function(mk_target_deploy TARGET_NAME)
 
 					if (LIBRARY_IS_IMPORTED) # $<TARGET_BUNDLE_DIR:${LIBRARY}> is not available for IMPORTED targets
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_if_different
+							${CMAKE_COMMAND} -E copy_directory
 							$<TARGET_FILE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_if_different
+							${CMAKE_COMMAND} -E copy_directory
 							$<TARGET_BUNDLE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
 					endif ()
@@ -800,7 +800,7 @@ function(mk_target_deploy TARGET_NAME)
 			if (LIBRARY_RUNTIME_FILE)
 				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
 				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
-				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/)
+				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
 			else ()
 				mk_message(SEND_ERROR "${LIBRARY_NAME_WE} runtime library cannot be found!")
 				continue()
@@ -812,8 +812,7 @@ function(mk_target_deploy TARGET_NAME)
 
 	if (MK_OS_UNIX)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-			COMMAND for f in \$(find ${TARGET_DEPLOY_PATH} -type f); do chmod u=rw- $f; done
-			COMMAND for f in \$(find ${TARGET_DEPLOY_PATH} -type d); do chmod u=rwx $f; done)
+			COMMAND $ENV{MK_DIR}/bin/chmod.sh ${TARGET_DEPLOY_PATH})
 	endif ()
 	
 	# Deploy resources
