@@ -203,11 +203,11 @@ function(mk_install_Qt_plugins TARGET_NAME TARGET_EXECUTABLE_FILE)
     # Collect Qt prerequisites as list of module names
 
     foreach (TARGET_DEPENDENCY IN LISTS TARGET_DEPENDENCIES)
-    get_filename_component(LIBRARY_NAME ${TARGET_DEPENDENCY} NAME_WE)
+		get_filename_component(LIBRARY_NAME ${TARGET_DEPENDENCY} NAME_WE)
 
-    if (${LIBRARY_NAME} MATCHES "^Qt.*")
-    set(BUNDLE_QT_MODULES ${BUNDLE_QT_MODULES} ${LIBRARY_NAME} CACHE INTERNAL "" FORCE)
-    endif ()
+		if (${LIBRARY_NAME} MATCHES "^Qt.*")
+			set(BUNDLE_QT_MODULES ${BUNDLE_QT_MODULES} ${LIBRARY_NAME} CACHE INTERNAL "" FORCE)
+		endif ()
     endforeach ()
 
     message(STATUS "Install Qt plugins...")
