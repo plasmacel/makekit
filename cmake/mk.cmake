@@ -278,6 +278,18 @@ function(mk_add_build_type NAME INHERIT)
 
 endfunction()
 
+macro(mk_is_debug_config VAR)
+
+	string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
+
+    if (${CMAKE_BUILD_TYPE_UPPERCASE} MATCHES "DEBUG" OR ${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST DEBUG_CONFIGURATIONS)
+		set(${VAR} TRUE)
+	else ()
+		set(${VAR} FALSE)
+	endif ()
+	
+endmacro()
+
 #
 # File operations
 #
@@ -710,127 +722,57 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 endfunction()
 
+# mk_get_target_dependencies(<VAR> <TARGET_NAME> [EXCLUDE_SYSTEM_LIBS_MODE = TRUE] [RECURSE_MODE = FALSE] [SEARCH_DIRS = ""] [SEARCH_RPATHS = ""])
+# <SEARCH_DIRS> is a list of paths where libraries might be found: these paths are searched first when a target without any path info is given.
+# Then standard system locations are also searched: PATH, Framework locations, /usr/lib…
+macro(mk_get_target_dependencies VAR TARGET_NAME)
+
+	set(TARGET_EXE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET_NAME}.app)
+	
+	if (${ARGV2})
+		set(EXCLUDE_SYSTEM_LIBS_MODE ${ARGV2})
+	else ()
+		set(EXCLUDE_SYSTEM_LIBS_MODE TRUE)
+	endif ()
+	
+	if (${ARGV3})
+		set(RECURSE_MODE ${ARGV3})
+	else ()
+		set(RECURSE_MODE FALSE)
+	endif ()
+	
+	if (${ARGV4})
+		set(SEARCH_DIRS ${ARGV4})
+	else ()
+		set(SEARCH_DIRS "")
+	endif ()
+	
+	if (${ARGV5})
+		set(SEARCH_RPATHS ${ARGV5})
+	else ()
+		set(SEARCH_RPATHS "")
+	endif ()
+
+	get_prerequisites("${TARGET_EXE_PATH}" "${VAR}" "${EXCLUDE_SYSTEM_LIBS_MODE}" "${RECURSE_MODE}" "${TARGET_EXE_PATH}" "${SEARCH_DIRS}" "${SEARCH_RPATHS}")
+
+endmacro()
+
+# mk_target_deploy(<TARGET_NAME> [PLUGINS <...>] [SEARCH <...>])
 function(mk_target_deploy TARGET_NAME)
 
-	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+    get_target_property(TARGET_IS_MACOS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
 
-	if (NOT TARGET_TYPE STREQUAL "EXECUTABLE")
-		mk_message(SEND_ERROR "mk_target_deploy(...) requires an EXECUTABLE target")
-		return()
-	endif ()
+#    if (TARGET_IS_MACOS_BUNDLE)
+#        install(TARGETS ${TARGET_NAME} BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX})
+#    else ()
+#        install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+#    endif ()
 
-	# Set deploy path
-
-	if (MK_OS_MACOS)
-		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
-			
-		if (TARGET_IS_BUNDLE)
-			set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
-
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-				${CMAKE_COMMAND} -E make_directory ${TARGET_DEPLOY_PATH})
-		else ()
-			set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
-		endif ()
-	else ()
-		set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
-	endif ()
-	
-	# Deploy runtime libraries
-
-	mk_message(STATUS "Configuring deployment")
-
-	get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
-
-	foreach (LIBRARY IN ITEMS ${TARGET_LINK_LIBRARIES})
-
-		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
-
-			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-			
-			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-				mk_message(STATUS "Deploy ${LIBRARY}")
-
-				get_target_property(LIBRARY_IS_FRAMEWORK ${LIBRARY} FRAMEWORK)
-
-				if (MK_OS_MACOS AND LIBRARY_IS_FRAMEWORK)
-					get_target_property(LIBRARY_IS_IMPORTED ${LIBRARY} IMPORTED)
-
-					if (LIBRARY_IS_IMPORTED) # $<TARGET_BUNDLE_DIR:${LIBRARY}> is not available for IMPORTED targets
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_directory
-							$<TARGET_FILE_DIR:${LIBRARY}>
-							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
-					else ()
-						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_directory
-							$<TARGET_BUNDLE_DIR:${LIBRARY}>
-							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
-					endif ()
-				else ()
-					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-						${CMAKE_COMMAND} -E copy_if_different
-						$<TARGET_FILE:${LIBRARY}>
-						${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
-				endif ()
-			else ()
-				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
-				continue() # Go to next iteration
-			endif ()
-
-		else () # LIBRARY is a FILEPATH
-
-			if (IS_ABSOLUTE ${LIBRARY})
-				if (MK_OS_WINDOWS)
-					get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
-					get_filename_component(LIBRARY_NAME_WE ${LIBRARY} NAME_WE)
-					find_file(LIBRARY_RUNTIME_FILE ${LIBRARY_NAME_WE}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
-				else ()
-					set(LIBRARY_RUNTIME_FILE ${LIBRARY})
-				endif ()
-			else ()
-				get_filename_component(LIBRARY_NAME_WE ${LIBRARY} NAME_WE)
-				if (MK_OS_WINDOWS)
-					find_file(LIBRARY_RUNTIME_FILE ${LIBRARY_NAME_WE}.dll PATHS ${CMAKE_SOURCE_DIR} NO_DEFAULT_PATH REQUIRED)
-				else ()
-					find_file(LIBRARY_RUNTIME_FILE ${LIBRARY} PATHS ${CMAKE_SOURCE_DIR} NO_DEFAULT_PATH REQUIRED)
-				endif ()
-			endif ()
-
-			if (LIBRARY_RUNTIME_FILE)
-				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
-				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
-				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
-			else ()
-				mk_message(SEND_ERROR "${LIBRARY_NAME_WE} runtime library cannot be found!")
-				continue()
-			endif ()
-
-		endif ()
-
-	endforeach ()
-
-	if (MK_OS_UNIX)
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-			COMMAND $ENV{MK_DIR}/bin/chmod.sh ${TARGET_DEPLOY_PATH})
-	endif ()
-	
-	# Deploy resources
-
-	get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
-	
-	if (MK_OS_MACOS AND TARGET_IS_BUNDLE)
-		set_target_properties(${TARGET_NAME} PROPERTIES RESOURCE "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
-	else ()
-		foreach (RESOURCE_FILE IN LISTS MK_${TARGET_NAME}_DEPLOY_RESOURCES)
-			get_filename_component(RESOURCE_FILE_NAME ${RESOURCE_FILE} NAME)
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${TARGET_DEPLOY_PATH}/)
-		endforeach ()
-	endif ()
-	
-	# Deploy Qt
-
-	mk_target_deploy_Qt(${TARGET_NAME})
+    install(CODE "
+            set(CMAKE_INSTALL_PREFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+            include($ENV{MK_DIR}/cmake/modules/InstallMK.cmake)
+            mk_install(${TARGET_NAME} ${ARGN})
+        " COMPONENT Runtime)
 
 endfunction()
 
@@ -903,8 +845,8 @@ endif ()
 #endif()
 #set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINKER_LANGUAGE CXX)
 
-include($ENV{MK_DIR}/cmake/libraries/OpenCL.cmake)
-include($ENV{MK_DIR}/cmake/libraries/OpenGL.cmake)
-include($ENV{MK_DIR}/cmake/libraries/OpenMP.cmake)
-include($ENV{MK_DIR}/cmake/libraries/Qt.cmake)
-include($ENV{MK_DIR}/cmake/libraries/Vulkan.cmake)
+include($ENV{MK_DIR}/cmake/modules/OpenCL.cmake)
+include($ENV{MK_DIR}/cmake/modules/OpenGL.cmake)
+include($ENV{MK_DIR}/cmake/modules/OpenMP.cmake)
+include($ENV{MK_DIR}/cmake/modules/Qt.cmake)
+include($ENV{MK_DIR}/cmake/modules/Vulkan.cmake)
