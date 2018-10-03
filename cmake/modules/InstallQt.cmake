@@ -183,8 +183,8 @@ function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE)
 			# Install plugin module files
 
 			get_filename_component(PLUGIN_NAME ${PLUGIN} NAME)
-			copy_resolved_item_into_bundle(${PLUGIN} "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/${PLUGIN_NAME}")
-			#file(COPY ${${PLUGIN_MODULE}_FILES} DESTINATION "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/.")
+			#copy_resolved_item_into_bundle(${PLUGIN} "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/${PLUGIN_NAME}")
+			file(COPY ${PLUGIN} DESTINATION "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/.")
 
 		endif ()
 
