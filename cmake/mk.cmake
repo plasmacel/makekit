@@ -770,8 +770,8 @@ function(mk_target_deploy TARGET_NAME)
 
     install(CODE "
             set(CMAKE_INSTALL_PREFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-            include($ENV{MK_DIR}/cmake/modules/InstallMK.cmake)
-            mk_install(${TARGET_NAME} ${ARGN})
+            include(\$ENV{MK_DIR}/cmake/modules/InstallMK.cmake)
+            mk_install(${TARGET_NAME} $<TARGET_FILE:${TARGET_NAME}> ${ARGN})
         " COMPONENT Runtime)
 
 endfunction()
