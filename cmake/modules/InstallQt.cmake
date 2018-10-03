@@ -76,26 +76,18 @@ endif ()
 
 function(mk_install_Qt_conf TARGET_NAME)
 
-    set(CONF ${ARGV1})
+    set(CONF ${ARGV2})
 
     message(STATUS "Install Qt conf file: ${BUNDLE_DIR}/${BUNDLE_CONF_DIR}/qt.conf")
 
-    if (MK_OS_WINDOWS)
-        set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/.)
-    elseif (MK_OS_MACOS)
-        set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/${TARGET_NAME}.app/Contents/Resources)
-    elseif (MK_OS_LINUX)
-        set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/.)
-    endif ()
-
-    if (EXISTS "${CONF}")
+    if (NOT "${CONF}" STREQUAL "" AND EXISTS "${CONF}")
         file(COPY ${CONF} DESTINATION ${BUNDLE_DIR}/${BUNDLE_CONF_DIR})
     else () # Write default qt.conf file
-        if (MK_OS_WINDOWS)
+        if (WIN32)
             set(CONF "[Paths]\nPlugins = ${BUNDLE_CONF_DIR}\nImports = qml\nQml2Imports = qml")
-        elseif(MK_OS_MACOS)
+        elseif(APPLE)
             set(CONF "[Paths]\nPlugins = ${BUNDLE_CONF_DIR}\nImports = Resources/qml\nQml2Imports = Resources/qml")
-        elseif(MK_OS_LINUX)
+        elseif(UNIX)
             set(CONF "[Paths]\nPlugins = ${BUNDLE_CONF_DIR}\nImports = qml\nQml2Imports = qml\nPrefix = ../")
         endif()
 
@@ -104,26 +96,10 @@ function(mk_install_Qt_conf TARGET_NAME)
 
 endfunction()
 
-macro(mk_collect_plugins VAR GROUP)
-
-    file(GLOB_RECURSE ${VAR} "$ENV{MK_QT_DIR}/plugins/${GROUP}/*${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    list(APPEND QT_PLUGINS "${BEARER_PLUGINS}")
-
-    # EXCLUDE PATTERN
-    if (NOT ${ARGV2} STREQUAL "")
-        list(FILTER ${VAR} EXCLUDE REGEX ${ARGV2})
-    endif ()
-
-endmacro()
-
-function(mk_install_Qt_plugin)
-
-endfunction()
-
 macro(mk_append_unique LIST VALUE)
 
     if (NOT ${VALUE} IN_LIST ${LIST})
-        set(${LIST} ${LIST} ${VALUE} ${ARGV2})
+        set(${LIST} ${LIST} ${VALUE} ${ARGV3})
     endif ()
 
 endmacro()
@@ -183,8 +159,8 @@ function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE)
 			# Install plugin module files
 
 			get_filename_component(PLUGIN_NAME ${PLUGIN} NAME)
-			#copy_resolved_item_into_bundle(${PLUGIN} "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/${PLUGIN_NAME}")
-			file(COPY ${PLUGIN} DESTINATION "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/.")
+			copy_resolved_item_into_bundle(${PLUGIN} "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/${PLUGIN_NAME}")
+			#file(COPY ${PLUGIN} DESTINATION "${BUNDLE_DIR}/${BUNDLE_PLUGINS_DIR}/${PLUGIN_MODULE}/.")
 
 		endif ()
 
@@ -211,13 +187,18 @@ endfunction()
 
 function(mk_install_Qt_plugins TARGET_NAME TARGET_EXECUTABLE_FILE)
 
+	set(OPTION_KEYWORDS "")
+    set(SINGLE_VALUE_KEYWORDS "")
+    set(MULTI_VALUE_KEYWORDS "SEARCH")
+    cmake_parse_arguments(PARSE_ARGV 0 "ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}")
+
     set(BUNDLE_QT_MODULES "" CACHE INTERNAL "" FORCE)
     set(BUNDLE_QT_PLUGINS "" CACHE INTERNAL "" FORCE)
     set(BUNDLE_QT_PLUGIN_MODULES "" CACHE INTERNAL "" FORCE)
 
     # Get list of unresolved prerequisites of the target executable
 
-    get_prerequisites(${TARGET_EXECUTABLE_FILE} TARGET_DEPENDENCIES 1 0 "" ${QT_MODULES_SRC_DIR})
+    get_prerequisites(${TARGET_EXECUTABLE_FILE} TARGET_DEPENDENCIES 1 0 "" "${ARGS_SEARCH};${QT_MODULES_SRC_DIR}")
 
     # Collect Qt prerequisites as list of module names
 
@@ -316,7 +297,12 @@ endfunction()
 
 function(mk_install_Qt TARGET_NAME TARGET_EXECUTABLE_FILE INSTALLED_QT_PLUGIN_FILES)
 
+	set(OPTION_KEYWORDS "")
+    set(SINGLE_VALUE_KEYWORDS "")
+    set(MULTI_VALUE_KEYWORDS "SEARCH")
+    cmake_parse_arguments(PARSE_ARGV 0 "ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}")
+
     mk_install_Qt_conf(${TARGET_NAME})
-    mk_install_Qt_plugins(${TARGET_NAME} ${TARGET_EXECUTABLE_FILE} INSTALLED_QT_PLUGIN_FILES)
+    mk_install_Qt_plugins(${TARGET_NAME} ${TARGET_EXECUTABLE_FILE} INSTALLED_QT_PLUGIN_FILES SEARCH ${ARGS_SEARCH})
 
 endfunction()
