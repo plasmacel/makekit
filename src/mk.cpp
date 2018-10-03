@@ -28,7 +28,7 @@
 #include <string>
 #include "argh.h"
 
-static const std::string VERSION = "0.3";
+static const std::string VERSION = "0.3.1";
 static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
@@ -457,7 +457,7 @@ int deps(system_commands& cmd, std::string config)
 	return 0;
 }
 
-int get(system_commands& cmd, const std::string& var)
+int getenv(system_commands& cmd, const std::string& var)
 {
 #	ifdef _WIN32
 	cmd.append("echo %" + var + "%");
@@ -468,7 +468,7 @@ int get(system_commands& cmd, const std::string& var)
 	return 0;
 }
 
-int set(system_commands& cmd, const std::string& var, const std::string& value)
+int setenv(system_commands& cmd, const std::string& var, const std::string& value)
 {
 #	ifdef _WIN32
 	cmd.append("setx " + var + " " + value);
@@ -497,6 +497,10 @@ int install(system_commands& cmd, std::string config)
 	
 	const std::string build_dir = get_dir(config);
 	
+#if _WIN32
+	add_set_environment_command(cmd, "x64");
+#endif
+
 	cmd.append("cmake --build " + build_dir + " --target install");
 	
 	return 0;
@@ -603,7 +607,7 @@ int main(int argc, char** argv)
 		retval = commands(cmd, args(2).str(), args(exclusive_param).str());
 		if (retval != 0) return retval;
 	}
-	else if (command == "config")
+	else if (command == "conf" || command == "config")
 	{
 		if (check_args_count(args, 4)) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
@@ -621,7 +625,7 @@ int main(int argc, char** argv)
 		retval = make(cmd, args(2).str(), args(toolchain_param).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-c", "-C" }], args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
-	else if (command == "reconfig")
+	else if (command == "reconf" || command == "reconfig")
 	{
 		if (check_args_count(args, 4)) return 1;
 		retval = reconfig(cmd, args(2).str(), args(toolchain_param).str());
@@ -639,16 +643,16 @@ int main(int argc, char** argv)
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
-	else if (command == "get")
+	else if (command == "getenv")
 	{
 		if (check_args_count(args, 3)) return 1;
-		retval = get(cmd, args(2).str());
+		retval = getenv(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
-	else if (command == "set")
+	else if (command == "setenv")
 	{
 		if (check_args_count(args, 4)) return 1;
-		retval = set(cmd, args(2).str(), args(3).str());
+		retval = setenv(cmd, args(2).str(), args(3).str());
 		if (retval != 0) return retval;
 	}
 	else
