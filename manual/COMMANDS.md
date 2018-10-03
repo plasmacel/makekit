@@ -36,9 +36,9 @@ Lists the dependencies of `<CONFIG>` build, which are available only after a suc
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk get [<VARIABLE>]`
+#### `mk getenv [<VARIABLE>]`
 
-Get environment variable `<VARIABLE>`.
+Gets environment variable `<VARIABLE>`.
 
 #### `mk help`
 
@@ -91,9 +91,9 @@ Arguments
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk set <VARIABLE> [<VALUE>]`
+#### `mk setenv <VARIABLE> [<VALUE>]`
 
-Set environment variable `<VARIABLE>` to value `<VALUE>`.
+Sets environment variable `<VARIABLE>` to value `<VALUE>` permanently.
   
 If `<VALUE>` is not specified, it defaults to an empyt string.
 
