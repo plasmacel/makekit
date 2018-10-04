@@ -22,10 +22,14 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # Vulkan
 # https://cmake.org/cmake/help/v3.10/module/FindVulkan.html
 #
+
+list(APPEND MK_BUILTIN_LIBRARIES Vulkan)
 
 function(mk_target_link_Vulkan TARGET_NAME)
 	
@@ -45,6 +49,6 @@ function(mk_target_link_Vulkan TARGET_NAME)
 	endif ()
     
 	target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Vulkan::Vulkan)
-	mk_target_deploy_libraries(${TARGET_NAME} Vulkan::Vulkan)
+	#mk_target_deploy_libraries(${TARGET_NAME} Vulkan::Vulkan)
 
 endfunction()

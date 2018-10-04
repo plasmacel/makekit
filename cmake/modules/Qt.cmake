@@ -22,6 +22,8 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # Qt
 # Precondition: The MK_QT_DIR environmental variable must be set to a valid Qt path.
@@ -29,7 +31,7 @@
 # http://doc.qt.io/qt-5/cmake-manual.html#imported-targets
 #
 
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+list(APPEND MK_BUILTIN_LIBRARIES Qt)
 
 function(mk_target_link_Qt TARGET_NAME)
 
@@ -71,10 +73,11 @@ function(mk_target_link_Qt TARGET_NAME)
 
 	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
+	file(GLOB_RECURSE CXX_QMFILES ${MK_CONFIGURE_DEPENDS} *.qm)
 	file(GLOB_RECURSE CXX_QRCFILES ${MK_CONFIGURE_DEPENDS} *.qrc)
 	file(GLOB_RECURSE CXX_UIFILES ${MK_CONFIGURE_DEPENDS} *.ui)
 
-	target_sources(${TARGET_NAME} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
+	target_sources(${TARGET_NAME} PRIVATE ${CXX_QMFILES} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
 
 	# This is not required, since target_link_libraries does this automatically
 	#compile_options(${TARGET_NAME} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS})

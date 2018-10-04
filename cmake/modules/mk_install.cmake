@@ -25,6 +25,36 @@
 include(BundleUtilities)
 include($ENV{MK_DIR}/cmake/modules/InstallQt.cmake)
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
+#
+# Install operations
+#
+
+# mk_get_target_dependencies(<VAR> <TARGET_BINARY_FILE> [NOSYSTEM = TRUE] [RECURSE = FALSE] [SEARCH <...>] [RPATHS <...>])
+# <SEARCH_DIRS> is a list of paths where libraries might be found: these paths are searched first when a target without any path info is given.
+# Then standard system locations are also searched: PATH, Framework locations, /usr/lib…
+macro(mk_get_dependencies VAR TARGET_BINARY_FILE)
+
+	set(OPTION_KEYWORDS "NOSYSTEM" "RECURSE")
+	set(SINGLE_VALUE_KEYWORDS "")
+	set(MULTI_VALUE_KEYWORDS "RPATHS" "SEARCH")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
+
+	if (${ARGS_NOSYSTEM} STREQUAL "")
+		set(ARGS_NOSYSTEM 1)
+	endif ()
+
+	if (${ARGS_RECURSE} STREQUAL "")
+		set(ARGS_RECURSE 0)
+	endif ()
+
+	get_filename_component(TARGET_BINARY_DIR "${TARGET_BINARY_FILE}" DIRECTORY)
+
+	get_prerequisites("${TARGET_BINARY_FILE}" "${VAR}" "${ARGS_NOSYSTEM}" "${ARGS_RECURSE}" "${TARGET_BINARY_DIR}" "${ARGS_SEARCH}" "${ARGS_RPATHS}")
+
+endmacro()
+
 function(mk_install_file TARGET_NAME PLUGIN_FILE)
     file(COPY ${PLUGIN_FILE} DESTINATION "${PLUGINS_DIR}")
 endfunction()
@@ -45,8 +75,13 @@ function(mk_install TARGET_NAME TARGET_EXECUTABLE_FILE)
 		set(TARGET_EXECUTABLE_FILE ${CMAKE_INSTALL_PREFIX}/${TARGET_NAME})
 	endif ()
 
+	# CMAKE_EXECUTABLE_SUFFIX
+	# CMAKE_<CONFIG>_POSTFIX
+
+	set(IS_DEBUG 0)
+
     if (1)
-        mk_install_Qt(${TARGET_NAME} ${TARGET_EXECUTABLE_FILE} INSTALLED_QT_PLUGINS SEARCH ${ARGS_SEARCH})
+        mk_install_Qt(${TARGET_NAME} ${TARGET_EXECUTABLE_FILE} ${IS_DEBUG} SEARCH ${ARGS_SEARCH})
     endif ()
 
     # Fixup bundle

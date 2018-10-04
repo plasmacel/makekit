@@ -22,10 +22,14 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # Boost
 # https://cmake.org/cmake/help/v3.10/module/FindBoost.html
 #
+
+list(APPEND MK_BUILTIN_LIBRARIES Boost)
 
 function(mk_target_link_boost TARGET_NAME)
 	
@@ -46,7 +50,7 @@ function(mk_target_link_boost TARGET_NAME)
 
 	foreach (BOOST_MODULE IN ITEMS ${ARGN})
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Boost::${BOOST_MODULE})
-		mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
+		#mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
 	endforeach ()
 
 endfunction()

@@ -22,10 +22,14 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # OpenCL
 # https://cmake.org/cmake/help/v3.10/module/FindOpenCL.html
 #
+
+list(APPEND MK_BUILTIN_LIBRARIES OpenCL)
 
 function(mk_target_link_OpenCL TARGET_NAME)
 	
@@ -45,6 +49,6 @@ function(mk_target_link_OpenCL TARGET_NAME)
 	endif ()
     
 	target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenCL::OpenCL)
-	mk_target_deploy_libraries(${TARGET_NAME} OpenCL::OpenCL)
+	#mk_target_deploy_libraries(${TARGET_NAME} OpenCL::OpenCL)
 
 endfunction()

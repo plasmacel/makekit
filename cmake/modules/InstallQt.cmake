@@ -31,50 +31,11 @@
 
 include(BundleUtilities)
 include(GetPrerequisites)
-#include($ENV{MK_DIR}/cmake/mk.cmake)
+include($ENV{MK_DIR}/cmake/modules/mk_config.cmake)
 
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-if (WIN32)
-    set(CMAKE_SHARED_LIBRARY_SUFFIX .dll)
-    set(BUNDLE_DIR "${CMAKE_INSTALL_PREFIX}")
-    set(BUNDLE_CONF_DIR ".")
-    set(BUNDLE_PLUGINS_DIR ".")
-	set(QT_DEBUG_SUFFIX "d")
-	set(QT_RELEASE_SUFFIX "")
-	set(QT_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/bin")
-	set(QT_PLUGIN_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/plugins")
-elseif (APPLE)
-    set(CMAKE_SHARED_LIBRARY_SUFFIX .dylib)
-    set(BUNDLE_DIR "${CMAKE_INSTALL_PREFIX}/${TARGET_NAME}.app/Contents")
-    set(BUNDLE_CONF_DIR "Resources")
-    set(BUNDLE_PLUGINS_DIR "PlugIns")
-	set(QT_DEBUG_SUFFIX "_debug")
-	set(QT_RELEASE_SUFFIX "")
-	set(QT_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/lib")
-	set(QT_PLUGIN_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/plugins")
-elseif (UNIX)
-    set(CMAKE_SHARED_LIBRARY_SUFFIX .so)
-    set(BUNDLE_DIR "${CMAKE_INSTALL_PREFIX}")
-    set(BUNDLE_CONF_DIR ".")
-    set(BUNDLE_PLUGINS_DIR "plugins")
-	set(QT_DEBUG_SUFFIX "_debug")
-	set(QT_RELEASE_SUFFIX "")
-	set(QT_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/lib")
-	set(QT_PLUGIN_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/plugins")
-else ()
-    message(FATAL_ERROR "Unsupported OS")
-endif ()
-
-if (NOT EXISTS ${QT_MODULES_SRC_DIR})
-	message(FATAL_ERROR "Qt library modules directory cannot be found: ${QT_MODULES_SRC_DIR}")
-endif ()
-
-if (NOT EXISTS ${QT_PLUGIN_MODULES_SRC_DIR})
-	message(FATAL_ERROR "Qt plugin modules directory cannot be found: ${QT_PLUGIN_MODULES_SRC_DIR}")
-endif ()
-
-function(mk_install_Qt_conf TARGET_NAME)
+function(mk_install_Qt_conf)
 
     set(CONF ${ARGV2})
 
@@ -104,7 +65,7 @@ macro(mk_append_unique LIST VALUE)
 
 endmacro()
 
-function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE)
+function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE IS_DEBUG)
 
     #get_bundle_and_exeutable(<app> <bundle_var> <executable_var> TARGET_IS_VALID)
 
@@ -114,12 +75,10 @@ function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE)
 
     # Filter plugin libraries
 
-    # TODO handle debug/release configs
-
     # Include shared (runtime) library files only
     list(FILTER ${PLUGIN_MODULE}_FILES INCLUDE REGEX "^.*\\${CMAKE_SHARED_LIBRARY_SUFFIX}$")
 
-	if (0)
+	if (${IS_DEBUG})
         list(TRANSFORM ${PLUGIN_MODULE}_FILES REPLACE "(^.*)${QT_RELEASE_SUFFIX}\\${CMAKE_SHARED_LIBRARY_SUFFIX}$" "\\1${QT_DEBUG_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}")
     else ()
         list(TRANSFORM ${PLUGIN_MODULE}_FILES REPLACE "(^.*)${QT_DEBUG_SUFFIX}\\${CMAKE_SHARED_LIBRARY_SUFFIX}$" "\\1${QT_RELEASE_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}")
@@ -185,7 +144,7 @@ function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE)
 
 endfunction()
 
-function(mk_install_Qt_plugins TARGET_NAME TARGET_EXECUTABLE_FILE)
+function(mk_install_Qt_plugins TARGET_EXECUTABLE_FILES IS_DEBUG)
 
 	set(OPTION_KEYWORDS "")
     set(SINGLE_VALUE_KEYWORDS "")
@@ -196,94 +155,99 @@ function(mk_install_Qt_plugins TARGET_NAME TARGET_EXECUTABLE_FILE)
     set(BUNDLE_QT_PLUGINS "" CACHE INTERNAL "" FORCE)
     set(BUNDLE_QT_PLUGIN_MODULES "" CACHE INTERNAL "" FORCE)
 
-    # Get list of unresolved prerequisites of the target executable
+	math(EXPR INDEX 0)
 
-    get_prerequisites(${TARGET_EXECUTABLE_FILE} TARGET_DEPENDENCIES 1 0 "" "${ARGS_SEARCH};${QT_MODULES_SRC_DIR}")
+	foreach (TARGET_EXECUTABLE_FILE IN LISTS TARGET_EXECUTABLE_FILES)
 
-    # Collect Qt prerequisites as list of module names
+		# Get list of unresolved prerequisites of the target executable
 
-    foreach (TARGET_DEPENDENCY IN LISTS TARGET_DEPENDENCIES)
-		get_filename_component(LIBRARY_NAME ${TARGET_DEPENDENCY} NAME_WE)
+		get_prerequisites(${TARGET_EXECUTABLE_FILE} TARGET_DEPENDENCIES 1 0 "" "${ARGS_SEARCH};${QT_MODULES_SRC_DIR}")
 
-		if (${LIBRARY_NAME} MATCHES "^Qt.*")
-			set(BUNDLE_QT_MODULES ${BUNDLE_QT_MODULES} ${LIBRARY_NAME} CACHE INTERNAL "" FORCE)
-		endif ()
-    endforeach ()
+		# Collect Qt prerequisites as list of module names
 
-    message(STATUS "Install Qt plugins...")
+		foreach (TARGET_DEPENDENCY IN LISTS TARGET_DEPENDENCIES)
+			get_filename_component(LIBRARY_NAME ${TARGET_DEPENDENCY} NAME_WE)
 
-    # Handle Qt prerequisites
+			if (${LIBRARY_NAME} MATCHES "^Qt.*" AND NOT ${LIBRARY_NAME} IN_LIST BUNDLE_QT_MODULES)
+				set(BUNDLE_QT_MODULES ${BUNDLE_QT_MODULES} ${LIBRARY_NAME} CACHE INTERNAL "" FORCE)
+			endif ()
+		endforeach ()
 
-    list(LENGTH BUNDLE_QT_MODULES BUNDLE_QT_MODULES_LENGTH)
-    math(EXPR INDEX 0)
+		message(STATUS "Install Qt plugins...")
 
-    while (INDEX LESS BUNDLE_QT_MODULES_LENGTH)
+		# Handle Qt prerequisites
 
-        list(GET BUNDLE_QT_MODULES ${INDEX} LIBRARY_NAME)
+		list(LENGTH BUNDLE_QT_MODULES BUNDLE_QT_MODULES_LENGTH)
 
-        #message(STATUS "Prerequisite plugins of ${LIBRARY_NAME}...")
+		while (INDEX LESS BUNDLE_QT_MODULES_LENGTH)
 
-        set(PLUGIN_SRC_DIRS "")
+			list(GET BUNDLE_QT_MODULES ${INDEX} LIBRARY_NAME)
 
-        if (${LIBRARY_NAME} MATCHES "Qt5?Core")
-            list(APPEND PLUGIN_SRC_DIRS platforms)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Declarative")
-            list(APPEND PLUGIN_SRC_DIRS qml1tooling)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?GamePad")
-            list(APPEND PLUGIN_SRC_DIRS gamepads)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Gui")
-            list(APPEND PLUGIN_SRC_DIRS accessible iconengines imageformats platforms platforminputcontexts)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Location")
-            list(APPEND PLUGIN_SRC_DIRS geoservices)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Multimedia")
-            list(APPEND PLUGIN_SRC_DIRS audio mediaservice playlistformats)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Network")
-            list(APPEND PLUGIN_SRC_DIRS bearer)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Positioning")
-            list(APPEND PLUGIN_SRC_DIRS position)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?PrintSupport")
-            list(APPEND PLUGIN_SRC_DIRS printsupport)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Quick")
-            list(APPEND PLUGIN_SRC_DIRS qmltooling scenegraph)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?QmlTooling")
-            list(APPEND PLUGIN_SRC_DIRS scenegraph)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Sensors")
-            list(APPEND PLUGIN_SRC_DIRS sensors sensorgestures)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?SerialBus")
-            list(APPEND PLUGIN_SRC_DIRS canbus)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Sql")
-            list(APPEND PLUGIN_SRC_DIRS sqldrivers)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?TextToSpeech")
-            list(APPEND PLUGIN_SRC_DIRS texttospeech)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?WebEngine")
-            list(APPEND PLUGIN_SRC_DIRS qtwebengine)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?WebEngineCore")
-            list(APPEND PLUGIN_SRC_DIRS qtwebengine)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?WebEngineWidgets")
-            list(APPEND PLUGIN_SRC_DIRS qtwebengine)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?WebView")
-            list(APPEND PLUGIN_SRC_DIRS webview)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?Widgets")
-            list(APPEND PLUGIN_SRC_DIRS styles)
-        elseif (${LIBRARY_NAME} MATCHES "Qt5?3DRenderer")
-            list(APPEND PLUGIN_SRC_DIRS geometryloaders renderplugins sceneparsers)
-        endif ()
+			#message(STATUS "Prerequisite plugins of ${LIBRARY_NAME}...")
 
-        # Install required Qt plugins for the current module
-        foreach (PLUGIN_SRC_DIR IN LISTS PLUGIN_SRC_DIRS)
+			set(PLUGIN_SRC_DIRS "")
 
-            if (NOT ${PLUGIN_SRC_DIR} IN_LIST BUNDLE_QT_PLUGIN_MODULES)
-                mk_install_Qt_plugin_module(${TARGET_EXECUTABLE_FILE} ${PLUGIN_SRC_DIR})
-            endif ()
+			if (${LIBRARY_NAME} MATCHES "Qt5?Core")
+				list(APPEND PLUGIN_SRC_DIRS platforms)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Declarative")
+				list(APPEND PLUGIN_SRC_DIRS qml1tooling)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?GamePad")
+				list(APPEND PLUGIN_SRC_DIRS gamepads)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Gui")
+				list(APPEND PLUGIN_SRC_DIRS accessible iconengines imageformats platforms platforminputcontexts)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Location")
+				list(APPEND PLUGIN_SRC_DIRS geoservices)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Multimedia")
+				list(APPEND PLUGIN_SRC_DIRS audio mediaservice playlistformats)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Network")
+				list(APPEND PLUGIN_SRC_DIRS bearer)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Positioning")
+				list(APPEND PLUGIN_SRC_DIRS position)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?PrintSupport")
+				list(APPEND PLUGIN_SRC_DIRS printsupport)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Quick")
+				list(APPEND PLUGIN_SRC_DIRS qmltooling scenegraph)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?QmlTooling")
+				list(APPEND PLUGIN_SRC_DIRS scenegraph)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Sensors")
+				list(APPEND PLUGIN_SRC_DIRS sensors sensorgestures)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?SerialBus")
+				list(APPEND PLUGIN_SRC_DIRS canbus)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Sql")
+				list(APPEND PLUGIN_SRC_DIRS sqldrivers)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?TextToSpeech")
+				list(APPEND PLUGIN_SRC_DIRS texttospeech)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?WebEngine")
+				list(APPEND PLUGIN_SRC_DIRS qtwebengine)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?WebEngineCore")
+				list(APPEND PLUGIN_SRC_DIRS qtwebengine)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?WebEngineWidgets")
+				list(APPEND PLUGIN_SRC_DIRS qtwebengine)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?WebView")
+				list(APPEND PLUGIN_SRC_DIRS webview)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?Widgets")
+				list(APPEND PLUGIN_SRC_DIRS styles)
+			elseif (${LIBRARY_NAME} MATCHES "Qt5?3DRenderer")
+				list(APPEND PLUGIN_SRC_DIRS geometryloaders renderplugins sceneparsers)
+			endif ()
 
-        endforeach ()
+			# Install required Qt plugins for the current module
+			foreach (PLUGIN_SRC_DIR IN LISTS PLUGIN_SRC_DIRS)
 
-        # Update loop condition variables
+				if (NOT ${PLUGIN_SRC_DIR} IN_LIST BUNDLE_QT_PLUGIN_MODULES)
+					mk_install_Qt_plugin_module(${TARGET_EXECUTABLE_FILE} ${PLUGIN_SRC_DIR} ${IS_DEBUG})
+				endif ()
 
-        list(LENGTH BUNDLE_QT_MODULES BUNDLE_QT_MODULES_LENGTH)
-        math(EXPR INDEX ${INDEX}+1)
+			endforeach ()
 
-    endwhile()
+			# Update loop condition variables
+
+			list(LENGTH BUNDLE_QT_MODULES BUNDLE_QT_MODULES_LENGTH)
+			math(EXPR INDEX ${INDEX}+1)
+
+		endwhile()
+
+	endforeach ()
 
     # Print install info
 
@@ -295,14 +259,60 @@ function(mk_install_Qt_plugins TARGET_NAME TARGET_EXECUTABLE_FILE)
 
 endfunction()
 
-function(mk_install_Qt TARGET_NAME TARGET_EXECUTABLE_FILE INSTALLED_QT_PLUGIN_FILES)
+function(mk_install_Qt_translations)
+
+endfunction()
+
+function(mk_install_Qt TARGET_NAME TARGET_EXECUTABLE_FILE IS_DEBUG)
 
 	set(OPTION_KEYWORDS "")
     set(SINGLE_VALUE_KEYWORDS "")
     set(MULTI_VALUE_KEYWORDS "SEARCH")
     cmake_parse_arguments(PARSE_ARGV 0 "ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}")
 
-    mk_install_Qt_conf(${TARGET_NAME})
-    mk_install_Qt_plugins(${TARGET_NAME} ${TARGET_EXECUTABLE_FILE} INSTALLED_QT_PLUGIN_FILES SEARCH ${ARGS_SEARCH})
+	if (WIN32)
+		set(CMAKE_SHARED_LIBRARY_SUFFIX .dll CACHE INTERNAL "" FORCE)
+		set(BUNDLE_DIR "${CMAKE_INSTALL_PREFIX}" CACHE INTERNAL "" FORCE)
+		set(BUNDLE_CONF_DIR "." CACHE INTERNAL "" FORCE)
+		set(BUNDLE_PLUGINS_DIR "." CACHE INTERNAL "" FORCE)
+		set(QT_DEBUG_SUFFIX "d" CACHE INTERNAL "" FORCE)
+		set(QT_RELEASE_SUFFIX "" CACHE INTERNAL "" FORCE)
+		set(QT_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/bin" CACHE INTERNAL "" FORCE)
+		set(QT_PLUGIN_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/plugins" CACHE INTERNAL "" FORCE)
+	elseif (APPLE)
+		set(CMAKE_SHARED_LIBRARY_SUFFIX .dylib CACHE INTERNAL "" FORCE)
+		set(BUNDLE_DIR "${CMAKE_INSTALL_PREFIX}/${TARGET_NAME}.app/Contents" CACHE INTERNAL "" FORCE)
+		set(BUNDLE_CONF_DIR "Resources" CACHE INTERNAL "" FORCE)
+		set(BUNDLE_PLUGINS_DIR "PlugIns" CACHE INTERNAL "" FORCE)
+		set(QT_DEBUG_SUFFIX "_debug" CACHE INTERNAL "" FORCE)
+		set(QT_RELEASE_SUFFIX "" CACHE INTERNAL "" FORCE)
+		set(QT_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/lib" CACHE INTERNAL "" FORCE)
+		set(QT_PLUGIN_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/plugins" CACHE INTERNAL "" FORCE)
+	elseif (UNIX)
+		set(CMAKE_SHARED_LIBRARY_SUFFIX .so CACHE INTERNAL "" FORCE)
+		set(BUNDLE_DIR "${CMAKE_INSTALL_PREFIX}" CACHE INTERNAL "" FORCE)
+		set(BUNDLE_CONF_DIR "." CACHE INTERNAL "" FORCE)
+		set(BUNDLE_PLUGINS_DIR "plugins" CACHE INTERNAL "" FORCE)
+		set(QT_DEBUG_SUFFIX "_debug" CACHE INTERNAL "" FORCE)
+		set(QT_RELEASE_SUFFIX "" CACHE INTERNAL "" FORCE)
+		set(QT_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/lib" CACHE INTERNAL "" FORCE)
+		set(QT_PLUGIN_MODULES_SRC_DIR "$ENV{MK_QT_DIR}/plugins" CACHE INTERNAL "" FORCE)
+	else ()
+		message(FATAL_ERROR "Unsupported OS")
+	endif ()
+
+	if (NOT EXISTS ${QT_MODULES_SRC_DIR})
+		message(FATAL_ERROR "Qt library modules directory cannot be found: ${QT_MODULES_SRC_DIR}")
+		return()
+	endif ()
+
+	if (NOT EXISTS ${QT_PLUGIN_MODULES_SRC_DIR})
+		message(FATAL_ERROR "Qt plugin modules directory cannot be found: ${QT_PLUGIN_MODULES_SRC_DIR}")
+		return()
+	endif ()
+
+    mk_install_Qt_conf()
+    mk_install_Qt_plugins(${TARGET_EXECUTABLE_FILE} ${IS_DEBUG} SEARCH ${ARGS_SEARCH})
+	mk_install_Qt_translations()
 
 endfunction()
