@@ -23,6 +23,7 @@
 #
 
 include($ENV{MK_DIR}/cmake/modules/mk_defs.cmake)
+include($ENV{MK_DIR}/cmake/modules/mk_config.cmake)
 include($ENV{MK_DIR}/cmake/modules/mk_file.cmake)
 
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
@@ -288,10 +289,12 @@ function(mk_target_deploy TARGET_NAME)
 
 	#install(TARGETS ${TARGET_NAME} RESOURCE DESTINATION ${BUNDLE_RESOURCE_DIR})
 
+	mk_is_debug_config(IS_DEBUG ${CMAKE_BUILD_TYPE})
+
     install(CODE "
             set(CMAKE_INSTALL_PREFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
             include(\$ENV{MK_DIR}/cmake/modules/mk_install.cmake)
-            mk_install(${TARGET_NAME} $<TARGET_FILE:${TARGET_NAME}> SEARCH ${ARGN})
+            mk_install(${TARGET_NAME} $<TARGET_FILE:${TARGET_NAME}> ${IS_DEBUG} SEARCH ${ARGN})
         " COMPONENT Runtime)
 
 endfunction()

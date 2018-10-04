@@ -60,7 +60,7 @@ function(mk_install_file TARGET_NAME PLUGIN_FILE)
 endfunction()
 
 # mk_install(<TARGET_NAME> [PLUGINS <...>] [SEARCH <...>])
-function(mk_install TARGET_NAME TARGET_EXECUTABLE_FILE)
+function(mk_install TARGET_NAME TARGET_EXECUTABLE_FILE IS_DEBUG)
 
     set(OPTION_KEYWORDS "QT")
     set(SINGLE_VALUE_KEYWORDS "")
@@ -77,8 +77,6 @@ function(mk_install TARGET_NAME TARGET_EXECUTABLE_FILE)
 
 	# CMAKE_EXECUTABLE_SUFFIX
 	# CMAKE_<CONFIG>_POSTFIX
-
-	set(IS_DEBUG 0)
 
     if (1)
         mk_install_Qt(${TARGET_NAME} ${TARGET_EXECUTABLE_FILE} ${IS_DEBUG} SEARCH ${ARGS_SEARCH})
