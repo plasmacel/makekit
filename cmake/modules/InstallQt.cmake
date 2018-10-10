@@ -35,6 +35,14 @@ include($ENV{MK_DIR}/cmake/modules/mk_config.cmake)
 
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
+macro(mk_is_Qt_module VAR LIBRARY_NAME)
+	if (${LIBRARY_NAME} MATCHES "^(lib)?Qt.*")
+		set(${VAR} TRUE)
+	else()
+		set(${VAR} FALSE)
+	endif ()
+endmacro()
+
 function(mk_install_Qt_conf)
 
     set(CONF ${ARGV2})
@@ -45,11 +53,11 @@ function(mk_install_Qt_conf)
         file(COPY ${CONF} DESTINATION ${BUNDLE_DIR}/${BUNDLE_CONF_DIR})
     else () # Write default qt.conf file
         if (WIN32)
-            set(CONF "[Paths]\nPlugins = ${BUNDLE_CONF_DIR}\nImports = qml\nQml2Imports = qml")
+            set(CONF "[Paths]\nPlugins = ${BUNDLE_PLUGINS_DIR}\nImports = qml\nQml2Imports = qml")
         elseif(APPLE)
-            set(CONF "[Paths]\nPlugins = ${BUNDLE_CONF_DIR}\nImports = Resources/qml\nQml2Imports = Resources/qml")
+            set(CONF "[Paths]\nPlugins = ${BUNDLE_PLUGINS_DIR}\nImports = Resources/qml\nQml2Imports = Resources/qml")
         elseif(UNIX)
-            set(CONF "[Paths]\nPlugins = ${BUNDLE_CONF_DIR}\nImports = qml\nQml2Imports = qml\nPrefix = ../")
+            set(CONF "[Paths]\nPlugins = ${BUNDLE_PLUGINS_DIR}\nImports = qml\nQml2Imports = qml\nPrefix = ../")
         endif()
 
         file(WRITE ${BUNDLE_DIR}/${BUNDLE_CONF_DIR}/qt.conf "${CONF}")
@@ -129,7 +137,9 @@ function(mk_install_Qt_plugin_module TARGET_EXECUTABLE_FILE PLUGIN_MODULE IS_DEB
 
     foreach(KEY IN LISTS MODULE_DEPENDENCY_KEYS)
 
-        if (NOT ${KEY} IN_LIST BUNDLE_QT_MODULES)
+	mk_is_Qt_module(IS_QT_MODULE ${KEY})
+
+        if (${IS_QT_MODULE} AND NOT ${KEY} IN_LIST BUNDLE_QT_MODULES)
         set(BUNDLE_QT_MODULES ${BUNDLE_QT_MODULES} ${KEY} CACHE INTERNAL "" FORCE)
         endif()
 
@@ -161,14 +171,18 @@ function(mk_install_Qt_plugins TARGET_EXECUTABLE_FILES IS_DEBUG)
 
 		# Get list of unresolved prerequisites of the target executable
 
-		get_prerequisites(${TARGET_EXECUTABLE_FILE} TARGET_DEPENDENCIES 1 0 "" "${ARGS_SEARCH};${QT_MODULES_SRC_DIR}")
+		get_filename_component(TARGET_EXECUTABLE_DIR ${TARGET_EXECUTABLE_FILE} DIRECTORY)
+
+		get_prerequisites(${TARGET_EXECUTABLE_FILE} TARGET_DEPENDENCIES 1 0 "${TARGET_EXECUTABLE_DIR}" "${ARGS_SEARCH};${QT_MODULES_SRC_DIR}")
 
 		# Collect Qt prerequisites as list of module names
 
 		foreach (TARGET_DEPENDENCY IN LISTS TARGET_DEPENDENCIES)
 			get_filename_component(LIBRARY_NAME ${TARGET_DEPENDENCY} NAME_WE)
+				
+			mk_is_Qt_module(IS_QT_MODULE ${LIBRARY_NAME})
 
-			if (${LIBRARY_NAME} MATCHES "^Qt.*" AND NOT ${LIBRARY_NAME} IN_LIST BUNDLE_QT_MODULES)
+			if (${IS_QT_MODULE} AND NOT ${LIBRARY_NAME} IN_LIST BUNDLE_QT_MODULES)
 				set(BUNDLE_QT_MODULES ${BUNDLE_QT_MODULES} ${LIBRARY_NAME} CACHE INTERNAL "" FORCE)
 			endif ()
 		endforeach ()
@@ -310,6 +324,9 @@ function(mk_install_Qt TARGET_NAME TARGET_EXECUTABLE_FILE IS_DEBUG)
 		message(FATAL_ERROR "Qt plugin modules directory cannot be found: ${QT_PLUGIN_MODULES_SRC_DIR}")
 		return()
 	endif ()
+
+	#get_bundle_all_executables(${BUNDLE} <exes_var>)
+	#get_bundle_main_executable(${BUNDLE})
 
     mk_install_Qt_conf()
     mk_install_Qt_plugins(${TARGET_EXECUTABLE_FILE} ${IS_DEBUG} SEARCH ${ARGS_SEARCH})
