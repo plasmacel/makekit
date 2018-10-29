@@ -23,12 +23,15 @@
 */
 
 #include <cstdlib>
+#include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include <string>
 #include "argh.h"
 
-static const std::string VERSION = "0.3.1";
+static const std::string VERSION = "0.3.3";
 static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
@@ -444,7 +447,7 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 	return 0;
 }
 
-int deps(system_commands& cmd, std::string config)
+int headers(system_commands& cmd, std::string config)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
@@ -452,7 +455,7 @@ int deps(system_commands& cmd, std::string config)
 
 	const std::string build_dir = get_dir(config);
 
-	cmd.append("ninja -C \"" +  build_dir + "\" -t deps");
+	cmd.append("ninja -C \"" +  build_dir + "\" -t headers");
 
 	return 0;
 }
@@ -485,7 +488,7 @@ int help(system_commands& cmd)
 	return 0;
 }
 
-int hostinfo(system_commands& cmd)
+int gethost(system_commands& cmd)
 {
 	cmd.append("clang -dumpmachine");
 	return 0;
@@ -504,6 +507,145 @@ int install(system_commands& cmd, std::string config)
 	cmd.append("cmake --build " + build_dir + " --target install");
 	
 	return 0;
+}
+
+template <typename Func>
+void split_string(const std::string& str, char delimiter, Func&& func)
+{
+	size_t from = 0;
+
+	for (size_t i = 0; i < str.size(); ++i)
+	{
+		if (str[i] == delimiter)
+		{
+			func(str, from, i);
+			from = i + 1;
+		}
+	}
+
+	if (from <= str.size())
+	{
+		func(str, from, str.size());
+	}
+}
+
+template <typename Func>
+void split_string(const std::string& str, char delimiter, std::vector<std::string>& output)
+{
+	split_string(str, delimiter, [&](const std::string &s, size_t from, size_t to)
+	{
+		const std::string sub =  s.substr(from, to - from);
+		if (!sub.empty()) output.push_back(sub);
+	});
+}
+
+int deploy(system_commands& cmd, std::string config)
+{
+	if (config.empty()) config = DEFAULT_CONFIG;
+
+	return 1;
+}
+
+FILE* open_pipe(const char* command, const char* mode)
+{
+#if _WIN32
+	return _popen(command, mode);
+#else
+	return popen(command, mode);
+#endif
+}
+
+int close_pipe(FILE* stream)
+{
+#if _WIN32
+	return _pclose(stream);
+#else
+	return pclose(stream);
+#endif
+}
+
+std::string exec(const char* cmd)
+{
+	char buffer[128];
+	std::string result;
+
+	//std::array<char, 128> buffer;	
+	//std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
+
+	FILE* pipe = open_pipe(cmd, "r");
+	
+	if (!pipe) throw std::runtime_error("popen() failed!");
+
+	try
+	{
+		while (!feof(pipe))
+		{
+			if (std::fgets(buffer, 128, pipe) != nullptr)
+				result += buffer;
+		}
+	}
+	catch (...)
+	{
+		close_pipe(pipe);
+		throw;
+	}
+
+	close_pipe(pipe);
+
+	return result;
+}
+
+int getdeps(system_commands& cmd, const std::string& executable)
+{
+	if (executable.empty()) return 1;
+
+#if _WIN32
+
+	std::regex regex{ "\\s*(.*\\.[dD][lL][lL])[\\r\\n]*" };
+	add_set_environment_command(cmd, "x64");
+	cmd.append("dumpbin /nologo /dependents " + executable);
+	
+#elif __APPLE__
+	
+	std::regex regex{ "\\t([^\\t]+) \\(compatibility version ([0-9]+.[0-9]+.[0-9]+), current version ([0-9]+.[0-9]+.[0-9]+)\\)" };
+	// name (@executable_path.*) \(offset \d+\)
+	// name (@rpath.*) \(offset \d+\)
+	// path (.*) \(offset \d+\)
+	cmd.append("otool -L " + executable);
+
+#else
+
+	std::regex regex{ "\\s*[^\\t ]+ => ([^\\s]+).*" };
+	cmd.append("ldd " + executable);
+
+#endif
+
+	std::string cmdout = exec(cmd);
+
+	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
+	auto matches_end = std::sregex_iterator();
+
+	for (auto it = matches_begin; it != matches_end; ++it)
+	{
+		std::cout << (*it)[1] << std::endl;
+	}
+
+	return 1;
+}
+
+int fix_binary(system_commands& cmd, const std::string& executable, std::string old_path, std::string new_path)
+{
+#if _WIN32
+	// There is nothing to do.
+#elif __APPLE__
+	cmd.append("install_name_tool -change " + old_path + " @executable_path/" + new_path + " " + executable);
+#else
+	
+#endif
+
+	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
+
+	return 1;
 }
 
 int reconfig(system_commands& cmd, std::string config, const std::string& toolchain)
@@ -571,22 +713,16 @@ int main(int argc, char** argv)
 
 	std::string command = args(1).str();
 
-	if (command == "deps")
+	if (command == "headers")
 	{
 		if (check_args_count(args, 3)) return 1;
-		retval = deps(cmd, args(2).str());
+		retval = headers(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	if (command == "help")
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = help(cmd);
-		if (retval != 0) return retval;
-	}
-	else if (command == "host")
-	{
-		if (check_args_count(args, 3)) return 1;
-		retval = hostinfo(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "version")
@@ -611,6 +747,12 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 4)) return 1;
 		retval = configure(cmd, args(2).str(), args(toolchain_param).str());
+		if (retval != 0) return retval;
+	}
+	else if (command == "deploy")
+	{
+		if (check_args_count(args, 3)) return 1;
+		retval = deploy(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "install")
@@ -643,10 +785,22 @@ int main(int argc, char** argv)
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
+	else if (command == "getdeps")
+	{
+		if (check_args_count(args, 3)) return 1;
+		retval = getdeps(cmd, args(2).str());
+		if (retval != 0) return retval;
+	}
 	else if (command == "getenv")
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = getenv(cmd, args(2).str());
+		if (retval != 0) return retval;
+	}
+	else if (command == "gethost")
+	{
+		if (check_args_count(args, 3)) return 1;
+		retval = gethost(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "setenv")
