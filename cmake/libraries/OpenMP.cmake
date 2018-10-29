@@ -22,10 +22,14 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # OpenMP
 # https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 #
+
+list(APPEND MK_BUILTIN_LIBRARIES OpenMP)
 
 set(MK_USE_LLVM_LIBOMP TRUE)
 
@@ -57,7 +61,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} ${LIBOMP_LIB})
-		mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
+		#mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
 	else ()
 		find_package(OpenMP REQUIRED)
 
@@ -67,7 +71,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenMP::OpenMP_CXX)
-		mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
+		#mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
 	endif ()
 
 endfunction()
