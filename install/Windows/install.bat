@@ -62,7 +62,7 @@ if "%MK_QT_INSTALL_DIR%" == "" (
 :: Install Visual Studio 2017 Build Tools
 :: https://blogs.msdn.microsoft.com/vcblog/2016/11/16/introducing-the-visual-studio-build-tools/
 
-:: vs_buildtools.exe –quiet –add Microsoft.VisualStudio.Workload.VCTools –includeRecommended
+:: vs_buildtools.exe â€“quiet â€“add Microsoft.VisualStudio.Workload.VCTools â€“includeRecommended
 
 :: Set MK environment variables
 
@@ -145,8 +145,8 @@ cd "%~dp0\..\.."
 
 ::ninja -C build
 mkdir build && mkdir build\bin
-clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/mk.cpp /o build\bin\
-clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
+%MK_LLVM_DIR%/bin/clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/mk.cpp /o build\bin\
+%MK_LLVM_DIR%/bin/clang-cl /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
 
 if %ERRORLEVEL% == 0 (
 	echo Build succeeded.
