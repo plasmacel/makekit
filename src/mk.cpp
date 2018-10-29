@@ -640,10 +640,8 @@ int fix_binary(system_commands& cmd, const std::string& executable, std::string 
 #elif __APPLE__
 	cmd.append("install_name_tool -change " + old_path + " @executable_path/" + new_path + " " + executable);
 #else
-	
-#endif
-
 	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
+#endif
 
 	return 1;
 }
