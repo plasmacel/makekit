@@ -224,7 +224,7 @@ struct runtime_dependency
 
 		std::regex regex{"^(?:" + sysroot + "[/\\\\]sys(?:tem|wow)|" + windir + "[/\\\\]sys(?:tem|wow)|(.*[/\\\\])*(?:msvc|api-ms-win-)[^/\\\\]+dll)", std::regex_constants::icase};
 #elif __APPLE__
-		std::regex{"^(/System/Library/|/usr/lib/)", std::regex_constants::icase};
+		std::regex regex{"^(/System/Library/|/usr/lib/)", std::regex_constants::icase};
 #else
 		std::regex regex{"^(/lib/|/lib32/|/libx32/|/lib64/|/usr/lib/|/usr/lib32/|/usr/libx32/|/usr/lib64/|/usr/X11R6/|/usr/bin/)", std::regex_constants::icase};
 #endif
