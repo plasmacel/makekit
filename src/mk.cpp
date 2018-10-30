@@ -56,6 +56,23 @@ std::string get_filename_we(const std::string& filepath)
 	return filepath.substr(filepath.find_last_of("/\\") + 1, filepath.find_last_of("."));
 }
 
+// macOS utils
+
+std::string get_app(const std::string& filepath)
+{
+	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".app")));
+}
+
+std::string get_app_name(const std::string& filepath)
+{
+	return get_filename(get_app(filepath));
+}
+
+std::string get_app_name_we(const std::string& filepath)
+{
+	return get_filename_we(get_app(filepath));
+}
+
 std::string get_framework(const std::string& filepath)
 {
 	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".framework")));
