@@ -41,6 +41,11 @@ std::string get_directory(const std::string& filepath)
 	return filepath.substr(0, filepath.find_last_of("/\\"));
 }
 
+std::string get_extension(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of(".") + 1);
+}
+
 std::string get_filename(const std::string& filepath)
 {
 	return filepath.substr(filepath.find_last_of("/\\") + 1);
@@ -51,9 +56,19 @@ std::string get_filename_we(const std::string& filepath)
 	return filepath.substr(filepath.find_last_of("/\\") + 1, filepath.find_last_of("."));
 }
 
-std::string get_extension(const std::string& filepath)
+std::string get_framework(const std::string& filepath)
 {
-	return filepath.substr(filepath.find_last_of(".") + 1);
+	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".framework")));
+}
+
+std::string get_framework_name(const std::string& filepath)
+{
+	return get_filename(get_framework(filepath));
+}
+
+std::string get_framework_name_we(const std::string& filepath)
+{
+	return get_filename_we(get_framework(filepath));
 }
 
 std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
