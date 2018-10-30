@@ -194,9 +194,19 @@ struct runtime_dependency
 		return false;
 	}
 
-	bool copy(const std::string& target_dir)
+	bool embed(const std::string& target_dir)
 	{
 		if (!is_resolved()) return false;
+
+		// Lib dir
+		// Linux: bundle_dir/lib
+		// macOS: bundle_dir/Contents/Frameworks
+		// Windows: bundle_dir/bin
+
+		// Bin dir
+		// Linux: bundle_dir/bin
+		// macOS: bundle_dir/Contents/MacOS
+		// Windows: bundle_dir/bin
 
 		return true;
 	}
@@ -208,6 +218,19 @@ struct runtime_dependency
 
 	bool is_system() const
 	{
+#if _WIN32
+		const std::string sysroot = getenv_exec("SYSTEMROOT");
+		const std::string windir = getenv_exec("WINDIR");
+
+		std::regex regex{"^(?:" + sysroot + "[/\\\\]sys(?:tem|wow)|" + windir + "[/\\\\]sys(?:tem|wow)|(.*[/\\\\])*(?:msvc|api-ms-win-)[^/\\\\]+dll)", std::regex_constants::icase};
+#elif __APPLE__
+		std::regex{"^(/System/Library/|/usr/lib/)", std::regex_constants::icase};
+#else
+		std::regex regex{"^(/lib/|/lib32/|/libx32/|/lib64/|/usr/lib/|/usr/lib32/|/usr/libx32/|/usr/lib64/|/usr/X11R6/|/usr/bin/)", std::regex_constants::icase};
+#endif
+
+		return std::regex_search(resolved, regex);
+
 		return system;
 	}
 
@@ -754,7 +777,7 @@ int deploy(system_commands& cmd, std::string config)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
-	return 1;
+	return 0;
 }
 
 int getdeps(system_commands& cmd, const std::string& executable)
@@ -792,7 +815,7 @@ int getdeps(system_commands& cmd, const std::string& executable)
 		std::cout << (*it)[1] << std::endl;
 	}
 
-	return 1;
+	return 0;
 }
 
 int query_deps(const std::string& executable, std::vector<runtime_dependency>& deps)
@@ -832,7 +855,7 @@ int query_deps(const std::string& executable, std::vector<runtime_dependency>& d
 		deps.emplace_back((*it)[1]);
 	}
 
-	return 1;
+	return 0;
 }
 
 int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::string>& rpaths, const std::vector<std::string>& syspaths)
@@ -854,7 +877,7 @@ int copy_resolved_deps(const std::vector<runtime_dependency>& resolved_deps, con
 
 	}
 
-	return 1;
+	return 0;
 }
 
 int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& resolved_deps)
@@ -882,12 +905,12 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 #	endif
 
-	return 1;
+	return 0;
 }
 
 int validate_bundle()
 {
-	return 1;
+	return 0;
 }
 
 int bundle(system_commands& cmd, const std::string& executable, std::string rpaths_delimited)
@@ -956,14 +979,26 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 		if (!dep.is_resolved()) std::cout << dep.unresolved << std::endl;
 	}
 
-	return 1;
+	return 0;
 }
 
 int fix_binary(system_commands& cmd, const std::string& executable, std::string old_path, std::string new_path)
 {
 
 
-	return 1;
+	return 0;
+}
+
+int codesign(system_commands& cmd, const std::string& identity, const std::string& bundlepath)
+{
+#if __APPLE__
+	cmd.append("codesign -s " + identity + " " + bundlepath);
+	cmd.append("codesign -v " + bundlepath);
+#else
+	cmd.append("echo No codesign required on this platform.");
+#endif
+
+	return 0;
 }
 
 int reconfig(system_commands& cmd, std::string config, const std::string& toolchain)
@@ -1059,6 +1094,12 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 5)) return 1;
 		retval = clean(cmd, args(2).str(), args(exclusive_param).str(), args[exclusive_param]);
+		if (retval != 0) return retval;
+	}
+	else if (command == "codesign")
+	{
+		if (check_args_count(args, 4)) return 1;
+		retval = codesign(cmd, args(2).str(), args(3).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "commands")
