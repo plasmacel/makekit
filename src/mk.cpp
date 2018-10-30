@@ -36,6 +36,54 @@ static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
 
+bool exists(const std::string& filepath)
+{
+	return false;
+}
+
+struct runtime_dependency
+{
+	runtime_dependency(const std::string& filepath)
+	:
+		unresolved{filepath},
+		resolved{}
+	{}
+
+	bool resolve(const std::vector<std::string>& rpaths)
+	{
+		bool has_resolved = false;
+
+		for (const std::string& rpath : rpaths)
+		{
+			resolved = unresolved;
+			resolved.replace(resolved.find("@rpath"), 6, rpath);
+
+			if (exists(resolved)) return true;
+		}
+
+		resolved.clear();
+
+		return false;
+	}
+
+	bool copy(const std::string& target_dir)
+	{
+		if (!is_resolved()) return false;
+
+		return true;
+	}
+
+	bool is_resolved() const
+	{
+		return !resolved.empty();
+	}
+
+	bool is_system() const;
+
+	std::string unresolved;
+	std::string resolved;
+};
+
 struct system_commands
 {
 	std::string commands;
@@ -64,7 +112,33 @@ struct system_commands
 	}
 };
 
-std::string get_dir(const std::string& config)
+std::string get_directory(const std::string& filepath)
+{
+	return filepath.substr(0, filepath.find_last_of("/\\"));
+}
+
+std::string get_filename(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of("/\\") + 1);
+}
+
+std::string get_filename_we(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of("/\\") + 1, filepath.find_last_of("."));
+}
+
+std::string get_extension(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of(".") + 1);
+}
+
+std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
+{
+	const size_t index = filepath.find_last_of("/\\");
+	return { filepath.substr(0, index), filepath.substr(index + 1) };
+}
+
+std::string get_build_dir(const std::string& config)
 {
 	return BUILD_DIR_PREFIX + config;
 }
@@ -174,7 +248,7 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 
 	// Compose terminal commands
 	
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 
 	// Append set environment command (required on Windows only)
 
@@ -207,7 +281,7 @@ int refresh(system_commands& cmd, std::string config)
 
 	// Compose terminal commands
 
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 
 	//#ifdef _WIN32
 	//	cmd.append("if not exist \"" + build_dir + "/CMakeCache.txt\" ( echo " + config + " config cannot be found. )");
@@ -231,7 +305,7 @@ int make(system_commands& cmd, std::string config, const std::string& toolchain,
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 	
 	// Configure or refresh
 	
@@ -329,7 +403,7 @@ int clean_config(system_commands& cmd, const std::string& config)
 	{
 		message(cmd, "Cleaning the configuration of " + config + " build.");
 
-		const std::string build_dir = get_dir(config);
+		const std::string build_dir = get_build_dir(config);
 
 #	ifdef _WIN32
 		cmd.append("if exist \"" + build_dir + "\\CMakeCache.txt\"" + " @del /f /s /q \"" + build_dir + "\\CMakeCache.txt\" > NUL");
@@ -371,7 +445,7 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 			message(cmd, "Cleaning the built binaries of target(s) " + target + " in " + config + " build.");
 		}
 
-		const std::string build_dir = get_dir(config);
+		const std::string build_dir = get_build_dir(config);
 
 	#if 1
 		cmd.append("ninja -C \"" + build_dir + "\" -t clean " + target);
@@ -401,7 +475,7 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 	{
 		message(cmd, "Cleaning " + config + " build.");
 
-		const std::string build_dir = get_dir(config);
+		const std::string build_dir = get_build_dir(config);
 
 #	ifdef _WIN32
 		cmd.append("if exist \"" + build_dir + "\" @del /f /s /q \"" + build_dir + "\" > NUL && @rd /s /q \"" + build_dir + "\"");
@@ -440,7 +514,7 @@ int commands(system_commands& cmd, std::string config, const std::string& target
 		message(cmd, "Listing commands of " + config + " build target " + target + ".");
 	}
 
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 
 	cmd.append("ninja -C \"" +  build_dir + "\" -t commands " + target);
 
@@ -453,7 +527,7 @@ int headers(system_commands& cmd, std::string config)
 
 	message(cmd, "Listing dependencies of " + config + " build.");
 
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 
 	cmd.append("ninja -C \"" +  build_dir + "\" -t headers");
 
@@ -498,7 +572,7 @@ int install(system_commands& cmd, std::string config)
 {
 	if (config.empty()) config = DEFAULT_CONFIG;
 	
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 	
 #if _WIN32
 	add_set_environment_command(cmd, "x64");
@@ -633,15 +707,130 @@ int getdeps(system_commands& cmd, const std::string& executable)
 	return 1;
 }
 
+int query_deps(const std::string& executable, std::vector<std::string>& unresolved_deps)
+{
+	if (executable.empty()) return 1;
+
+	system_commands cmd;
+
+#if _WIN32
+
+	std::regex regex{ "\\s*(.*\\.[dD][lL][lL])[\\r\\n]*" };
+	add_set_environment_command(cmd, "x64");
+	cmd.append("dumpbin /nologo /dependents " + executable);
+
+#elif __APPLE__
+
+	std::regex regex{ "\\t([^\\t]+) \\(compatibility version ([0-9]+.[0-9]+.[0-9]+), current version ([0-9]+.[0-9]+.[0-9]+)\\)" };
+	// name (@executable_path.*) \(offset \d+\)
+	// name (@rpath.*) \(offset \d+\)
+	// path (.*) \(offset \d+\)
+	cmd.append("otool -L " + executable);
+
+#else
+
+	std::regex regex{ "\\s*[^\\t ]+ => ([^\\s]+).*" };
+	cmd.append("ldd " + executable);
+
+#endif
+
+	std::string cmdout = exec(cmd);
+
+	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
+	auto matches_end = std::sregex_iterator();
+
+	for (auto it = matches_begin; it != matches_end; ++it)
+	{
+		unresolved_deps.push_back((*it)[1]);
+	}
+
+	return 1;
+}
+
+int resolve_deps(const std::vector<std::string>& deps, const std::vector<std::string>& rpaths, std::vector<std::string>& resolved_deps, std::vector<std::string>& unresolved_deps)
+{
+	int error = 0;
+
+	for (const std::string& unresolved_dep : deps)
+	{
+		bool has_resolved = false;
+
+		std::string resolved_dep;
+
+		// Try to resolve the dependency
+
+		for (const std::string& rpath : rpaths)
+		{
+			resolved_dep = unresolved_dep;
+			resolved_dep.replace(resolved_dep.find("@rpath"), 6, rpath);
+
+			if (exists(resolved_dep))
+			{
+				has_resolved = true;
+				break;
+			}
+		}
+
+		if (has_resolved)
+		{
+			resolved_deps.push_back(resolved_dep);
+		}
+		else
+		{
+			unresolved_deps.push_back(unresolved_dep);
+			++error;
+		}
+	}
+
+	return error;
+}
+
+int copy_resolved_deps(const std::vector<std::string>& resolved_deps, const std::string& target_path)
+{
+	for (const std::string& resolved_dep : resolved_deps)
+	{
+
+	}
+
+	return 1;
+}
+
+int fixup_bundle(const std::string& executable, const std::vector<std::string>& resolved_deps)
+{
+	system_commands cmd;
+
+#	if _WIN32 // Do nothing
+
+	copy_resolved_deps(resolved_deps, executable + "/../lib");
+	return 1;
+
+#	elif __APPLE__ // Change install names in the executable
+
+	for (const std::string& resolved_dep : resolved_deps)
+	{
+		std::string embedded_dep = "@executable_path/";
+		cmd.append("install_name_tool -change " + unresolved_dep + " " + embedded_dep + " " + executable);
+		//cmd.append("install_name_tool -rpath " + unresolved_dep + " " + emdedded_dep + " " + executable);
+	}
+
+#	else // Change the rpath in the executable
+
+	copy_resolved_deps(resolved_deps, executable + "/../lib");
+	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
+
+#	endif
+
+	return 1;
+}
+
+int validate_bundle()
+{
+	return 1;
+}
+
 int fix_binary(system_commands& cmd, const std::string& executable, std::string old_path, std::string new_path)
 {
-#if _WIN32
-	// There is nothing to do.
-#elif __APPLE__
-	cmd.append("install_name_tool -change " + old_path + " @executable_path/" + new_path + " " + executable);
-#else
-	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
-#endif
+
 
 	return 1;
 }
@@ -665,7 +854,7 @@ int remake(system_commands& cmd, std::string config, const std::string& target, 
 
 #else
 
-	const std::string build_dir = get_dir(config);
+	const std::string build_dir = get_build_dir(config);
 
 	cmd.append("cmake --build \"" + build_dir + "\" --clean-first");
 	return 0;
