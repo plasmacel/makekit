@@ -82,9 +82,9 @@ std::string get_bundle_dir(const std::string& executable)
 #if _WIN32
 	return get_directory(executable);
 #elif __APPLE__
-	return get_directory(executable) + "../Frameworks";
+	return get_directory(executable) + "/../Frameworks";
 #else
-	return get_directory(executable) + "../lib";
+	return get_directory(executable) + "/../lib";
 #endif
 }
 
