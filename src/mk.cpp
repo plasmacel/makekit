@@ -866,11 +866,11 @@ int fixup_bundle(const std::string& executable, const std::vector<std::string>& 
 
 #	elif __APPLE__ // Change install names in the executable
 
-	for (const std::string& resolved_dep : resolved_deps)
+	for (const std::string& dep : resolved_deps)
 	{
 		std::string embedded_dep = "@executable_path/";
-		cmd.append("install_name_tool -change " + unresolved_dep + " " + embedded_dep + " " + executable);
-		//cmd.append("install_name_tool -rpath " + unresolved_dep + " " + emdedded_dep + " " + executable);
+		cmd.append("install_name_tool -change " + dep.unresolved + " " + dep.bundled + " " + executable);
+		//cmd.append("install_name_tool -rpath " + dep.unresolved + " " + dep.bundled + " " + executable);
 	}
 
 #	else // Change the rpath in the executable
