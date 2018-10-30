@@ -24,11 +24,11 @@
 
 #include <cstdlib>
 #include <cstdio>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <string>
+#include <sys/stat.h>
 #include "argh.h"
 
 static const std::string VERSION = "0.3.3";
@@ -36,9 +36,91 @@ static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
 
-bool exists(const std::string& filepath)
+FILE* open_pipe(const char* command, const char* mode)
 {
-	return false;
+#if _WIN32
+	return _popen(command, mode);
+#else
+	return popen(command, mode);
+#endif
+}
+
+int close_pipe(FILE* stream)
+{
+#if _WIN32
+	return _pclose(stream);
+#else
+	return pclose(stream);
+#endif
+}
+
+std::string exec(const std::string& cmd)
+{
+	char buffer[128];
+	std::string result;
+
+	//std::array<char, 128> buffer;	
+	//std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
+
+	FILE* pipe = open_pipe(cmd.c_str(), "r");
+
+	if (!pipe) throw std::runtime_error("popen() failed!");
+
+	try
+	{
+		while (!feof(pipe))
+		{
+			if (std::fgets(buffer, 128, pipe) != nullptr)
+				result += buffer;
+		}
+	}
+	catch (...)
+	{
+		close_pipe(pipe);
+		throw;
+	}
+
+	close_pipe(pipe);
+
+	return result;
+}
+
+std::string getenv_exec(const std::string& var)
+{
+#	ifdef _WIN32
+	std::string cmdout = exec("echo %" + var + "%");
+#	else
+	std::string cmdout = exec("echo ${" + var + "}");
+#	endif
+
+	// remove trailing newline character
+	return cmdout.substr(0, cmdout.find_first_of("\r\n"));
+}
+
+void copy_file(const std::string& srcpath, const std::string& dstpath)
+{
+	std::ifstream src(srcpath, std::ios::binary);
+	std::ofstream dst(dstpath, std::ios::binary);
+
+	dst << src.rdbuf();
+}
+
+bool exists(const std::string &filepath)
+{
+	if (filepath.empty()) return false;
+	struct stat buffer;
+	return stat(filepath.c_str(), &buffer) != -1;
+}
+
+void query_syspaths(std::vector<std::string>& syspaths)
+{
+#if _WIN32
+	syspaths = { getenv_exec("SYSTEMROOT") + "\\System32", getenv_exec("WINDIR") + "\\System32" };
+#elif __APPLE__
+	syspaths = { "/System/Library", "/usr/lib" };
+#else
+	syspaths = { "/lib", "/lib32", "/libx32", "/lib64", "/usr/lib", "/usr/lib32", "/usr/libx32", "/usr/lib64", "/usr/X11R6", "/usr/bin" };
+#endif
 }
 
 struct runtime_dependency
@@ -46,20 +128,65 @@ struct runtime_dependency
 	runtime_dependency(const std::string& filepath)
 	:
 		unresolved{filepath},
-		resolved{}
+		resolved{},
+		system{false}
 	{}
 
-	bool resolve(const std::vector<std::string>& rpaths)
+	bool resolve(const std::vector<std::string>& rpaths, const std::vector<std::string>& syspaths)
 	{
-		bool has_resolved = false;
+#if _WIN32
+
+		for (const std::string& syspath : syspaths)
+		{
+			resolved = unresolved;
+			resolved.insert(0, syspath + "\\");
+
+			if (exists(resolved))
+			{
+				system = true;
+				return true;
+			}
+		}
 
 		for (const std::string& rpath : rpaths)
 		{
 			resolved = unresolved;
-			resolved.replace(resolved.find("@rpath"), 6, rpath);
+			resolved.insert(0, rpath + "\\");
 
 			if (exists(resolved)) return true;
 		}
+#else
+
+		const size_t rpath_substring_pos = unresolved.find("@rpath");
+
+		if (rpath_substring_pos != std::string::npos)
+		{
+			for (const std::string& syspath : syspaths)
+			{
+				resolved = unresolved;
+				resolved.replace(rpath_substring_pos, rpath_substring_pos + 6, syspath);
+
+				if (exists(resolved))
+				{
+					system = true;
+					return true;
+				}
+			}
+
+			for (const std::string& rpath : rpaths)
+			{
+				resolved = unresolved;
+				resolved.replace(rpath_substring_pos, rpath_substring_pos + 6, rpath);
+
+				if (exists(resolved)) return true;
+			}
+		}
+		else
+		{
+			resolved = unresolved;
+			if (exists(resolved)) return true;
+		}
+#endif
 
 		resolved.clear();
 
@@ -78,10 +205,14 @@ struct runtime_dependency
 		return !resolved.empty();
 	}
 
-	bool is_system() const;
+	bool is_system() const
+	{
+		return system;
+	}
 
 	std::string unresolved;
 	std::string resolved;
+	bool system;
 };
 
 struct system_commands
@@ -109,6 +240,11 @@ struct system_commands
 	operator const char*() const
 	{
 		return this->commands.c_str();
+	}
+
+	operator const std::string&() const
+	{
+		return commands;
 	}
 };
 
@@ -603,8 +739,7 @@ void split_string(const std::string& str, char delimiter, Func&& func)
 	}
 }
 
-template <typename Func>
-void split_string(const std::string& str, char delimiter, std::vector<std::string>& output)
+void split_string_to_vector(const std::string& str, char delimiter, std::vector<std::string>& output)
 {
 	split_string(str, delimiter, [&](const std::string &s, size_t from, size_t to)
 	{
@@ -618,55 +753,6 @@ int deploy(system_commands& cmd, std::string config)
 	if (config.empty()) config = DEFAULT_CONFIG;
 
 	return 1;
-}
-
-FILE* open_pipe(const char* command, const char* mode)
-{
-#if _WIN32
-	return _popen(command, mode);
-#else
-	return popen(command, mode);
-#endif
-}
-
-int close_pipe(FILE* stream)
-{
-#if _WIN32
-	return _pclose(stream);
-#else
-	return pclose(stream);
-#endif
-}
-
-std::string exec(const char* cmd)
-{
-	char buffer[128];
-	std::string result;
-
-	//std::array<char, 128> buffer;	
-	//std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
-
-	FILE* pipe = open_pipe(cmd, "r");
-	
-	if (!pipe) throw std::runtime_error("popen() failed!");
-
-	try
-	{
-		while (!feof(pipe))
-		{
-			if (std::fgets(buffer, 128, pipe) != nullptr)
-				result += buffer;
-		}
-	}
-	catch (...)
-	{
-		close_pipe(pipe);
-		throw;
-	}
-
-	close_pipe(pipe);
-
-	return result;
 }
 
 int getdeps(system_commands& cmd, const std::string& executable)
@@ -707,7 +793,7 @@ int getdeps(system_commands& cmd, const std::string& executable)
 	return 1;
 }
 
-int query_deps(const std::string& executable, std::vector<std::string>& unresolved_deps)
+int query_deps(const std::string& executable, std::vector<runtime_dependency>& deps)
 {
 	if (executable.empty()) return 1;
 
@@ -741,45 +827,19 @@ int query_deps(const std::string& executable, std::vector<std::string>& unresolv
 
 	for (auto it = matches_begin; it != matches_end; ++it)
 	{
-		unresolved_deps.push_back((*it)[1]);
+		deps.emplace_back((*it)[1]);
 	}
 
 	return 1;
 }
 
-int resolve_deps(const std::vector<std::string>& deps, const std::vector<std::string>& rpaths, std::vector<std::string>& resolved_deps, std::vector<std::string>& unresolved_deps)
+int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::string>& rpaths, const std::vector<std::string>& syspaths)
 {
 	int error = 0;
 
-	for (const std::string& unresolved_dep : deps)
+	for (runtime_dependency& dep : deps)
 	{
-		bool has_resolved = false;
-
-		std::string resolved_dep;
-
-		// Try to resolve the dependency
-
-		for (const std::string& rpath : rpaths)
-		{
-			resolved_dep = unresolved_dep;
-			resolved_dep.replace(resolved_dep.find("@rpath"), 6, rpath);
-
-			if (exists(resolved_dep))
-			{
-				has_resolved = true;
-				break;
-			}
-		}
-
-		if (has_resolved)
-		{
-			resolved_deps.push_back(resolved_dep);
-		}
-		else
-		{
-			unresolved_deps.push_back(unresolved_dep);
-			++error;
-		}
+		if (!dep.resolve(rpaths, syspaths)) ++error;
 	}
 
 	return error;
@@ -825,6 +885,75 @@ int fixup_bundle(const std::string& executable, const std::vector<std::string>& 
 
 int validate_bundle()
 {
+	return 1;
+}
+
+int bundle(system_commands& cmd, const std::string& executable, std::string rpaths_delimited)
+{
+	std::vector<runtime_dependency> deps;
+	std::vector<std::string> rpaths;
+	std::vector<std::string> syspaths;
+
+	split_string_to_vector(rpaths_delimited, ';', rpaths);
+	query_syspaths(syspaths);
+
+	std::cout << "Search paths:" << std::endl << std::endl;
+
+	for (const std::string& rpath : rpaths)
+	{
+		std::cout << rpath << std::endl;
+	}
+
+	std::cout << std::endl;
+
+	std::cout << "System paths:" << std::endl << std::endl;
+
+	for (const std::string& syspath : syspaths)
+	{
+		std::cout << syspath << std::endl;
+	}
+
+	std::cout << std::endl;
+
+	query_deps(executable, deps);
+
+	std::cout << "Runtime dependencies:" << std::endl << std::endl;
+
+	for (const runtime_dependency& dep : deps)
+	{
+		std::cout << dep.unresolved << std::endl;
+	}
+
+	std::cout << std::endl;
+
+	resolve_deps(deps, rpaths, syspaths);
+
+	std::cout << "Resolved runtime dependencies:" << std::endl << std::endl;
+
+	for (const runtime_dependency& dep : deps)
+	{
+		if (dep.is_resolved())
+		{
+			std::cout << dep.resolved;
+
+			if (dep.is_system())
+			{
+				std::cout << " (system)";
+			}
+			
+			std::cout << std::endl;
+		}
+	}
+
+	std::cout << std::endl;
+
+	std::cout << "Unresolved runtime dependencies:" << std::endl << std::endl;
+
+	for (const runtime_dependency& dep : deps)
+	{
+		if (!dep.is_resolved()) std::cout << dep.unresolved << std::endl;
+	}
+
 	return 1;
 }
 
@@ -916,6 +1045,12 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = version(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "bundle")
+	{
+		if (check_args_count(args, 4)) return 1;
+		retval = bundle(cmd, args(2).str(), args(3).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "clean")
