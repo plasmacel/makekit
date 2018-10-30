@@ -30,9 +30,9 @@ Creates a build system configuration for the specified `<CONFIG>`. If it has bee
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk deps [<CONFIG>]`
+#### `mk headers [<CONFIG>]`
 
-Lists the dependencies of `<CONFIG>` build, which are available only after a successful `make` command.
+Lists the comptile-time header dependencies of `<CONFIG>` build, which are available only after a successful `make` command.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
@@ -40,13 +40,13 @@ If `<CONFIG>` is not specified, it defaults to `Release`.
 
 Gets environment variable `<VARIABLE>`.
 
+#### `mk gethost`
+
+Gets the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
+
 #### `mk help`
 
 Outputs the list of available commands and their basic descriptions.
-
-#### `mk host`
-
-Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
 #### `mk install [<CONFIG>]`
 
