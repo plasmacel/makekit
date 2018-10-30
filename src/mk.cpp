@@ -129,6 +129,7 @@ struct runtime_dependency
 	:
 		unresolved{filepath},
 		resolved{},
+		bundled{},
 		system{false}
 	{}
 
@@ -212,6 +213,7 @@ struct runtime_dependency
 
 	std::string unresolved;
 	std::string resolved;
+	std::string bundled;
 	bool system;
 };
 
