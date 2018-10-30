@@ -36,6 +36,58 @@ static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
 
+std::string get_directory(const std::string& filepath)
+{
+	return filepath.substr(0, filepath.find_last_of("/\\"));
+}
+
+std::string get_filename(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of("/\\") + 1);
+}
+
+std::string get_filename_we(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of("/\\") + 1, filepath.find_last_of("."));
+}
+
+std::string get_extension(const std::string& filepath)
+{
+	return filepath.substr(filepath.find_last_of(".") + 1);
+}
+
+std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
+{
+	const size_t index = filepath.find_last_of("/\\");
+	return { filepath.substr(0, index), filepath.substr(index + 1) };
+}
+
+std::string get_build_dir(const std::string& config)
+{
+	return BUILD_DIR_PREFIX + config;
+}
+
+std::string get_bundle_dir(const std::string& executable)
+{
+	// Lib dir
+	// Linux: bundle_dir/lib
+	// macOS: bundle_dir/Contents/Frameworks
+	// Windows: bundle_dir/bin
+
+	// Bin dir
+	// Linux: bundle_dir/bin
+	// macOS: bundle_dir/Contents/MacOS
+	// Windows: bundle_dir/bin
+
+#if _WIN32
+	return get_directory(executable);
+#elif __APPLE__
+	return get_directory(executable) + "../Frameworks";
+#else
+	return get_directory(executable) + "../lib";
+#endif
+}
+
 FILE* open_pipe(const char* command, const char* mode)
 {
 #if _WIN32
@@ -137,17 +189,22 @@ struct runtime_dependency
 	{
 #if _WIN32
 
+		// Try to resolve the original path
+
+		resolved = unresolved;
+		if (exists(resolved)) return true;
+
+		// Try to resolve by syspaths
+
 		for (const std::string& syspath : syspaths)
 		{
 			resolved = unresolved;
 			resolved.insert(0, syspath + "\\");
 
-			if (exists(resolved))
-			{
-				system = true;
-				return true;
-			}
+			if (exists(resolved)) return true;
 		}
+
+		// Try to resolve by rpaths
 
 		for (const std::string& rpath : rpaths)
 		{
@@ -162,17 +219,17 @@ struct runtime_dependency
 
 		if (rpath_substring_pos != std::string::npos)
 		{
+			// Try to resolve by syspaths
+
 			for (const std::string& syspath : syspaths)
 			{
 				resolved = unresolved;
 				resolved.replace(rpath_substring_pos, rpath_substring_pos + 6, syspath);
 
-				if (exists(resolved))
-				{
-					system = true;
-					return true;
-				}
+				if (exists(resolved)) return true;
 			}
+
+			// Try to resolve by rpaths
 
 			for (const std::string& rpath : rpaths)
 			{
@@ -184,6 +241,7 @@ struct runtime_dependency
 		}
 		else
 		{
+			// Try to resolve the original path
 			resolved = unresolved;
 			if (exists(resolved)) return true;
 		}
@@ -194,21 +252,20 @@ struct runtime_dependency
 		return false;
 	}
 
-	bool embed(const std::string& target_dir)
+	bool bundle(const std::string& target_dir)
 	{
 		if (!is_resolved()) return false;
 
-		// Lib dir
-		// Linux: bundle_dir/lib
-		// macOS: bundle_dir/Contents/Frameworks
-		// Windows: bundle_dir/bin
+		bundled = target_dir + "/" + get_filename(resolved);
 
-		// Bin dir
-		// Linux: bundle_dir/bin
-		// macOS: bundle_dir/Contents/MacOS
-		// Windows: bundle_dir/bin
+		//copy_file(resolved, bundled);
 
 		return true;
+	}
+
+	bool is_bundled() const
+	{
+		return !bundled.empty();
 	}
 
 	bool is_resolved() const
@@ -230,7 +287,6 @@ struct runtime_dependency
 #endif
 
 		return std::regex_search(resolved, regex);
-
 		return system;
 	}
 
@@ -272,37 +328,6 @@ struct system_commands
 		return commands;
 	}
 };
-
-std::string get_directory(const std::string& filepath)
-{
-	return filepath.substr(0, filepath.find_last_of("/\\"));
-}
-
-std::string get_filename(const std::string& filepath)
-{
-	return filepath.substr(filepath.find_last_of("/\\") + 1);
-}
-
-std::string get_filename_we(const std::string& filepath)
-{
-	return filepath.substr(filepath.find_last_of("/\\") + 1, filepath.find_last_of("."));
-}
-
-std::string get_extension(const std::string& filepath)
-{
-	return filepath.substr(filepath.find_last_of(".") + 1);
-}
-
-std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
-{
-	const size_t index = filepath.find_last_of("/\\");
-	return { filepath.substr(0, index), filepath.substr(index + 1) };
-}
-
-std::string get_build_dir(const std::string& config)
-{
-	return BUILD_DIR_PREFIX + config;
-}
 
 std::string get_env_var(const std::string& variable)
 {
@@ -922,6 +947,8 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 	split_string_to_vector(rpaths_delimited, ';', rpaths);
 	query_syspaths(syspaths);
 
+	// List rpaths
+
 	std::cout << "Search paths:" << std::endl << std::endl;
 
 	for (const std::string& rpath : rpaths)
@@ -931,6 +958,8 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 
 	std::cout << std::endl;
 
+	// List syspaths
+
 	std::cout << "System paths:" << std::endl << std::endl;
 
 	for (const std::string& syspath : syspaths)
@@ -939,6 +968,8 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 	}
 
 	std::cout << std::endl;
+
+	// Get dependecies
 
 	query_deps(executable, deps);
 
@@ -950,6 +981,8 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 	}
 
 	std::cout << std::endl;
+
+	// Resolve
 
 	resolve_deps(deps, rpaths, syspaths);
 
@@ -978,6 +1011,18 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 	{
 		if (!dep.is_resolved()) std::cout << dep.unresolved << std::endl;
 	}
+
+	// Bundle
+
+	std::cout << "Bundled runtime dependencies:" << std::endl << std::endl;
+
+	for (runtime_dependency& dep : deps)
+	{
+		dep.bundle(get_bundle_dir(executable));
+		if (dep.is_bundled()) std::cout << dep.bundled << std::endl;
+	}
+
+	std::cout << std::endl;
 
 	return 0;
 }
