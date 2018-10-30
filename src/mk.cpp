@@ -845,9 +845,9 @@ int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::s
 	return error;
 }
 
-int copy_resolved_deps(const std::vector<std::string>& resolved_deps, const std::string& target_path)
+int copy_resolved_deps(const std::vector<runtime_dependency>& resolved_deps, const std::string& target_path)
 {
-	for (const std::string& resolved_dep : resolved_deps)
+	for (const runtime_dependency& resolved_dep : resolved_deps)
 	{
 
 	}
@@ -855,7 +855,7 @@ int copy_resolved_deps(const std::vector<std::string>& resolved_deps, const std:
 	return 1;
 }
 
-int fixup_bundle(const std::string& executable, const std::vector<std::string>& resolved_deps)
+int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& resolved_deps)
 {
 	system_commands cmd;
 
@@ -866,7 +866,7 @@ int fixup_bundle(const std::string& executable, const std::vector<std::string>& 
 
 #	elif __APPLE__ // Change install names in the executable
 
-	for (const std::string& dep : resolved_deps)
+	for (const runtime_dependency& dep : resolved_deps)
 	{
 		std::string embedded_dep = "@executable_path/";
 		cmd.append("install_name_tool -change " + dep.unresolved + " " + dep.bundled + " " + executable);
