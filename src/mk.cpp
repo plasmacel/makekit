@@ -1029,6 +1029,8 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 #	endif
 
+	std::system(cmd);
+
 	return 0;
 }
 
