@@ -1025,7 +1025,6 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 	// Set new, relative rpath
 
-	copy_resolved_deps(deps, executable + "/../lib");
 	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
 
 #	endif
