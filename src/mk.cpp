@@ -140,6 +140,8 @@ int close_pipe(FILE* stream)
 
 std::string exec(const std::string& cmd)
 {
+	if (cmd.empty()) return "";
+
 	char buffer[128];
 	std::string result;
 
@@ -841,47 +843,9 @@ int deploy(system_commands& cmd, std::string config)
 	return 0;
 }
 
-int getdeps(system_commands& cmd, const std::string& executable)
-{
-	if (executable.empty()) return 1;
-
-#if _WIN32
-
-	std::regex regex{ "\\s*(.*\\.[dD][lL][lL])[\\r\\n]*" };
-	add_set_environment_command(cmd, "x64");
-	cmd.append("dumpbin /nologo /dependents " + executable);
-	
-#elif __APPLE__
-	
-	std::regex regex{ "\\t([^\\t]+) \\(compatibility version ([0-9]+.[0-9]+.[0-9]+), current version ([0-9]+.[0-9]+.[0-9]+)\\)" };
-	// name (@executable_path.*) \(offset \d+\)
-	// name (@rpath.*) \(offset \d+\)
-	// path (.*) \(offset \d+\)
-	cmd.append("otool -L " + executable);
-
-#else
-
-	std::regex regex{ "\\s*[^\\t ]+ => ([^\\s]+).*" };
-	cmd.append("ldd " + executable);
-
-#endif
-
-	std::string cmdout = exec(cmd);
-
-	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
-	auto matches_end = std::sregex_iterator();
-
-	for (auto it = matches_begin; it != matches_end; ++it)
-	{
-		std::cout << (*it)[1] << std::endl;
-	}
-
-	return 0;
-}
-
 int query_deps(const std::string& executable, std::vector<runtime_dependency>& deps)
 {
-	if (executable.empty()) return 1;
+	if (executable.empty()) return 0;
 
 	system_commands cmd;
 
@@ -919,6 +883,56 @@ int query_deps(const std::string& executable, std::vector<runtime_dependency>& d
 	return 0;
 }
 
+int getdeps(system_commands& cmd, const std::string& executable)
+{
+	if (executable.empty()) return 1;
+
+	std::vector<runtime_dependency> deps;
+	query_deps(executable, deps);
+
+	for (const runtime_dependency& dep : deps)
+	{
+		std::cout << dep.unresolved << std::endl;
+	}
+
+	return 0;
+}
+
+int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths)
+{
+	if (executable.empty()) return 0;
+
+#ifndef _WIN32
+
+	system_commands cmd;
+
+#if __APPLE__
+
+	std::regex regex{ "path (.*) \(offset \d+\)" };
+	cmd.append("otool -l " + executable + " | grep RPATH -A2");
+
+#else
+
+	std::regex regex{ "\[(.*)\]" };
+	cmd.append("readelf -d " + executable + " | grep -P "\"R.*PATH\"");
+
+#endif
+	
+	std::string cmdout = exec(cmd);
+
+	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
+	auto matches_end = std::sregex_iterator();
+
+	for (auto it = matches_begin; it != matches_end; ++it)
+	{
+		rpaths.push_back((*it)[1]);
+	}
+
+#endif
+
+	return 0;
+}
+
 int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::string>& rpaths, const std::vector<std::string>& syspaths)
 {
 	int error = 0;
@@ -945,21 +959,35 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 {
 	system_commands cmd;
 
-#	if _WIN32 // Do nothing
+#	if _WIN32
 
-	copy_resolved_deps(resolved_deps, executable + "/../lib");
-	return 1;
+	// Do nothing
 
-#	elif __APPLE__ // Change install names in the executable
+#	elif __APPLE__
 
+	/*
 	for (const runtime_dependency& dep : resolved_deps)
 	{
 		std::string embedded_dep = "@executable_path/";
 		cmd.append("install_name_tool -change " + dep.unresolved + " " + dep.bundled + " " + executable);
 		//cmd.append("install_name_tool -rpath " + dep.unresolved + " " + dep.bundled + " " + executable);
 	}
+	*/
 
-#	else // Change the rpath in the executable
+	// Delete all rpaths
+
+	for (const std::string& rpath : rpaths)
+	{
+		cmd.append("install_name_tool -delete-rpath " + rpath + " " + executable);
+	}
+
+	// Add new, relative rpath
+
+	cmd.append("install_name_tool -add-rpath @executable_path/../Frameworks" + executable);
+
+#	else
+
+	// Set new, relative rpath
 
 	copy_resolved_deps(resolved_deps, executable + "/../lib");
 	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
@@ -1241,7 +1269,7 @@ int main(int argc, char** argv)
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
-	else if (command == "getdeps")
+	else if (command == "query_deps")
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = getdeps(cmd, args(2).str());
