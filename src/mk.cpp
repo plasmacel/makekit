@@ -113,7 +113,7 @@ std::string get_relative_to_macos_app(const std::string& filepath)
 
 bool is_macos_app(const std::string& filepath)
 {
-	return get_macos_bundle(filepath, ".app");
+	return is_macos_bundle(filepath, ".app");
 }
 
 //
@@ -140,7 +140,7 @@ std::string get_relative_to_macos_app(const std::string& filepath)
 
 bool is_macos_framework(const std::string& filepath)
 {
-	return get_macos_bundle(filepath, ".framework");
+	return is_macos_bundle(filepath, ".framework");
 }
 
 std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
