@@ -955,7 +955,7 @@ int copy_resolved_deps(const std::vector<runtime_dependency>& resolved_deps, con
 	return 0;
 }
 
-int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& resolved_deps)
+int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& resolved_deps, const std::vector<std::string>& rpaths)
 {
 	system_commands cmd;
 
