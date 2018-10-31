@@ -88,6 +88,16 @@ std::string get_macos_framework_name_we(const std::string& filepath)
 	return get_filename_we(get_macos_framework(filepath));
 }
 
+bool is_macos_app(const std::string& filepath)
+{
+	return filepath.find_first_of(".app") != std::string::npos;
+}
+
+bool is_macos_framework(const std::string& filepath)
+{
+	return filepath.find_first_of(".framework") != std::string::npos;
+}
+
 std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
 {
 	const size_t index = filepath.find_last_of("/\\");
@@ -314,7 +324,7 @@ struct runtime_dependency
 
 		bundled = target_dir + "/" + get_filename(resolved);
 
-		//copy_file(resolved, bundled);
+		copy_file(resolved, bundled);
 
 		return true;
 	}
@@ -970,7 +980,7 @@ int copy_resolved_deps(const std::vector<runtime_dependency>& resolved_deps, con
 	return 0;
 }
 
-int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& resolved_deps, const std::vector<std::string>& rpaths)
+int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& deps, const std::vector<std::string>& rpaths)
 {
 	system_commands cmd;
 
@@ -980,14 +990,15 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 #	elif __APPLE__
 
-	/*
-	for (const runtime_dependency& dep : resolved_deps)
+	// Change install names
+
+	for (const runtime_dependency& dep : deps)
 	{
-		std::string embedded_dep = "@executable_path/";
+		if (!dep.is_resolved()) continue; // error
+
 		cmd.append("install_name_tool -change " + dep.unresolved + " " + dep.bundled + " " + executable);
 		//cmd.append("install_name_tool -rpath " + dep.unresolved + " " + dep.bundled + " " + executable);
 	}
-	*/
 
 	// Delete all rpaths
 
@@ -1004,7 +1015,7 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 	// Set new, relative rpath
 
-	copy_resolved_deps(resolved_deps, executable + "/../lib");
+	copy_resolved_deps(deps, executable + "/../lib");
 	cmd.append("patchelf --set-rpath $ORIGIN/../lib " + executable);
 
 #	endif
@@ -1107,11 +1118,20 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 
 	for (runtime_dependency& dep : deps)
 	{
-		dep.bundle(get_bundle_lib_dir(executable));
-		if (dep.is_bundled()) std::cout << dep.bundled << std::endl;
+		if (!dep.is_system())
+		{
+			dep.bundle(get_bundle_lib_dir(executable));
+			if (dep.is_bundled()) std::cout << dep.bundled << std::endl;
+		}
 	}
 
 	std::cout << std::endl;
+
+	// Fixup
+
+	fixup_bundle(executable, deps, rpaths);
+
+	// Verify
 
 	return 0;
 }
