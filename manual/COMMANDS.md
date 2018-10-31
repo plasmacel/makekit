@@ -4,9 +4,9 @@
 
 The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
-#### `mk bundle [<EXECUTABLES>] [-R <SEARCH_PATHS>] [-F] [-S]`
+#### `mk bundle <EXECUTABLES> [-R <SEARCH_PATHS>] [-F] [-S]`
 
-Create a portable, self-containing package, a so-called bundle.
+Create a portable, self-containing package, a so-called bundle. All paths are semicolon (`;`) delmited.
 
 Arguments
 
