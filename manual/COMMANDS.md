@@ -4,6 +4,15 @@
 
 The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
+#### `mk bundle [<EXECUTABLES>] [-R <SEARCH_PATHS>] [-F] [-S]`
+
+Create a portable, self-containing package, a so-called bundle.
+
+Arguments
+
+`-F` - Bundle full frameworks on macOS.
+`-S` - Bundle system libraries as well.
+
 #### `mk clean [<CONFIG>] [-X [<TARGETS>]]`
 
 Removes the directory (including the configuration and the built binaries) of the build configuration specified by `<CONFIG>`.
