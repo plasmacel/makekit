@@ -68,7 +68,7 @@ std::string get_macos_bundle_name(const std::string& filepath, const std::string
 	const size_t i1 = filepath.rfind(bundle_ext);
 	const size_t i0 = filepath.find_last_of("/", i1 - 1) + 1;
 	return filepath.substr(i0, (i1 + bundle_ext.size() - i0));
-	return get_filename(get_macos_bundle(filepath));
+	return get_filename(get_macos_bundle(filepath, bundle_ext));
 }
 
 std::string get_macos_bundle_name_we(const std::string& filepath, const std::string& bundle_ext)
@@ -76,7 +76,7 @@ std::string get_macos_bundle_name_we(const std::string& filepath, const std::str
 	const size_t i1 = filepath.rfind(bundle_ext);
 	const size_t i0 = filepath.find_last_of("/", i1 - 1) + 1;
 	return filepath.substr(i0, (i1 - i0));
-	return get_filename_we(get_macos_bundle(filepath));
+	return get_filename_we(get_macos_bundle(filepath, bundle_ext));
 }
 
 std::string get_relative_to_macos_bundle(const std::string& filepath, const std::string& bundle_ext)
