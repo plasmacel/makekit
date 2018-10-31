@@ -1019,7 +1019,7 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 	// Add new, relative rpath
 
-	cmd.append("install_name_tool -add_rpath @executable_path/../Frameworks" + executable);
+	cmd.append("install_name_tool -add_rpath @executable_path/../Frameworks " + executable);
 
 #	else
 
