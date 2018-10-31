@@ -994,11 +994,9 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 {
 	system_commands cmd;
 
-#	if _WIN32
+#ifndef _WIN32
 
-	// Do nothing
-
-#	elif __APPLE__
+#	if __APPLE__
 
 	// Change install names
 
@@ -1030,6 +1028,8 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 #	endif
 
 	std::system(cmd);
+
+#endif
 
 	return 0;
 }
