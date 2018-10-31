@@ -885,7 +885,7 @@ int query_deps(const std::string& executable, std::vector<runtime_dependency>& d
 
 int getdeps(system_commands& cmd, const std::string& executable)
 {
-	if (executable.empty()) return 1;
+	if (executable.empty()) return 0;
 
 	std::vector<runtime_dependency> deps;
 	query_deps(executable, deps);
@@ -908,12 +908,12 @@ int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths
 
 #if __APPLE__
 
-	std::regex regex{ "path (.*) \(offset \d+\)" };
+	std::regex regex{ "path (.*) \\(offset \\d+\\)" };
 	cmd.append("otool -l " + executable + " | grep RPATH -A2");
 
 #else
 
-	std::regex regex{ "\[(.*)\]" };
+	std::regex regex{ "\\[(.*)\\]" };
 	cmd.append("readelf -d " + executable + " | grep -P "\"R.*PATH\"");
 
 #endif
@@ -929,6 +929,21 @@ int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths
 	}
 
 #endif
+
+	return 0;
+}
+
+int getrpaths(system_commands& cmd, const std::string& executable)
+{
+	if (executable.empty()) return 0;
+
+	std::vector<std::string> rpaths;
+	query_rpaths(executable, rpaths);
+
+	for (const std::string& rpath : rpaths)
+	{
+		std::cout << rpath << std::endl;
+	}
 
 	return 0;
 }
@@ -1269,7 +1284,7 @@ int main(int argc, char** argv)
 		retval = remake(cmd, args(2).str(), args(exclusive_param).str(), args(maxthreads_param).str(), args[{ "-r", "-R" }]);
 		if (retval != 0) return retval;
 	}
-	else if (command == "query_deps")
+	else if (command == "getdeps")
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = getdeps(cmd, args(2).str());
@@ -1285,6 +1300,12 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = gethost(cmd);
+		if (retval != 0) return retval;
+	}
+	else if (command == "getrpaths")
+	{
+		if (check_args_count(args, 3)) return 1;
+		retval = getrpaths(cmd, args(2).str());
 		if (retval != 0) return retval;
 	}
 	else if (command == "setenv")
