@@ -58,34 +58,34 @@ std::string get_filename_we(const std::string& filepath)
 
 // macOS utils
 
-std::string get_app(const std::string& filepath)
+std::string get_macos_app(const std::string& filepath)
 {
 	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".app")));
 }
 
-std::string get_app_name(const std::string& filepath)
+std::string get_macos_app_name(const std::string& filepath)
 {
-	return get_filename(get_app(filepath));
+	return get_filename(get_macos_app(filepath));
 }
 
 std::string get_app_name_we(const std::string& filepath)
 {
-	return get_filename_we(get_app(filepath));
+	return get_filename_we(get_macos_app(filepath));
 }
 
-std::string get_framework(const std::string& filepath)
+std::string get_macos_framework(const std::string& filepath)
 {
 	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".framework")));
 }
 
-std::string get_framework_name(const std::string& filepath)
+std::string get_macos_framework_name(const std::string& filepath)
 {
-	return get_filename(get_framework(filepath));
+	return get_filename(get_macos_framework(filepath));
 }
 
-std::string get_framework_name_we(const std::string& filepath)
+std::string get_macos_framework_name_we(const std::string& filepath)
 {
-	return get_filename_we(get_framework(filepath));
+	return get_filename_we(get_macos_framework(filepath));
 }
 
 std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
@@ -99,7 +99,7 @@ std::string get_build_dir(const std::string& config)
 	return BUILD_DIR_PREFIX + config;
 }
 
-std::string get_bundle_dir(const std::string& executable)
+std::string get_bundle_lib_dir(const std::string& executable)
 {
 	// Lib dir
 	// Linux: bundle_dir/lib
@@ -169,6 +169,27 @@ std::string exec(const std::string& cmd)
 	return result;
 }
 
+std::string get_env_var(const std::string& var)
+{
+	std::string value;
+
+#ifdef _WIN32
+	char* buf = nullptr;
+	size_t n = 0;
+
+	if ((_dupenv_s(&buf, &n, var.c_str()) == 0) && (buf != nullptr))
+	{
+		value.assign(buf, n - 1);
+		std::free(buf);
+	}
+#else
+	value = std::getenv(var.c_str());
+#endif
+
+	return value;
+}
+
+/*
 std::string getenv_exec(const std::string& var)
 {
 #	ifdef _WIN32
@@ -180,6 +201,7 @@ std::string getenv_exec(const std::string& var)
 	// remove trailing newline character
 	return cmdout.substr(0, cmdout.find_first_of("\r\n"));
 }
+*/
 
 void copy_file(const std::string& srcpath, const std::string& dstpath)
 {
@@ -199,7 +221,7 @@ bool exists(const std::string &filepath)
 void query_syspaths(std::vector<std::string>& syspaths)
 {
 #if _WIN32
-	syspaths = { getenv_exec("SYSTEMROOT") + "\\System32", getenv_exec("WINDIR") + "\\System32" };
+	syspaths = { get_env_var("SYSTEMROOT") + "\\System32", get_env_var("WINDIR") + "\\System32" };
 #elif __APPLE__
 	syspaths = { "/System/Library", "/usr/lib" };
 #else
@@ -308,8 +330,10 @@ struct runtime_dependency
 	bool is_system() const
 	{
 #if _WIN32
-		const std::string sysroot = getenv_exec("SYSTEMROOT");
-		const std::string windir = getenv_exec("WINDIR");
+		const std::string sysroot = std::regex_replace(get_env_var("SYSTEMROOT"), std::regex{R"(\\)"}, R"(\\)");
+		const std::string windir = std::regex_replace(get_env_var("WINDIR"), std::regex{R"(\\)"}, R"(\\)");
+
+		//std::cout << std::endl << sysroot << std::endl;
 
 		std::regex regex{"^(?:" + sysroot + "[/\\\\]sys(?:tem|wow)|" + windir + "[/\\\\]sys(?:tem|wow)|(.*[/\\\\])*(?:msvc|api-ms-win-)[^/\\\\]+dll)", std::regex_constants::icase};
 #elif __APPLE__
@@ -360,26 +384,6 @@ struct system_commands
 		return commands;
 	}
 };
-
-std::string get_env_var(const std::string& variable)
-{
-	std::string value;
-
-#ifdef _WIN32
-	char* buf = nullptr;
-	size_t n = 0;
-
-	if ((_dupenv_s(&buf, &n, variable.c_str()) == 0) && (buf != nullptr))
-	{
-		value.assign(buf, n-1);
-		std::free(buf);
-	}
-#else
-	value = std::getenv(variable.c_str());
-#endif
-
-	return value;
-}
 
 inline void message(system_commands& cmd, const std::string& msg)
 {
@@ -979,6 +983,9 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 	split_string_to_vector(rpaths_delimited, ';', rpaths);
 	query_syspaths(syspaths);
 
+	std::string PATH = get_env_var("PATH");
+	split_string_to_vector(PATH, ';', syspaths);
+
 	// List rpaths
 
 	std::cout << "Search paths:" << std::endl << std::endl;
@@ -1022,16 +1029,21 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 
 	for (const runtime_dependency& dep : deps)
 	{
-		if (dep.is_resolved())
+		if (dep.is_resolved() && !dep.is_system())
 		{
-			std::cout << dep.resolved;
+			std::cout << dep.resolved << std::endl;
+		}
+	}
 
-			if (dep.is_system())
-			{
-				std::cout << " (system)";
-			}
-			
-			std::cout << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "Resolved system runtime dependencies:" << std::endl << std::endl;
+
+	for (const runtime_dependency& dep : deps)
+	{
+		if (dep.is_resolved() && dep.is_system())
+		{
+			std::cout << dep.resolved << std::endl;
 		}
 	}
 
@@ -1044,13 +1056,15 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 		if (!dep.is_resolved()) std::cout << dep.unresolved << std::endl;
 	}
 
+	std::cout << std::endl;
+
 	// Bundle
 
 	std::cout << "Bundled runtime dependencies:" << std::endl << std::endl;
 
 	for (runtime_dependency& dep : deps)
 	{
-		dep.bundle(get_bundle_dir(executable));
+		dep.bundle(get_bundle_lib_dir(executable));
 		if (dep.is_bundled()) std::cout << dep.bundled << std::endl;
 	}
 
