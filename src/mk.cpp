@@ -215,7 +215,7 @@ std::string getenv_exec(const std::string& var)
 }
 */
 
-void copy_file(const std::string& srcpath, const std::string& dstpath)
+void file_copy(const std::string& srcpath, const std::string& dstpath)
 {
 	std::ifstream src(srcpath, std::ios::binary);
 	std::ofstream dst(dstpath, std::ios::binary);
@@ -223,11 +223,20 @@ void copy_file(const std::string& srcpath, const std::string& dstpath)
 	dst << src.rdbuf();
 }
 
-bool exists(const std::string &filepath)
+bool file_exists(const std::string &filepath)
 {
 	if (filepath.empty()) return false;
 	struct stat buffer;
 	return stat(filepath.c_str(), &buffer) != -1;
+}
+
+std::string make_directory(const std::string& path)
+{
+#if _WIN32
+	return exec("@mkdir \"" + path + "\"");
+#else
+	return exec("mkdir -p \"" + path + "\"");
+#endif
 }
 
 void query_syspaths(std::vector<std::string>& syspaths)
@@ -258,7 +267,7 @@ struct runtime_dependency
 		// Try to resolve the original path
 
 		resolved = unresolved;
-		if (exists(resolved)) return true;
+		if (file_exists(resolved)) return true;
 
 		// Try to resolve by syspaths
 
@@ -267,7 +276,7 @@ struct runtime_dependency
 			resolved = unresolved;
 			resolved.insert(0, syspath + "\\");
 
-			if (exists(resolved)) return true;
+			if (file_exists(resolved)) return true;
 		}
 
 		// Try to resolve by rpaths
@@ -277,7 +286,7 @@ struct runtime_dependency
 			resolved = unresolved;
 			resolved.insert(0, rpath + "\\");
 
-			if (exists(resolved)) return true;
+			if (file_exists(resolved)) return true;
 		}
 #else
 
@@ -292,7 +301,7 @@ struct runtime_dependency
 				resolved = unresolved;
 				resolved.replace(rpath_substring_pos, rpath_substring_pos + 6, syspath);
 
-				if (exists(resolved)) return true;
+				if (file_exists(resolved)) return true;
 			}
 
 			// Try to resolve by rpaths
@@ -302,14 +311,14 @@ struct runtime_dependency
 				resolved = unresolved;
 				resolved.replace(rpath_substring_pos, rpath_substring_pos + 6, rpath);
 
-				if (exists(resolved)) return true;
+				if (file_exists(resolved)) return true;
 			}
 		}
 		else
 		{
 			// Try to resolve the original path
 			resolved = unresolved;
-			if (exists(resolved)) return true;
+			if (file_exists(resolved)) return true;
 		}
 #endif
 
@@ -321,10 +330,11 @@ struct runtime_dependency
 	bool bundle(const std::string& target_dir)
 	{
 		if (!is_resolved()) return false;
+		if (!file_exists(target_dir)) return false;
 
 		bundled = target_dir + "/" + get_filename(resolved);
 
-		copy_file(resolved, bundled);
+		file_copy(resolved, bundled);
 
 		return true;
 	}
@@ -1116,11 +1126,15 @@ int bundle(system_commands& cmd, const std::string& executable, std::string rpat
 
 	std::cout << "Bundled runtime dependencies:" << std::endl << std::endl;
 
+	const std::string bundle_lib_dir = get_bundle_lib_dir(executable);
+
+	make_directory(bundle_lib_dir);
+
 	for (runtime_dependency& dep : deps)
 	{
 		if (!dep.is_system())
 		{
-			dep.bundle(get_bundle_lib_dir(executable));
+			dep.bundle(bundle_lib_dir);
 			if (dep.is_bundled()) std::cout << dep.bundled << std::endl;
 		}
 	}
