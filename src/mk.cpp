@@ -1004,7 +1004,7 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 	for (const runtime_dependency& dep : deps)
 	{
-		if (!dep.is_resolved()) continue; // error
+		if (!dep.is_bundled()) continue; // error
 
 		cmd.append("install_name_tool -change " + dep.unresolved + " " + dep.bundled + " " + executable);
 		//cmd.append("install_name_tool -rpath " + dep.unresolved + " " + dep.bundled + " " + executable);
