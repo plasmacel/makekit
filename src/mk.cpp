@@ -933,7 +933,7 @@ int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths
 
 #else
 
-	std::regex regex{ "(\/.*?)(\]|\:)" };
+	std::regex regex{ "(\\/.*?)(\\]|\\:)" };
 	cmd.append("readelf -d " + executable + " | grep -P \"R.*PATH\"");
 
 #endif
@@ -1014,12 +1014,12 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 	for (const std::string& rpath : rpaths)
 	{
-		cmd.append("install_name_tool -delete-rpath " + rpath + " " + executable);
+		cmd.append("install_name_tool -delete_rpath " + rpath + " " + executable);
 	}
 
 	// Add new, relative rpath
 
-	cmd.append("install_name_tool -add-rpath @executable_path/../Frameworks" + executable);
+	cmd.append("install_name_tool -add_rpath @executable_path/../Frameworks" + executable);
 
 #	else
 
