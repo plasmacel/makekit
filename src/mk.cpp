@@ -169,6 +169,7 @@ std::string get_bundle_lib_dir(const std::string& executable)
 #if _WIN32
 	return get_directory(executable);
 #elif __APPLE__
+	//return get_macos_app(executable) + "/Contents/Frameworks";
 	return get_directory(executable) + "/../Frameworks";
 #else
 	return get_directory(executable) + "/../lib";
@@ -258,28 +259,15 @@ std::string getenv_exec(const std::string& var)
 	// remove trailing newline character
 	return cmdout.substr(0, cmdout.find_first_of("\r\n"));
 }
-*/
 
-void file_copy(const std::string& srcpath, const std::string& dstpath)
+void copy_file(const std::string& srcpath, const std::string& dstpath)
 {
-	std::ifstream src(srcpath, std::ios::binary);
-	std::ofstream dst(dstpath, std::ios::binary);
+std::ifstream src(srcpath, std::ios::binary);
+std::ofstream dst(dstpath, std::ios::binary);
 
-	dst << src.rdbuf();
-}
+dst << src.rdbuf();
 
-/*
-void framework_copy(const std::string& srcpath, const std::string& currentlib, const std::string& dstpath)
-{
-	const std::string framework_name = get_macos_framework_name(srcpath);
-
-	make_directory(get_directory(currentlib));
-
-	file_copy(srcpath + "/Resources", dstpath + "/Resources");
-	file_copy(srcpath + "/Resources", dstpath + "/Resources");
-	
-	file_copy(currentlib, dstpath + "/" + framework_name);
-
+//std::system("cmake -E copy_if_different " + srcpath + " " + dstpath);
 }
 */
 
@@ -290,12 +278,140 @@ bool file_exists(const std::string &filepath)
 	return stat(filepath.c_str(), &buffer) != -1;
 }
 
-std::string make_directory(const std::string& path)
+int compress_files(const std::string& srcpaths, const std::string& dstpath, std::string format = "default")
 {
+	if (format == "default")
+	{
+#if _WIN32
+		format = "zip";
+#elif __APPLE__
+		format = "zip";
+#else
+		format = "gnutar";
+#endif
+	}
+
+	return std::system("cmake -E tar " + dstpath + " --format=zip -- " + srcpaths);
+}
+
+int copy_directory_files(const std::string& srcpath, const std::string& dstpath)
+{
+	return std::system("cmake -E copy_directory " + srcpath + " " + dstpath);
+}
+
+int copy_file(const std::string& srcpath, const std::string& dstpath)
+{
+	return std::system("cmake -E copy " + srcpath + " " + dstpath);
+}
+
+int create_symlink(const std::string& srcpath, const std::string& dstpath)
+{
+#if _WIN32
+	return std::system("mklink /D " + dstpath + " " + srcpath);
+#else
+	return std::system("cmake -E create_symlink " + srcpath + " " + dstpath);
+#endif
+}
+
+int show_environment()
+{
+	return std::system("cmake -E environment");
+}
+
+int remove_windows_registry(const std::string& key)
+{
+	return std::system("cmake -E read_regv " + key);
+}
+
+int write_windows_registry(const std::string& key, const std::string& value)
+{
+	return std::system("cmake -E write_regv " + key + " " + value);
+}
+
+int make_directory(const std::string& dstpath)
+{
+/*
 #if _WIN32
 	return exec("@mkdir \"" + path + "\"");
 #else
 	return exec("mkdir -p \"" + path + "\"");
+#endif
+*/
+	return std::system("cmake -E make_directory " + dstpath);
+}
+
+int remove_directory(const std::string& dstpath)
+{
+/*
+#if _WIN32
+	return exec("@rmdir \"" + path + "\"");
+#else
+	return exec("rmdir -p \"" + path + "\"");
+#endif
+*/
+	return std::system("cmake -E remove_directory " + dstpath);
+}
+
+int remove_file(const std::string& dstpath)
+{
+	return std::system("cmake -E remove -f " + dstpath);
+}
+
+int rename_directory(const std::string& srcpath, const std::string& dstpath)
+{
+	return std::system("cmake -E rename " + srcpath + " " + dstpath);
+}
+
+int rename_file(const std::string& srcpath, const std::string& dstpath)
+{
+	return std::system("cmake -E rename " + srcpath + " " + dstpath);
+}
+
+void copy_framework(const std::string& srcpath, const std::string& currentlib, const std::string& dstpath)
+{
+	const std::string src_framework = get_macos_framework(srcpath);
+	const std::string dst_framework;
+
+	const std::string framework_name = get_macos_framework_name(srcpath);
+	const std::string framework_name_we = get_macos_framework_name_we(framework_name);
+	const std::string current_lib_relative_to_framework = get_relative_to_macos_framework(currentlib);
+	const std::string current_lib_dir_relative_to_framework = get_directory(current_lib_relative_to_framework);
+
+	make_directory(dst_framework + "/" + current_lib_dir_relative_to_framework);
+
+	// Copy symlinks
+
+	copy_file(src_framework + "/" + framework_name_we,
+		dst_framework + "/" + framework_name_we);
+
+	copy_file(src_framework + "/Resources",
+		dst_framework + "/Resources");
+
+	copy_file(src_framework + "/Versions/Current",
+		dst_framework + "/Versions/Current");
+
+	// Copy current lib
+
+	copy_file(src_framework + "/" + current_lib_relative_to_framework,
+		dst_framework + "/" + current_lib_relative_to_framework);
+
+	copy_directory_files(src_framework + current_lib_dir_relative_to_framework + "/Resources",
+		dst_framework + current_lib_dir_relative_to_framework + "/Resources");
+}
+
+void copy_dependency(const std::string& srcpath, const std::string& dstpath)
+{
+#if __APPLE__
+	if (is_macos_framework(srcpath))
+	{
+		copy_framework(get_macos_framework(srcpath), get_macos_framework(dstpath));
+	}
+	else
+	{
+		copy_file(srcpath, dstpath);
+	}
+#else
+	copy_file(srcpath, dstpath);
 #endif
 }
 
@@ -394,7 +510,7 @@ struct runtime_dependency
 
 		bundled = target_dir + "/" + get_filename(resolved);
 
-		file_copy(resolved, bundled);
+		copy_file(resolved, bundled);
 
 		return true;
 	}
