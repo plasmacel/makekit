@@ -271,6 +271,11 @@ dst << src.rdbuf();
 }
 */
 
+int execute(const std::string& cmd)
+{
+	return std::system(cmd.c_str());
+}
+
 bool file_exists(const std::string &filepath)
 {
 	if (filepath.empty()) return false;
@@ -291,41 +296,41 @@ int compress_files(const std::string& srcpaths, const std::string& dstpath, std:
 #endif
 	}
 
-	return std::system("cmake -E tar " + dstpath + " --format=zip -- " + srcpaths);
+	return execute("cmake -E tar " + dstpath + " --format=zip -- " + srcpaths);
 }
 
 int copy_directory_files(const std::string& srcpath, const std::string& dstpath)
 {
-	return std::system("cmake -E copy_directory " + srcpath + " " + dstpath);
+	return execute("cmake -E copy_directory " + srcpath + " " + dstpath);
 }
 
 int copy_file(const std::string& srcpath, const std::string& dstpath)
 {
-	return std::system("cmake -E copy " + srcpath + " " + dstpath);
+	return execute("cmake -E copy " + srcpath + " " + dstpath);
 }
 
 int create_symlink(const std::string& srcpath, const std::string& dstpath)
 {
 #if _WIN32
-	return std::system("mklink /D " + dstpath + " " + srcpath);
+	return execute("mklink /D " + dstpath + " " + srcpath);
 #else
-	return std::system("cmake -E create_symlink " + srcpath + " " + dstpath);
+	return execute("cmake -E create_symlink " + srcpath + " " + dstpath);
 #endif
 }
 
 int show_environment()
 {
-	return std::system("cmake -E environment");
+	return execute("cmake -E environment");
 }
 
 int remove_windows_registry(const std::string& key)
 {
-	return std::system("cmake -E read_regv " + key);
+	return execute("cmake -E read_regv " + key);
 }
 
 int write_windows_registry(const std::string& key, const std::string& value)
 {
-	return std::system("cmake -E write_regv " + key + " " + value);
+	return execute("cmake -E write_regv " + key + " " + value);
 }
 
 int make_directory(const std::string& dstpath)
@@ -337,7 +342,7 @@ int make_directory(const std::string& dstpath)
 	return exec("mkdir -p \"" + path + "\"");
 #endif
 */
-	return std::system("cmake -E make_directory " + dstpath);
+	return execute("cmake -E make_directory " + dstpath);
 }
 
 int remove_directory(const std::string& dstpath)
@@ -349,22 +354,22 @@ int remove_directory(const std::string& dstpath)
 	return exec("rmdir -p \"" + path + "\"");
 #endif
 */
-	return std::system("cmake -E remove_directory " + dstpath);
+	return execute("cmake -E remove_directory " + dstpath);
 }
 
 int remove_file(const std::string& dstpath)
 {
-	return std::system("cmake -E remove -f " + dstpath);
+	return execute("cmake -E remove -f " + dstpath);
 }
 
 int rename_directory(const std::string& srcpath, const std::string& dstpath)
 {
-	return std::system("cmake -E rename " + srcpath + " " + dstpath);
+	return execute("cmake -E rename " + srcpath + " " + dstpath);
 }
 
 int rename_file(const std::string& srcpath, const std::string& dstpath)
 {
-	return std::system("cmake -E rename " + srcpath + " " + dstpath);
+	return execute("cmake -E rename " + srcpath + " " + dstpath);
 }
 
 void copy_framework(const std::string& srcpath, const std::string& currentlib, const std::string& dstpath)
