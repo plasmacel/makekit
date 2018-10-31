@@ -133,7 +133,7 @@ std::string get_macos_framework_name_we(const std::string& filepath)
 	return get_macos_bundle_name_we(filepath, ".framework");
 }
 
-std::string get_relative_to_macos_app(const std::string& filepath)
+std::string get_relative_to_macos_framework(const std::string& filepath)
 {
 	return get_relative_to_macos_bundle(filepath, ".framework");
 }
