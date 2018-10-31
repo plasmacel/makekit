@@ -934,7 +934,7 @@ int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths
 #else
 
 	std::regex regex{ "\\[(.*)\\]" };
-	cmd.append("readelf -d " + executable + " | grep -P "\"R.*PATH\"");
+	cmd.append("readelf -d " + executable + " | grep -P \"R.*PATH\"");
 
 #endif
 	
