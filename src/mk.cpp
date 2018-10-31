@@ -409,7 +409,7 @@ void copy_dependency(const std::string& srcpath, const std::string& dstpath)
 #if __APPLE__
 	if (is_macos_framework(srcpath))
 	{
-		copy_framework(get_macos_framework(srcpath), get_macos_framework(dstpath));
+		copy_framework(get_macos_framework(srcpath), srcpath, get_macos_framework(dstpath));
 	}
 	else
 	{
