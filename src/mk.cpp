@@ -43,7 +43,7 @@ std::string get_directory(const std::string& filepath)
 
 std::string get_extension(const std::string& filepath)
 {
-	return filepath.substr(filepath.find_last_of(".") + 1);
+	return filepath.substr(filepath.find_last_of('.') + 1);
 }
 
 std::string get_filename(const std::string& filepath)
@@ -53,7 +53,8 @@ std::string get_filename(const std::string& filepath)
 
 std::string get_filename_we(const std::string& filepath)
 {
-	return filepath.substr(filepath.find_last_of("/\\") + 1, filepath.find_last_of("."));
+	const std::string filename = get_filename(filepath);
+	return filename.substr(0, filename.find_last_of('.'));
 }
 
 // macOS utils
@@ -66,7 +67,8 @@ std::string get_macos_bundle(const std::string& filepath, const std::string& bun
 std::string get_macos_bundle_name(const std::string& filepath, const std::string& bundle_ext)
 {
 	const size_t i1 = filepath.rfind(bundle_ext);
-	const size_t i0 = filepath.find_last_of("/", i1 - 1) + 1;
+	const size_t i0 = filepath.find_last_of('/', i1 - 1) + 1;
+
 	return filepath.substr(i0, (i1 + bundle_ext.size() - i0));
 	return get_filename(get_macos_bundle(filepath, bundle_ext));
 }
@@ -74,7 +76,8 @@ std::string get_macos_bundle_name(const std::string& filepath, const std::string
 std::string get_macos_bundle_name_we(const std::string& filepath, const std::string& bundle_ext)
 {
 	const size_t i1 = filepath.rfind(bundle_ext);
-	const size_t i0 = filepath.find_last_of("/", i1 - 1) + 1;
+	const size_t i0 = filepath.find_last_of('/', i1 - 1) + 1;
+
 	return filepath.substr(i0, (i1 - i0));
 	return get_filename_we(get_macos_bundle(filepath, bundle_ext));
 }
