@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 #include "argh.h"
 
-static const std::string VERSION = "0.3.3";
+static const std::string VERSION = "0.4";
 static const std::string BUILD_DIR_PREFIX = "build.";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
@@ -194,7 +194,13 @@ int close_pipe(FILE* stream)
 #endif
 }
 
-std::string exec(const std::string& cmd)
+int execute(const std::string& cmd)
+{
+	if (cmd.empty()) return 0;
+	return std::system(cmd.c_str());
+}
+
+std::string execute_piped(const std::string& cmd)
 {
 	if (cmd.empty()) return "";
 
@@ -251,9 +257,9 @@ std::string get_env_var(const std::string& var)
 std::string getenv_exec(const std::string& var)
 {
 #	ifdef _WIN32
-	std::string cmdout = exec("echo %" + var + "%");
+	std::string cmdout = execute_piped("echo %" + var + "%");
 #	else
-	std::string cmdout = exec("echo ${" + var + "}");
+	std::string cmdout = execute_piped("echo ${" + var + "}");
 #	endif
 
 	// remove trailing newline character
@@ -270,11 +276,6 @@ dst << src.rdbuf();
 //std::system("cmake -E copy_if_different " + srcpath + " " + dstpath);
 }
 */
-
-int execute(const std::string& cmd)
-{
-	return std::system(cmd.c_str());
-}
 
 bool file_exists(const std::string &filepath)
 {
@@ -337,9 +338,9 @@ int make_directory(const std::string& dstpath)
 {
 /*
 #if _WIN32
-	return exec("@mkdir \"" + path + "\"");
+	return execute_piped("@mkdir \"" + path + "\"");
 #else
-	return exec("mkdir -p \"" + path + "\"");
+	return execute_piped("mkdir -p \"" + path + "\"");
 #endif
 */
 	return execute("cmake -E make_directory " + dstpath);
@@ -349,9 +350,9 @@ int remove_directory(const std::string& dstpath)
 {
 /*
 #if _WIN32
-	return exec("@rmdir \"" + path + "\"");
+	return execute_piped("@rmdir \"" + path + "\"");
 #else
-	return exec("rmdir -p \"" + path + "\"");
+	return execute_piped("rmdir -p \"" + path + "\"");
 #endif
 */
 	return execute("cmake -E remove_directory " + dstpath);
@@ -605,10 +606,10 @@ inline void where_path(system_commands& cmd, const std::string& filename)
 inline bool has_path(const std::string& filename)
 {
 #ifdef _WIN32
-	std::system(std::string{"where /q \"" + filename + "\""}.c_str());
+	execute("where /q \"" + filename + "\"");
 	return get_env_var("ERRORLEVEL") == "0";
 #else
-	std::system(std::string{"which " + filename}.c_str());
+	execute("which " + filename);
 	return get_env_var("?") == "0";
 #endif
 }
@@ -1071,7 +1072,7 @@ int query_deps(const std::string& executable, std::vector<runtime_dependency>& d
 
 #endif
 
-	std::string cmdout = exec(cmd);
+	std::string cmdout = execute_piped(cmd);
 
 	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
 	auto matches_end = std::sregex_iterator();
@@ -1119,7 +1120,7 @@ int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths
 
 #endif
 	
-	std::string cmdout = exec(cmd);
+	std::string cmdout = execute_piped(cmd);
 
 	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
 	auto matches_end = std::sregex_iterator();
@@ -1208,7 +1209,7 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 
 #	endif
 
-	std::system(cmd);
+	execute(cmd);
 
 #endif
 
@@ -1544,7 +1545,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	std::system(cmd);
+	execute(cmd);
 
 	return 0;
 }
