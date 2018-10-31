@@ -58,44 +58,89 @@ std::string get_filename_we(const std::string& filepath)
 
 // macOS utils
 
+std::string get_macos_bundle(const std::string& filepath, const std::string& bundle_ext)
+{
+	return filepath.substr(0, filepath.rfind(bundle_ext) + bundle_ext.size());
+}
+
+std::string get_macos_bundle_name(const std::string& filepath, const std::string& bundle_ext)
+{
+	const size_t i1 = filepath.rfind(bundle_ext);
+	const size_t i0 = filepath.find_last_of("/", i1 - 1) + 1;
+	return filepath.substr(i0, (i1 + bundle_ext.size() - i0));
+	return get_filename(get_macos_bundle(filepath));
+}
+
+std::string get_macos_bundle_name_we(const std::string& filepath, const std::string& bundle_ext)
+{
+	const size_t i1 = filepath.rfind(bundle_ext);
+	const size_t i0 = filepath.find_last_of("/", i1 - 1) + 1;
+	return filepath.substr(i0, (i1 - i0));
+	return get_filename_we(get_macos_bundle(filepath));
+}
+
+std::string get_relative_to_macos_bundle(const std::string& filepath, const std::string& bundle_ext)
+{
+	return filepath.substr(filepath.rfind(bundle_ext) + bundle_ext.size());
+}
+
+bool is_macos_bundle(const std::string& filepath, const std::string& bundle_ext)
+{
+	return filepath.find(bundle_ext) != std::string::npos;
+}
+
+//
+
 std::string get_macos_app(const std::string& filepath)
 {
-	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".app")));
+	return get_macos_bundle(filepath, ".app");
 }
 
 std::string get_macos_app_name(const std::string& filepath)
 {
-	return get_filename(get_macos_app(filepath));
+	return get_macos_bundle_name(filepath, ".app");
 }
 
-std::string get_app_name_we(const std::string& filepath)
+std::string get_macos_app_name_we(const std::string& filepath)
 {
-	return get_filename_we(get_macos_app(filepath));
+	return get_macos_bundle_name_we(filepath, ".app");
 }
 
-std::string get_macos_framework(const std::string& filepath)
+std::string get_relative_to_macos_app(const std::string& filepath)
 {
-	return filepath.substr(0, filepath.find_first_of("/\\", filepath.find_last_of(".framework")));
-}
-
-std::string get_macos_framework_name(const std::string& filepath)
-{
-	return get_filename(get_macos_framework(filepath));
-}
-
-std::string get_macos_framework_name_we(const std::string& filepath)
-{
-	return get_filename_we(get_macos_framework(filepath));
+	return get_relative_to_macos_bundle(filepath, ".app");
 }
 
 bool is_macos_app(const std::string& filepath)
 {
-	return filepath.find_first_of(".app") != std::string::npos;
+	return get_macos_bundle(filepath, ".app");
+}
+
+//
+
+std::string get_macos_framework(const std::string& filepath)
+{
+	return get_macos_bundle(filepath, ".framework");
+}
+
+std::string get_macos_framework_name(const std::string& filepath)
+{
+	return get_macos_bundle_name(filepath, ".framework");
+}
+
+std::string get_macos_framework_name_we(const std::string& filepath)
+{
+	return get_macos_bundle_name_we(filepath, ".framework");
+}
+
+std::string get_relative_to_macos_app(const std::string& filepath)
+{
+	return get_relative_to_macos_bundle(filepath, ".framework");
 }
 
 bool is_macos_framework(const std::string& filepath)
 {
-	return filepath.find_first_of(".framework") != std::string::npos;
+	return get_macos_bundle(filepath, ".framework");
 }
 
 std::pair<std::string, std::string> get_directory_and_filename(const std::string& filepath)
@@ -222,6 +267,21 @@ void file_copy(const std::string& srcpath, const std::string& dstpath)
 
 	dst << src.rdbuf();
 }
+
+/*
+void framework_copy(const std::string& srcpath, const std::string& currentlib, const std::string& dstpath)
+{
+	const std::string framework_name = get_macos_framework_name(srcpath);
+
+	make_directory(get_directory(currentlib));
+
+	file_copy(srcpath + "/Resources", dstpath + "/Resources");
+	file_copy(srcpath + "/Resources", dstpath + "/Resources");
+	
+	file_copy(currentlib, dstpath + "/" + framework_name);
+
+}
+*/
 
 bool file_exists(const std::string &filepath)
 {
