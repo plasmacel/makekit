@@ -292,7 +292,7 @@ struct runtime_dependency
 
 		const size_t rpath_substring_pos = unresolved.find("@rpath");
 
-		if (rpath_substring_pos != std::string::npos)
+		if (rpath_substring_pos != std::string::npos) // it is always false on Linux, since ldd automatically substitues the rpath
 		{
 			// Try to resolve by syspaths
 
@@ -933,7 +933,7 @@ int query_rpaths(const std::string& executable, std::vector<std::string>& rpaths
 
 #else
 
-	std::regex regex{ "\\[(.*)\\]" };
+	std::regex regex{ "(\/.*?)(\]|\:)" };
 	cmd.append("readelf -d " + executable + " | grep -P \"R.*PATH\"");
 
 #endif
