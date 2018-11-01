@@ -1139,7 +1139,6 @@ int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::v
 	{
 		if (dep.resolve())
 		{
-			resolved = true;
 			continue;
 		}
 
@@ -1147,7 +1146,6 @@ int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::v
 		{
 			if (dep.resolve(paths))
 			{
-				resolved = true;
 				continue;
 			}
 		}
@@ -1326,7 +1324,7 @@ int bundle(system_commands& cmd, const std::string& executable, std::string xtrp
 
 	// Fixup
 
-	fixup_bundle(executable, deps, rpaths);
+	fixup_bundle(executable, deps, runpaths);
 
 	// Verify
 
