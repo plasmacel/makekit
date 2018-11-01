@@ -424,17 +424,6 @@ void copy_dependency(const std::string& srcpath, const std::string& dstpath)
 #endif
 }
 
-void query_syspaths(std::vector<std::string>& syspaths)
-{
-#if _WIN32
-	syspaths = { get_env_var("SYSTEMROOT") + "\\System32", get_env_var("WINDIR") + "\\System32" };
-#elif __APPLE__
-	syspaths = { "/System/Library", "/usr/lib" };
-#else
-	syspaths = { "/lib", "/lib32", "/libx32", "/lib64", "/usr/lib", "/usr/lib32", "/usr/libx32", "/usr/lib64", "/usr/X11R6", "/usr/bin" };
-#endif
-}
-
 struct runtime_dependency
 {
 	runtime_dependency(const std::string& filepath)
@@ -1066,22 +1055,7 @@ int query_deps(const std::string& executable, std::vector<runtime_dependency>& d
 	return 0;
 }
 
-int getdeps(system_commands& cmd, const std::string& executable)
-{
-	if (executable.empty()) return 0;
-
-	std::vector<runtime_dependency> deps;
-	query_deps(executable, deps);
-
-	for (const runtime_dependency& dep : deps)
-	{
-		std::cout << dep.unresolved << std::endl;
-	}
-
-	return 0;
-}
-
-int query_runpaths(const std::string& executable, std::vector<std::string>& rpaths)
+int query_runpaths(const std::string& executable, std::vector<std::string>& output)
 {
 	if (executable.empty()) return 0;
 
@@ -1100,7 +1074,7 @@ int query_runpaths(const std::string& executable, std::vector<std::string>& rpat
 	cmd.append("readelf -d " + executable + " | grep -P \"R.*PATH\"");
 
 #endif
-	
+
 	std::string cmdout = execute_piped(cmd);
 
 	auto matches_begin = std::sregex_iterator(cmdout.begin(), cmdout.end(), regex);
@@ -1108,10 +1082,56 @@ int query_runpaths(const std::string& executable, std::vector<std::string>& rpat
 
 	for (auto it = matches_begin; it != matches_end; ++it)
 	{
-		rpaths.push_back((*it)[1]);
+		output.push_back((*it)[1]);
 	}
 
 #endif
+
+	return 0;
+}
+
+void query_envpaths(std::vector<std::string>& output)
+{
+#ifdef _WIN32
+	static constexpr const char PATH_DELIMITER = ';';
+#else
+	static constexpr const char PATH_DELIMITER = ':';
+#endif
+
+	const std::string PATH = get_env_var("PATH");
+	split_string_to_vector(PATH, PATH_DELIMITER, output);
+}
+
+void query_syspaths(std::vector<std::string>& output)
+{
+#if _WIN32
+	output = { get_env_var("WINDIR") + "\\System32",  get_env_var("WINDIR") + "\\SysWOW64",
+			   get_env_var("SYSTEMROOT") + "\\System32", get_env_var("SYSTEMROOT") + "\\SysWOW64" };
+#elif __APPLE__
+	output = { "/System/Library", "/usr/lib" };
+#else
+	output = { "/lib", "/lib32", "/libx32", "/lib64", "/usr/lib", "/usr/lib32", "/usr/libx32", "/usr/lib64", "/usr/X11R6", "/usr/bin" };
+#endif
+}
+
+void query_xtrpaths(const std::string& paths, std::vector<std::string>& output)
+{
+	static constexpr const char XPATH_DELIMITER = ';';
+
+	split_string_to_vector(paths, XPATH_DELIMITER, output);
+}
+
+int getdeps(system_commands& cmd, const std::string& executable)
+{
+	if (executable.empty()) return 0;
+
+	std::vector<runtime_dependency> deps;
+	query_deps(executable, deps);
+
+	for (const runtime_dependency& dep : deps)
+	{
+		std::cout << dep.unresolved << std::endl;
+}
 
 	return 0;
 }
@@ -1129,6 +1149,38 @@ int getrpaths(system_commands& cmd, const std::string& executable)
 	}
 
 	return 0;
+}
+
+void print_deps(const std::vector<runtime_dependency>& deps, bool resolved_filter = false, bool system_filter = false)
+{
+	if (resolved_filter)
+	{
+		for (const runtime_dependency& dep : deps)
+		{
+			if (dep.is_resolved() && (dep.is_system() == system_filter))
+			{
+				std::cout << dep.resolved << std::endl;
+			}
+		}
+	}
+	else
+	{
+		for (const runtime_dependency& dep : deps)
+		{
+			if (!dep.is_resolved() && (dep.is_system() == system_filter))
+			{
+				std::cout << dep.unresolved << std::endl;
+			}
+		}
+	}
+}
+
+void print_paths(const std::vector<std::string>& paths)
+{
+	for (const std::string& path : paths)
+	{
+		std::cout << path << std::endl;
+	}
 }
 
 int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::vector<std::string>>& pathspack)
@@ -1154,16 +1206,6 @@ int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::v
 	}
 
 	return error;
-}
-
-int copy_resolved_deps(const std::vector<runtime_dependency>& resolved_deps, const std::string& target_path)
-{
-	for (const runtime_dependency& resolved_dep : resolved_deps)
-	{
-
-	}
-
-	return 0;
 }
 
 int fixup_bundle(const std::string& executable, const std::vector<runtime_dependency>& deps, const std::vector<std::string>& rpaths)
@@ -1210,50 +1252,9 @@ int fixup_bundle(const std::string& executable, const std::vector<runtime_depend
 	return 0;
 }
 
-int validate_bundle()
+int verify_bundle(const std::string& executable, const std::vector<runtime_dependency>& deps)
 {
 	return 0;
-}
-
-// CPATHS -> RPATHS -> SPATHS
-
-void query_envpaths(std::vector<std::string>& output)
-{
-#ifdef _WIN32
-	static constexpr const char PATH_DELIMITER = ';';
-#else
-	static constexpr const char PATH_DELIMITER = ':';
-#endif
-
-	const std::string PATH = get_env_var("PATH");
-	split_string_to_vector(PATH, PATH_DELIMITER, output);
-}
-
-void print_paths(const std::vector<std::string>& paths)
-{
-	for (const std::string& path : paths)
-	{
-		std::cout << path << std::endl;
-	}
-}
-
-void print_resolved_deps(const std::vector<runtime_dependency>& deps, bool system_filter)
-{
-	for (const runtime_dependency& dep : deps)
-	{
-		if (dep.is_resolved() && (dep.is_system() == system_filter))
-		{
-			std::cout << dep.resolved << std::endl;
-		}
-	}
-}
-
-void print_unresolved_deps(const std::vector<runtime_dependency>& deps)
-{
-	for (const runtime_dependency& dep : deps)
-	{
-		if (!dep.is_resolved()) std::cout << dep.unresolved << std::endl;
-	}
 }
 
 int bundle(system_commands& cmd, const std::string& executable, std::string xtrpaths_delimited)
@@ -1265,42 +1266,49 @@ int bundle(system_commands& cmd, const std::string& executable, std::string xtrp
 	std::vector<std::string> envpaths;
 	std::vector<std::string> syspaths;
 
-	// Query dependencies
-
-	query_deps(executable, deps);
-
-	// Query paths
-
-	split_string_to_vector(xtrpaths_delimited, ';', xtrpaths);
-
-	query_runpaths(executable, runpaths);
-	query_envpaths(envpaths);
-	query_syspaths(syspaths);
-
 	// List of search paths in order
 
 	std::cout << "Search paths in order:" << std::endl << std::endl;
+
+	query_runpaths(executable, runpaths);
 	print_paths(runpaths);
+
+	query_xtrpaths(xtrpaths_delimited, xtrpaths);
 	print_paths(xtrpaths);
+
+	query_envpaths(envpaths);
 	print_paths(envpaths);
+
+	query_syspaths(syspaths);
 	print_paths(syspaths);
+
 	std::cout << std::endl;
 
 	// Get dependecies
-
+	
 	std::cout << "Runtime dependencies:" << std::endl << std::endl;
-	print_unresolved_deps(deps);
+
+	query_deps(executable, deps);
+	print_deps(deps, false, false);
+
 	std::cout << std::endl;
 
 	// Resolve
+
+	resolve_deps(deps, { runpaths, xtrpaths, envpaths, syspaths });
 	
 	std::cout << "Resolved runtime dependencies:" << std::endl << std::endl;
-	resolve_deps(deps, { runpaths, xtrpaths, envpaths, syspaths });
-	print_resolved_deps(deps, false);
+	
+	print_deps(deps, true, false);
+
 	std::cout << std::endl << "Resolved system runtime dependencies:" << std::endl << std::endl;
-	print_resolved_deps(deps, true);
+
+	print_deps(deps, true, true);
+
 	std::cout << std::endl << "Unresolved runtime dependencies:" << std::endl << std::endl;
-	print_unresolved_deps(deps);
+
+	print_deps(deps, false, false);
+
 	std::cout << std::endl;
 
 	// Bundle
@@ -1328,12 +1336,7 @@ int bundle(system_commands& cmd, const std::string& executable, std::string xtrp
 
 	// Verify
 
-	return 0;
-}
-
-int fix_binary(system_commands& cmd, const std::string& executable, std::string old_path, std::string new_path)
-{
-
+	verify_bundle(executable, deps);
 
 	return 0;
 }
