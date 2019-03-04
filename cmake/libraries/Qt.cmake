@@ -108,6 +108,11 @@ endfunction()
 
 function(mk_target_deploy_Qt TARGET_NAME)
 
+	#set(OPTION_KEYWORDS "")
+	#set(SINGLE_VALUE_KEYWORDS "QMLDIR")
+	#set(MULTI_VALUE_KEYWORDS "")
+	#cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
+
 	if (CMAKE_CROSSCOMPILING)
 		mk_message(SEND_ERROR "The Qt deployment tool supports only the native target platform!")
 		return()
@@ -121,6 +126,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 	endif ()
 	
 	mk_message(STATUS "Deploy Qt5")
+	mk_message(STATUS "Qt qmldir: $ENV{MK_QT_QMLDIR}")
 
 	if (MK_OS_WINDOWS)
 
@@ -129,7 +135,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			set(QT_DEPLOY_OPTIONS --force)
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt ${QT_DEPLOY_OPTIONS} $<TARGET_FILE:${TARGET_NAME}>)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt ${QT_DEPLOY_OPTIONS} --qmldir $ENV{MK_QT_QMLDIR} $<TARGET_FILE:${TARGET_NAME}>)
 
 	elseif (MK_OS_MACOS)
 		
@@ -146,7 +152,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 		endif ()
 
 		# macdeployqt strictly requires a macOS application bundle
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS})
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS} --qmldir $ENV{MK_QT_QMLDIR})
 
 	elseif (MK_OS_LINUX)
 
@@ -154,7 +160,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			set(QT_DEPLOY_OPTIONS -always-overwrite)
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS})
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS} --qmldir $ENV{MK_QT_QMLDIR})
 
 	else ()
 
