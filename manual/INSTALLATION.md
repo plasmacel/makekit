@@ -151,3 +151,4 @@ MakeKit relies on the following environment variables, which are automatically c
 - `MK_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MK_BOOST_DIR` - The installation directory of the desired version of Boost, where its `bin` and `lib` folders can be found
 - `MK_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
+- `MK_QT_QMLDIR` - The installation directory of the desired version of Qt QML library (usually `MK_QT_DIR/qml`).
