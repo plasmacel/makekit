@@ -45,7 +45,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif ()
 
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	message(WARNING "MakeKit - Not a valid LLVM/clang compiler!
+	message(WARNING "MakeKit - Not a valid LLVM/clang compiler: ${CMAKE_CXX_COMPILER_ID}
 		You are maybe using the auto native toolchain or Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
 	#return()
 endif ()
