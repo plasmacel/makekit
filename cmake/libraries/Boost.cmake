@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 list(APPEND MK_BUILTIN_LIBRARIES Boost)
 
-function(mk_target_link_boost TARGET_NAME)
+macro(mk_target_link_boost TARGET_NAME)
 	
 	find_package(Boost COMPONENTS ${ARGN} REQUIRED)
     
@@ -53,4 +53,6 @@ function(mk_target_link_boost TARGET_NAME)
 		#mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
 	endforeach ()
 
-endfunction()
+	unset(LINK_SCOPE)
+
+endmacro()

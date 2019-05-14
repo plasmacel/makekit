@@ -33,7 +33,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 list(APPEND MK_BUILTIN_LIBRARIES Qt)
 
-function(mk_target_link_Qt TARGET_NAME)
+macro(mk_target_link_Qt TARGET_NAME)
 
 	# Find Qt5
 
@@ -103,8 +103,10 @@ function(mk_target_link_Qt TARGET_NAME)
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Qt5::${QT_MODULE}) # Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network
 		#mk_target_deploy_libraries(${TARGET_NAME} Qt5::${QT_MODULE})
 	endforeach ()
+
+	unset(LINK_SCOPE)
 	
-endfunction()
+endmacro()
 
 function(mk_target_deploy_Qt TARGET_NAME)
 

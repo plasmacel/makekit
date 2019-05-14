@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 list(APPEND MK_BUILTIN_LIBRARIES OpenCL)
 
-function(mk_target_link_OpenCL TARGET_NAME)
+macro(mk_target_link_OpenCL TARGET_NAME)
 	
 	find_package(OpenCL REQUIRED)
     
@@ -51,4 +51,6 @@ function(mk_target_link_OpenCL TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenCL::OpenCL)
 	#mk_target_deploy_libraries(${TARGET_NAME} OpenCL::OpenCL)
 
-endfunction()
+	unset(LINK_SCOPE)
+
+endmacro()

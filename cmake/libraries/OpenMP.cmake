@@ -33,7 +33,7 @@ list(APPEND MK_BUILTIN_LIBRARIES OpenMP)
 
 set(MK_USE_LLVM_LIBOMP TRUE)
 
-function(mk_target_link_OpenMP TARGET_NAME)
+macro(mk_target_link_OpenMP TARGET_NAME)
 	
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
@@ -74,4 +74,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		#mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
 	endif ()
 
-endfunction()
+	unset(LINK_SCOPE)
+	unset(COMPILE_OPTIONS_SCOPE)
+
+endmacro()

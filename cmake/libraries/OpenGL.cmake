@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 list(APPEND MK_BUILTIN_LIBRARIES OpenGL)
 
-function(mk_target_link_OpenGL TARGET_NAME)
+macro(mk_target_link_OpenGL TARGET_NAME)
 	
 	find_package(OpenGL REQUIRED)
 		
@@ -59,4 +59,6 @@ function(mk_target_link_OpenGL TARGET_NAME)
 	#	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
 	#endif ()
 
-endfunction()
+	unset(MK_LINK_SCOPE)
+
+endmacro()
