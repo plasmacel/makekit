@@ -31,10 +31,29 @@
 #include <sys/stat.h>
 #include "argh.h"
 
-static const std::string VERSION = "0.4";
-static const std::string BUILD_DIR_PREFIX = "build.";
+// Platform independent settings
+
+static const std::string VERSION = "0.41";
+static const std::string BUILD_DIR_PREFIX = "build/";
+static const std::string SOURCE_DIR_PREFIX = "src/";
 static const std::string DEFAULT_CONFIG = "Release";
 static const std::string DEFAULT_TOOLCHAIN = "llvm.native";
+
+static const std::string ENV_CMAKE = "MK_CMAKE";
+static const std::string ENV_NINJA = "MK_NINJA";
+static const std::string ENV_TOOLCHAINS = "MK_TOOLCHAINS";
+
+// Platform dependent paths
+
+#ifdef _WIN32
+static const std::string CMAKE_PATH = "\"%" + ENV_CMAKE + "%\"";
+static const std::string NINJA_PATH = "\"%" + ENV_NINJA + "%\"";
+static const std::string TOOLCHAINS_PATH = "\"%" + ENV_TOOLCHAINS + "%\"";
+#else
+static const std::string CMAKE_PATH = "${" + ENV_CMAKE + "}";
+static const std::string NINJA_PATH = "${" + ENV_NINJA + "}";
+static const std::string TOOLCHAINS_PATH = "${" + ENV_TOOLCHAINS + "}";
+#endif
 
 std::string get_directory(const std::string& filepath)
 {
@@ -276,7 +295,7 @@ std::ofstream dst(dstpath, std::ios::binary);
 
 dst << src.rdbuf();
 
-//std::system("cmake -E copy_if_different " + srcpath + " " + dstpath);
+//std::system(CMAKE_PATH + " -E copy_if_different " + srcpath + " " + dstpath);
 }
 */
 
@@ -300,17 +319,17 @@ int compress_files(const std::string& srcpaths, const std::string& dstpath, std:
 #endif
 	}
 
-	return execute("cmake -E tar " + dstpath + " --format=zip -- " + srcpaths);
+	return execute(CMAKE_PATH + " -E tar " + dstpath + " --format=zip -- " + srcpaths);
 }
 
 int copy_directory_files(const std::string& srcpath, const std::string& dstpath)
 {
-	return execute("cmake -E copy_directory " + srcpath + " " + dstpath);
+	return execute(CMAKE_PATH + " -E copy_directory " + srcpath + " " + dstpath);
 }
 
 int copy_file(const std::string& srcpath, const std::string& dstpath)
 {
-	return execute("cmake -E copy " + srcpath + " " + dstpath);
+	return execute(CMAKE_PATH + " -E copy " + srcpath + " " + dstpath);
 }
 
 int create_symlink(const std::string& srcpath, const std::string& dstpath)
@@ -318,23 +337,23 @@ int create_symlink(const std::string& srcpath, const std::string& dstpath)
 #if _WIN32
 	return execute("mklink /D " + dstpath + " " + srcpath);
 #else
-	return execute("cmake -E create_symlink " + srcpath + " " + dstpath);
+	return execute(CMAKE_PATH + " -E create_symlink " + srcpath + " " + dstpath);
 #endif
 }
 
 int show_environment()
 {
-	return execute("cmake -E environment");
+	return execute(CMAKE_PATH + " -E environment");
 }
 
 int remove_windows_registry(const std::string& key)
 {
-	return execute("cmake -E read_regv " + key);
+	return execute(CMAKE_PATH + " -E read_regv " + key);
 }
 
 int write_windows_registry(const std::string& key, const std::string& value)
 {
-	return execute("cmake -E write_regv " + key + " " + value);
+	return execute(CMAKE_PATH + " -E write_regv " + key + " " + value);
 }
 
 int make_directory(const std::string& dstpath)
@@ -346,7 +365,7 @@ int make_directory(const std::string& dstpath)
 	return execute_piped("mkdir -p \"" + path + "\"");
 #endif
 */
-	return execute("cmake -E make_directory " + dstpath);
+	return execute(CMAKE_PATH + " -E make_directory " + dstpath);
 }
 
 int remove_directory(const std::string& dstpath)
@@ -358,22 +377,22 @@ int remove_directory(const std::string& dstpath)
 	return execute_piped("rmdir -p \"" + path + "\"");
 #endif
 */
-	return execute("cmake -E remove_directory " + dstpath);
+	return execute(CMAKE_PATH + " -E remove_directory " + dstpath);
 }
 
 int remove_file(const std::string& dstpath)
 {
-	return execute("cmake -E remove -f " + dstpath);
+	return execute(CMAKE_PATH + " -E remove -f " + dstpath);
 }
 
 int rename_directory(const std::string& srcpath, const std::string& dstpath)
 {
-	return execute("cmake -E rename " + srcpath + " " + dstpath);
+	return execute(CMAKE_PATH + " -E rename " + srcpath + " " + dstpath);
 }
 
 int rename_file(const std::string& srcpath, const std::string& dstpath)
 {
-	return execute("cmake -E rename " + srcpath + " " + dstpath);
+	return execute(CMAKE_PATH + " -E rename " + srcpath + " " + dstpath);
 }
 
 void copy_framework(const std::string& srcpath, const std::string& currentlib, const std::string& dstpath)
@@ -654,15 +673,11 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 
 	// Append run CMake command
 
-	std::string cmake_command = "cmake .";
+	std::string cmake_command = CMAKE_PATH + ' ' + SOURCE_DIR_PREFIX;
 	cmake_command += " -GNinja";
 	cmake_command += " -B\"" + build_dir + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
-#ifdef _WIN32
-	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"%MK_DIR%/cmake/toolchains/" + toolchain + ".toolchain.cmake\"";
-#else
-	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"$MK_DIR/cmake/toolchains/" + toolchain + ".toolchain.cmake\"";
-#endif
+	cmake_command += " -DCMAKE_TOOLCHAIN_FILE='" + TOOLCHAINS_PATH + "/" + toolchain + ".toolchain.cmake'";
 
 	cmd.append(cmake_command);
 
@@ -687,7 +702,7 @@ int refresh(system_commands& cmd, std::string config)
 
 	// Append run CMake command
 
-	std::string cmake_command = "cmake .";
+	std::string cmake_command = CMAKE_PATH + ' ' + SOURCE_DIR_PREFIX;
 	cmake_command += " -GNinja";
 	cmake_command += " -B\"" + build_dir + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
@@ -846,7 +861,7 @@ int clean_make(system_commands& cmd, const std::string& config, const std::strin
 	#if 1
 		cmd.append("ninja -C \"" + build_dir + "\" -t clean " + target);
 	#else
-		cmd.append("cmake --build \"" + build_dir + "\" --target clean"); // ONLY IF TARGET IS EMPTY
+		cmd.append(CMAKE_PATH + " --build \"" + build_dir + "\" --target clean"); // ONLY IF TARGET IS EMPTY
 	#endif
 	}
 	
@@ -862,7 +877,8 @@ int clean_config_and_make(system_commands& cmd, const std::string& config)
 #	ifdef _WIN32
 		// First delete all files in the build directory and its subdirectories recursively to avoid the common problem
 		// that removing the build directory fails with error message "The directory is not empty".
-		cmd.append("@for /d %X in (" + BUILD_DIR_PREFIX + "*) do @del /f /s /q \"%X\" > NUL && @rd /s /q \"%X\"");
+		cmd.append("@del /s /q \"" + BUILD_DIR_PREFIX + "\"");
+		cmd.append("@rd /s /q \"" + BUILD_DIR_PREFIX + "\"");
 #	else
 		cmd.append("ls | grep \"" + BUILD_DIR_PREFIX + "\" | xargs /bin/rm -rf");
 #	endif
@@ -930,6 +946,15 @@ int headers(system_commands& cmd, std::string config)
 	return 0;
 }
 
+int refreshenv(system_commands& cmd)
+{
+#ifdef _WIN32
+	cmd.append("call refreshenv.cmd");
+#endif
+
+	return 0;
+}
+
 int getenv(system_commands& cmd, const std::string& var)
 {
 #	ifdef _WIN32
@@ -945,6 +970,7 @@ int setenv(system_commands& cmd, const std::string& var, const std::string& valu
 {
 #	ifdef _WIN32
 	cmd.append("setx " + var + " " + value);
+	refreshenv(cmd);
 #	else
 	cmd.append("echo 'export " + var + "=\"" + value + "\"' >> ~/.bash_profile");
 #	endif
@@ -974,7 +1000,7 @@ int install(system_commands& cmd, std::string config)
 	add_set_environment_command(cmd, "x64");
 #endif
 
-	cmd.append("cmake --build " + build_dir + " --target install");
+	cmd.append(CMAKE_PATH + " --build " + build_dir + " --target install");
 	
 	return 0;
 }
@@ -1189,17 +1215,11 @@ int resolve_deps(std::vector<runtime_dependency>& deps, const std::vector<std::v
 
 	for (runtime_dependency& dep : deps)
 	{
-		if (dep.resolve())
-		{
-			continue;
-		}
+		if (dep.resolve()) continue;
 
 		for (const std::vector<std::string>& paths : pathspack)
 		{
-			if (dep.resolve(paths))
-			{
-				continue;
-			}
+			if (dep.resolve(paths)) continue;
 		}
 
 		++error;
@@ -1374,7 +1394,7 @@ int remake(system_commands& cmd, std::string config, const std::string& target, 
 
 	const std::string build_dir = get_build_dir(config);
 
-	cmd.append("cmake --build \"" + build_dir + "\" --clean-first");
+	cmd.append(CMAKE_PATH + " --build \"" + build_dir + "\" --clean-first");
 	return 0;
 
 #endif
@@ -1494,6 +1514,12 @@ int main(int argc, char** argv)
 	{
 		if (check_args_count(args, 3)) return 1;
 		retval = refresh(cmd, args(2).str());
+		if (retval != 0) return retval;
+	}
+	else if (command == "refreshenv")
+	{
+		if (check_args_count(args, 2)) return 1;
+		retval = refreshenv(cmd);
 		if (retval != 0) return retval;
 	}
 	else if (command == "remake")
