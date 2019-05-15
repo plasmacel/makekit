@@ -91,6 +91,10 @@ echo Creating environment variable MK_DIR...
 setx MK_DIR "%MK_INSTALL_DIR:\=/%"
 
 echo.
+echo Creating environment variable MK_TOOLCHAINS_DIR...
+setx MK_TOOLCHAINS_DIR "%MK_INSTALL_DIR:\=/%/cmake/toolchains"
+
+echo.
 echo Creating environment variable MK_CMAKE...
 setx MK_CMAKE_DIR "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 
