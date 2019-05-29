@@ -4,7 +4,7 @@
       "MK_BUILD_DIR_PREFIX": "${workspaceRoot}\\build\\",
       "MK_INSTALL_DIR_PREFIX": "${workspaceRoot}\\build\\",
       "MK_MAX_THREADS": "",
-      "MK_TOOLCHAIN": "llvm.native"
+      "MK_TOOLCHAIN": "llvm.native.toolchain.cmake"
     }
   ],
   "configurations": [
@@ -16,11 +16,11 @@
       "intelliSenseMode": "windows-msvc-x64",
       "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
       "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_TOOLCHAINS_DIR}/${env.MK_TOOLCHAIN}\"",
       "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": [],
-      "cmakeExecutable": "${env.MK_CMAKE_DIR}/bin/cmake.exe"
+      "cmakeExecutable": "${env.MK_CMAKE}"
     },
     {
       "name": "Release",
@@ -30,11 +30,11 @@
       "intelliSenseMode": "windows-msvc-x64",
       "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
       "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_TOOLCHAINS_DIR}/${env.MK_TOOLCHAIN}\"",
       "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": [],
-      "cmakeExecutable": "${env.MK_CMAKE_DIR}/bin/cmake.exe"
+      "cmakeExecutable": "${env.MK_CMAKE}"
     },
     {
       "name": "RelWithDebInfo",
@@ -44,11 +44,11 @@
       "intelliSenseMode": "windows-msvc-x64",
       "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
       "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_TOOLCHAINS_DIR}/${env.MK_TOOLCHAIN}\"",
       "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": [],
-      "cmakeExecutable": "${env.MK_CMAKE_DIR}/bin/cmake.exe"
+      "cmakeExecutable": "${env.MK_CMAKE}"
     },
     {
       "name": "MinSizeRel",
@@ -58,11 +58,11 @@
       "intelliSenseMode": "windows-msvc-x64",
       "buildRoot": "${env.MK_BUILD_DIR_PREFIX}${name}",
       "installRoot": "${env.MK_INSTALL_DIR_PREFIX}${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_DIR}/cmake/toolchains/${env.MK_TOOLCHAIN}.toolchain.cmake\"",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.MK_TOOLCHAINS_DIR}/${env.MK_TOOLCHAIN}\"",
       "buildCommandArgs": "${env.MK_MAX_THREADS}",
       "ctestCommandArgs": "",
       "variables": [],
-      "cmakeExecutable": "${env.MK_CMAKE_DIR}/bin/cmake.exe"
+      "cmakeExecutable": "${env.MK_CMAKE}"
     }
   ]
 }
