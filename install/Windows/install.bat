@@ -82,7 +82,7 @@ if "%MK_QT_INSTALL_DIR%" == "" (
 :: Install Visual Studio 2017 Build Tools
 :: https://blogs.msdn.microsoft.com/vcblog/2016/11/16/introducing-the-visual-studio-build-tools/
 
-:: vs_buildtools.exe –quiet –add Microsoft.VisualStudio.Workload.VCTools –includeRecommended
+:: vs_buildtools.exe â€“quiet â€“add Microsoft.VisualStudio.Workload.VCTools â€“includeRecommended
 
 :: Set MK environment variables
 
@@ -96,7 +96,7 @@ setx MK_TOOLCHAINS_DIR "%MK_INSTALL_DIR:\=/%/cmake/toolchains"
 
 echo.
 echo Creating environment variable MK_CMAKE...
-setx MK_CMAKE_DIR "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
+setx MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 
 echo.
 echo Creating environment variable MK_LLVM_DIR...
@@ -104,7 +104,7 @@ setx MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
 
 echo.
 echo Creating environment variable MK_NINJA...
-setx MK_CMAKE_DIR "%MK_INSTALL_DIR:\=/%/bin/ninja.exe"
+setx MK_NINJA "%MK_INSTALL_DIR:\=/%/bin/ninja.exe"
 
 echo.
 echo Creating environment variable MK_QT_DIR...
