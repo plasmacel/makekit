@@ -23,6 +23,7 @@
 #
 
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+include(ProcessorCount)
 
 #
 # Qt
@@ -33,12 +34,25 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 list(APPEND MK_BUILTIN_LIBRARIES Qt)
 
+macro(mk_source_autogen_Qt)
+
+	foreach(SOURCE_FILE IN ITEMS ${ARGN})
+		set_property(SOURCE ${SOURCE_FILE} PROPERTY SKIP_AUTOGEN OFF)
+	endforeach()
+
+endmacro()
+
 macro(mk_target_link_Qt TARGET_NAME)
+
+	set(OPTION_KEYWORDS "AUTOMOC" "AUTORCC" "AUTOUIC" "AUTOSKIP")
+    	set(SINGLE_VALUE_KEYWORDS "THREADS")
+   	set(MULTI_VALUE_KEYWORDS "MODULES")
+	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
 
 	# Find Qt5
 
 	set(Qt5_DIR $ENV{MK_QT_DIR}/lib/cmake/Qt5)
-	find_package(Qt5 COMPONENTS ${ARGN} REQUIRED)
+	find_package(Qt5 COMPONENTS ${ARGS_MODULES} REQUIRED)
 
 	if (NOT Qt5_FOUND)
 		mk_message(FATAL_ERROR "Qt5 libraries cannot be found!")
@@ -67,15 +81,40 @@ macro(mk_target_link_Qt TARGET_NAME)
 	# set(CMAKE_AUTORCC ON)
 	# set(CMAKE_AUTOUIC ON)
 
-	set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC ON) # Automatically execute moc on required C++ files
-	set_target_properties(${TARGET_NAME} PROPERTIES AUTORCC ON) # Automatically execute rcc on .qrc files
-	set_target_properties(${TARGET_NAME} PROPERTIES AUTOUIC ON) # Automatically execute uic on .ui files
+	if (${ARGS_THREADS}) # Use specified number of parallel CPU threads
+		set(THREADS ${ARGS_THREADS})
+	else() # Use all available parallel CPU threads
+		ProcessorCount(THREADS)
+	endif()
+	
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOGEN_PARALLEL ${THREADS}) # Number of parallel CPU threads used for moc, rcc, uic
+	#set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC_MACRO_NAMES Q_SOURCE) # Macro for finding Qt C++ source files
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC ${ARGS_AUTOMOC}) # Automatically execute moc on required C++ files
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTORCC ${ARGS_AUTORCC}) # Automatically execute rcc on .qrc files
+	set_target_properties(${TARGET_NAME} PROPERTIES AUTOUIC ${ARGS_AUTOUIC}) # Automatically execute uic on .ui files
+
+	target_compile_definitions(${TARGET_NAME} PRIVATE Q_SOURCE)
+
+	# Skip AUTOGEN of sources by default
+
+	if (${ARGS_AUTOSKIP})
+
+		message(STATUS "AUTOSKIP AUTOGEN")
+
+		set(TARGET_SOURCES "")
+		get_property(TARGET_SOURCES TARGET ${TARGET_NAME} PROPERTY SOURCES)
+
+		foreach(TARGET_SOURCE IN ITEMS ${TARGET_SOURCES})
+			set_property(SOURCE ${TARGET_SOURCE} PROPERTY SKIP_AUTOGEN ON)
+		endforeach()
+
+	endif()
 
 	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
 	file(GLOB_RECURSE CXX_QMFILES ${MK_CONFIGURE_DEPENDS} *.qm)
 	file(GLOB_RECURSE CXX_QRCFILES ${MK_CONFIGURE_DEPENDS} *.qrc)
-	file(GLOB_RECURSE CXX_UIFILES ${MK_CONFIGURE_DEPENDS} *.ui)
+	#file(GLOB_RECURSE CXX_UIFILES ${MK_CONFIGURE_DEPENDS} *.ui)
 
 	target_sources(${TARGET_NAME} PRIVATE ${CXX_QMFILES} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
 
@@ -94,7 +133,7 @@ macro(mk_target_link_Qt TARGET_NAME)
 		unset(LINK_SCOPE)
 	endif ()
 
-	foreach (QT_MODULE IN ITEMS ${ARGN})
+	foreach (QT_MODULE IN ITEMS ${ARGS_MODULES})
 		if (NOT ${QT_MODULE} IN_LIST ALL_QT_MODULES)
 			mk_message(SEND_ERROR "Skipping invalid Qt module: ${QT_MODULE}")
 			continue()
@@ -105,7 +144,8 @@ macro(mk_target_link_Qt TARGET_NAME)
 	endforeach ()
 
 	unset(LINK_SCOPE)
-	
+	unset(TARGET_SOURCES)
+
 endmacro()
 
 function(mk_target_deploy_Qt TARGET_NAME)
