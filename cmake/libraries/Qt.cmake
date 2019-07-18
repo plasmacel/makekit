@@ -113,8 +113,14 @@ macro(mk_target_link_Qt TARGET_NAME)
 	# Add Qt source files to the target (they are being appended to its SOURCE property)
 
 	file(GLOB_RECURSE CXX_QMFILES ${MK_CONFIGURE_DEPENDS} *.qm)
-	file(GLOB_RECURSE CXX_QRCFILES ${MK_CONFIGURE_DEPENDS} *.qrc)
-	#file(GLOB_RECURSE CXX_UIFILES ${MK_CONFIGURE_DEPENDS} *.ui)
+
+	if (${ARGS_AUTORCC})
+		file(GLOB_RECURSE CXX_QRCFILES ${MK_CONFIGURE_DEPENDS} *.qrc)
+	endif()
+
+	if (${ARGS_AUTOUIC})
+		file(GLOB_RECURSE CXX_UIFILES ${MK_CONFIGURE_DEPENDS} *.ui)
+	endif()
 
 	target_sources(${TARGET_NAME} PRIVATE ${CXX_QMFILES} PRIVATE ${CXX_QRCFILES} PRIVATE ${CXX_UIFILES})
 
