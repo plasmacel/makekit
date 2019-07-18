@@ -82,7 +82,7 @@ if "%MK_QT_INSTALL_DIR%" == "" (
 :: Install Visual Studio 2017 Build Tools
 :: https://blogs.msdn.microsoft.com/vcblog/2016/11/16/introducing-the-visual-studio-build-tools/
 
-:: vs_buildtools.exe –quiet –add Microsoft.VisualStudio.Workload.VCTools –includeRecommended
+:: vs_buildtools.exe â€“quiet â€“add Microsoft.VisualStudio.Workload.VCTools â€“includeRecommended
 
 :: Set MK environment variables
 
