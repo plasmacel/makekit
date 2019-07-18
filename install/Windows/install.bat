@@ -96,7 +96,7 @@ setx MK_TOOLCHAINS_DIR "%MK_INSTALL_DIR:\=/%/cmake/toolchains"
 
 echo.
 echo Creating environment variable MK_CMAKE...
-setx MK_CMAKE_DIR "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
+setx MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 
 echo.
 echo Creating environment variable MK_LLVM_DIR...
@@ -104,7 +104,7 @@ setx MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
 
 echo.
 echo Creating environment variable MK_NINJA...
-setx MK_CMAKE_DIR "%MK_INSTALL_DIR:\=/%/bin/ninja.exe"
+setx MK_NINJA "%MK_INSTALL_DIR:\=/%/bin/ninja.exe"
 
 echo.
 echo Creating environment variable MK_QT_DIR...
