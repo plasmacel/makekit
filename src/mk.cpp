@@ -47,7 +47,7 @@ static const std::string ENV_TOOLCHAINS = "MK_TOOLCHAINS_DIR";
 
 #ifdef _WIN32
 static const std::string CMAKE_PATH = "\"%" + ENV_CMAKE + "%\"";
-static const std::string NINJA_PATH = "\"%" + ENV_NINJA + "%\"";
+static const std::string NINJA_PATH = "%" + ENV_NINJA + "%";
 static const std::string TOOLCHAINS_PATH = "%" + ENV_TOOLCHAINS + "%";
 #else
 static const std::string CMAKE_PATH = "${" + ENV_CMAKE + "}";
@@ -677,6 +677,7 @@ int configure(system_commands& cmd, std::string config, std::string toolchain)
 	cmake_command += " -GNinja";
 	cmake_command += " -B\"" + build_dir + "\"";
 	cmake_command += " -DCMAKE_BUILD_TYPE=\"" + config + "\"";
+	cmake_command += " -DCMAKE_MAKE_PROGRAM=\"" + NINJA_PATH + "\"";
 	cmake_command += " -DCMAKE_TOOLCHAIN_FILE=\"" + TOOLCHAINS_PATH + "/" + toolchain + ".toolchain.cmake\"";
 
 	cmd.append(cmake_command);
