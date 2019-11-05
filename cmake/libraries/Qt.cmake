@@ -208,7 +208,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			set(QT_DEPLOY_OPTIONS -always-overwrite)
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS} --qmldir $ENV{MK_QT_QMLDIR})
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS} -qmldir=$ENV{MK_QT_QMLDIR})
 
 	else ()
 
