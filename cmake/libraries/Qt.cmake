@@ -200,7 +200,7 @@ function(mk_target_deploy_Qt TARGET_NAME)
 		endif ()
 
 		# macdeployqt strictly requires a macOS application bundle
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS} --qmldir $ENV{MK_QT_QMLDIR})
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS} -qmldir=$ENV{MK_QT_QMLDIR})
 
 	elseif (MK_OS_LINUX)
 
