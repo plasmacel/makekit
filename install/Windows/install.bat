@@ -231,7 +231,7 @@ rd /s /q "%~dp0\..\..\build"
 
 echo.
 echo Adding Makekit binaries to the system PATH...
-Powershell -executionpolicy bypass -File %~dp0\export_path.ps1 %MK_INSTALL_DIR%/bin
+Powershell -executionpolicy bypass -File %~dp0\export_path.ps1 "%MK_INSTALL_DIR%/bin/"
 PATH %PATH%;%MK_INSTALL_DIR%/bin/
 
 echo Installation done.
