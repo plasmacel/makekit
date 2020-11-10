@@ -15,10 +15,10 @@ if (WIN32) # True when the target system is Windows, including Win64.
 	set(CMAKE_C_COMPILER "$ENV{MK_LLVM_DIR}/bin/clang-cl.exe" CACHE FILEPATH "" FORCE)
 	set(CMAKE_CXX_COMPILER "$ENV{MK_LLVM_DIR}/bin/clang-cl.exe" CACHE FILEPATH "" FORCE)
 	set(CMAKE_LINKER "$ENV{MK_LLVM_DIR}/bin/lld-link.exe" CACHE FILEPATH "" FORCE)
-	set(CMAKE_RC_COMPILER "$ENV{MK_DIR}/bin/llvm-rc-rc" CACHE FILEPATH "" FORCE)
+	set(CMAKE_RC_COMPILER "$ENV{MK_LLVM_DIR}/bin/llvm-rc.exe" CACHE FILEPATH "" FORCE)
 
 	# Set static libary tools
-	set(CMAKE_AR "$ENV{MK_LLVM_DIR}/bin/llvm-ar.exe" CACHE FILEPATH "" FORCE)
+	set(CMAKE_AR "$ENV{MK_LLVM_DIR}/bin/llvm-lib.exe" CACHE FILEPATH "" FORCE)
 	set(CMAKE_RANLIB "$ENV{MK_LLVM_DIR}/bin/llvm-ranlib.exe" CACHE FILEPATH "" FORCE)
 
 	#set(CMAKE_C_FLAGS_INIT --driver-mode=cl ${CMAKE_C_FLAGS_INIT})
@@ -37,7 +37,7 @@ elseif (UNIX) # True when the target system is Unix or Unix-like, including Appl
 	set(CMAKE_C_COMPILER "$ENV{MK_LLVM_DIR}/bin/clang" CACHE FILEPATH "" FORCE)
 	set(CMAKE_CXX_COMPILER "$ENV{MK_LLVM_DIR}/bin/clang++" CACHE FILEPATH "" FORCE)
 	set(CMAKE_LINKER "$ENV{MK_LLVM_DIR}/bin/ld.lld" CACHE FILEPATH "" FORCE)
-	set(CMAKE_RC_COMPILER "$ENV{MK_DIR}/bin/llvm-rc-rc" CACHE FILEPATH "" FORCE)
+	set(CMAKE_RC_COMPILER "$ENV{MK_LLVM_DIR}/bin/llvm-rc" CACHE FILEPATH "" FORCE)
 
 	# Set static libary tools
 	set(CMAKE_AR "$ENV{MK_LLVM_DIR}/bin/llvm-ar" CACHE FILEPATH "" FORCE)
