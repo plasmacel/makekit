@@ -1,6 +1,7 @@
 @echo off
 
 set DEFAULT_CMAKE_DIR=%ProgramFiles%\CMake
+set DEFAULT_NINJA_DIR=%ProgramFiles%\Ninja
 set DEFAULT_LLVM_DIR=%ProgramFiles%\LLVM
 set DEFAULT_MK_DIR=%ProgramFiles%\MakeKit
 
@@ -23,6 +24,27 @@ if exist "%MK_CMAKE_INSTALL_DIR%/bin/cmake.exe" (
 	echo CMake found: "%MK_CMAKE_INSTALL_DIR%\bin\cmake.exe"
 ) else (
 	echo Error: CMake cannot be found at "%MK_CMAKE_INSTALL_DIR%/bin/cmake.exe"!
+	set /p dummy=Press ENTER...
+	exit /b 1
+)
+
+:: Get Ninja installation directory
+
+echo.
+set /p MK_NINJA_INSTALL_DIR=Ninja installation directory (default is %DEFAULT_NINJA_DIR%):
+if "%MK_NINJA_INSTALL_DIR%" == "" (
+	set MK_NINJA_INSTALL_DIR=%DEFAULT_NINJA_DIR%
+)
+if not exist "%MK_NINJA_INSTALL_DIR%" (
+	echo ERROR: Ninja installation directory cannot be found!
+	set /p dummy=Press ENTER...
+	@echo on
+	exit /b 1
+)
+if exist "%MK_NINJA_INSTALL_DIR%/bin/ninja.exe" (
+	echo Ninja found: "%MK_NINJA_INSTALL_DIR%\bin\ninja.exe"
+) else (
+	echo Error: Ninja cannot be found at "%MK_NINJA_INSTALL_DIR%/bin/ninja.exe"!
 	set /p dummy=Press ENTER...
 	exit /b 1
 )
@@ -88,6 +110,7 @@ if "%MK_QT_INSTALL_DIR%" == "" (
 
 echo.
 echo Creating environment variable MK_DIR...
+set MK_DIR "%MK_INSTALL_DIR:\=/%"
 setx MK_DIR "%MK_INSTALL_DIR:\=/%"
 
 echo.
@@ -96,23 +119,29 @@ setx MK_TOOLCHAINS_DIR "%MK_INSTALL_DIR:\=/%/cmake/toolchains"
 
 echo.
 echo Creating environment variable MK_CMAKE...
+set MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 setx MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 
 echo.
 echo Creating environment variable MK_LLVM_DIR...
+set MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
 setx MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
 
 echo.
 echo Creating environment variable MK_NINJA...
-setx MK_NINJA "%MK_INSTALL_DIR:\=/%/bin/ninja.exe"
+set MK_NINJA "%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
+setx MK_NINJA "%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
 
 echo.
 echo Creating environment variable MK_QT_DIR...
+set MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
 setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
 
 echo.
-echo Creating environment variable MK_QT_QMLDIR...
-setx MK_QT_QMLDIR "%MK_QT_INSTALL_DIR:\=/%/qml"
+echo Adding Makekit binaries to the system PATH...
+
+set PATH "%PATH%;%MK_INSTALL_DIR%/bin/"
+setx /m PATH "%PATH%;%MK_INSTALL_DIR%/bin/"
 
 :: Building source
 
@@ -151,6 +180,10 @@ if %ERRORLEVEL% == 0 (
 
 echo.
 echo Copying files to "%MK_INSTALL_DIR%"...
+
+::mkdir "%MK_INSTALL_DIR%\bin"
+::mkdir "%MK_INSTALL_DIR%\cmake"
+::mkdir "%MK_INSTALL_DIR%\integration"
 
 xcopy /E /F /Y /R "%~dp0\..\..\build\bin" "%MK_INSTALL_DIR%\bin\"
 if %ERRORLEVEL% NEQ 0 (
