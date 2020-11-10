@@ -138,10 +138,10 @@ echo Creating environment variable MK_QT_DIR...
 setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
 set MK_QT_DIR=%MK_QT_INSTALL_DIR:\=/%
 
-::echo.
-::echo Adding Makekit binaries to the system PATH...
-::setx /m PATH "%PATH%;%MK_INSTALL_DIR%/bin/"
-::set PATH=%PATH%;%MK_INSTALL_DIR%/bin/
+echo.
+echo Adding Makekit binaries to the system PATH...
+Powershell -executionpolicy bypass -File .\export_path.ps1 %MK_INSTALL_DIR%/bin/
+PATH %PATH%;%MK_INSTALL_DIR%/bin/
 
 :: Building source
 
