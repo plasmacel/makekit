@@ -138,11 +138,6 @@ echo Creating environment variable MK_QT_DIR...
 setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
 set MK_QT_DIR=%MK_QT_INSTALL_DIR:\=/%
 
-echo.
-echo Adding Makekit binaries to the system PATH...
-Powershell -executionpolicy bypass -File .\export_path.ps1 %MK_INSTALL_DIR%/bin/
-PATH %PATH%;%MK_INSTALL_DIR%/bin/
-
 :: Building source
 
 echo.
@@ -174,7 +169,7 @@ if not exist build\bin (
 )
 
 "%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/mk.cpp /o build\bin\
-#"%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
+::"%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
 
 if %ERRORLEVEL% == 0 (
 	echo Build succeeded.
@@ -233,6 +228,11 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo Removing temporary files...
 rd /s /q "%~dp0\..\..\build"
+
+echo.
+echo Adding Makekit binaries to the system PATH...
+Powershell -executionpolicy bypass -File %~dp0\export_path.ps1 %MK_INSTALL_DIR%/bin
+PATH %PATH%;%MK_INSTALL_DIR%/bin/
 
 echo Installation done.
 set /p dummy=Press ENTER...
