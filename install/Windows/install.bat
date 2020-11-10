@@ -111,44 +111,44 @@ if "%MK_QT_INSTALL_DIR%" == "" (
 echo.
 echo Creating environment variable MK_DIR...
 setx MK_DIR "%MK_INSTALL_DIR:\=/%"
-set MK_DIR="%MK_INSTALL_DIR:\=/%"
+set MK_DIR=%MK_INSTALL_DIR:\=/%
 
 echo.
 echo Creating environment variable MK_LLVM_DIR...
 setx MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
-set MK_LLVM_DIR="%MK_LLVM_INSTALL_DIR:\=/%"
+set MK_LLVM_DIR=%MK_LLVM_INSTALL_DIR:\=/%
 
 echo.
 echo Creating environment variable MK_TOOLCHAINS_DIR...
 setx MK_TOOLCHAINS_DIR "%MK_INSTALL_DIR:\=/%/cmake/toolchains"
-set MK_TOOLCHAINS_DIR="%MK_INSTALL_DIR:\=/%/cmake/toolchains"
+set MK_TOOLCHAINS_DIR=%MK_INSTALL_DIR:\=/%/cmake/toolchains
 
 echo.
 echo Creating environment variable MK_CMAKE...
 setx MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
-set MK_CMAKE="%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
+set MK_CMAKE=%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe
 
 echo.
 echo Creating environment variable MK_NINJA...
 setx MK_NINJA "%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
-set MK_NINJA="%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
+set MK_NINJA=%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe
 
 echo.
 echo Creating environment variable MK_QT_DIR...
 setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
-set MK_QT_DIR="%MK_QT_INSTALL_DIR:\=/%"
+set MK_QT_DIR=%MK_QT_INSTALL_DIR:\=/%
 
 echo.
 echo Adding Makekit binaries to the system PATH...
 setx /m PATH "%PATH%;%MK_INSTALL_DIR%/bin/"
-set PATH="%PATH%;%MK_INSTALL_DIR%/bin/"
+set PATH=%PATH%;%MK_INSTALL_DIR%/bin/
 
 :: Building source
 
 echo.
 echo Building source...
 
-call %~dp0\vsdevcmd_proxy.bat -arch=x64 -host_arch=x64
+call vsdevcmd_proxy.bat -arch=x64 -host_arch=x64
 
 cd "%~dp0\..\.."
 ::cmake . -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release
@@ -164,7 +164,15 @@ cd "%~dp0\..\.."
 ::)
 
 ::ninja -C build
-mkdir build && mkdir build\bin
+
+if not exist build (
+	mkdir build
+)
+
+if not exist build\bin (
+	mkdir build\bin
+)
+
 "%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/mk.cpp /o build\bin\
 "%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
 
