@@ -33,7 +33,7 @@
 
 // Platform independent settings
 
-static const std::string VERSION = "0.41";
+static const std::string VERSION = "0.5";
 static const std::string BUILD_DIR_PREFIX = "build/";
 static const std::string SOURCE_DIR_PREFIX = "src/";
 static const std::string DEFAULT_CONFIG = "Release";
