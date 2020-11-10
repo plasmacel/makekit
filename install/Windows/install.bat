@@ -174,7 +174,7 @@ if not exist build\bin (
 )
 
 "%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/mk.cpp /o build\bin\
-"%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
+#"%MK_LLVM_DIR%/bin/clang-cl" /nologo /EHsc /MD /O2 /Ob2 /DNDEBUG src/llvm-rc-rc.cpp /o build\bin\
 
 if %ERRORLEVEL% == 0 (
 	echo Build succeeded.
