@@ -110,38 +110,38 @@ if "%MK_QT_INSTALL_DIR%" == "" (
 
 echo.
 echo Creating environment variable MK_DIR...
-set MK_DIR "%MK_INSTALL_DIR:\=/%"
 setx MK_DIR "%MK_INSTALL_DIR:\=/%"
+set MK_DIR="%MK_INSTALL_DIR:\=/%"
+
+echo.
+echo Creating environment variable MK_LLVM_DIR...
+setx MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
+set MK_LLVM_DIR="%MK_LLVM_INSTALL_DIR:\=/%"
 
 echo.
 echo Creating environment variable MK_TOOLCHAINS_DIR...
 setx MK_TOOLCHAINS_DIR "%MK_INSTALL_DIR:\=/%/cmake/toolchains"
+set MK_TOOLCHAINS_DIR="%MK_INSTALL_DIR:\=/%/cmake/toolchains"
 
 echo.
 echo Creating environment variable MK_CMAKE...
-set MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 setx MK_CMAKE "%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
-
-echo.
-echo Creating environment variable MK_LLVM_DIR...
-set MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
-setx MK_LLVM_DIR "%MK_LLVM_INSTALL_DIR:\=/%"
+set MK_CMAKE="%MK_CMAKE_INSTALL_DIR:\=/%/bin/cmake.exe"
 
 echo.
 echo Creating environment variable MK_NINJA...
-set MK_NINJA "%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
 setx MK_NINJA "%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
+set MK_NINJA="%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
 
 echo.
 echo Creating environment variable MK_QT_DIR...
-set MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
 setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
+set MK_QT_DIR="%MK_QT_INSTALL_DIR:\=/%"
 
 echo.
 echo Adding Makekit binaries to the system PATH...
-
-set PATH "%PATH%;%MK_INSTALL_DIR%/bin/"
 setx /m PATH "%PATH%;%MK_INSTALL_DIR%/bin/"
+set PATH="%PATH%;%MK_INSTALL_DIR%/bin/"
 
 :: Building source
 
