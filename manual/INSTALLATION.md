@@ -148,6 +148,9 @@ Still, if a MinGW-w64 toolchain is required for some reason, MakeKit is able to 
 MakeKit relies on the following environment variables, which are automatically created at its install:
 
 - `MK_DIR` - The installation directory of MakeKit, where its `bin` folder can be found
+- `MK_TOOLCHAINS_DIR` - The path to the directory of MakeKit toolchain files
 - `MK_LLVM_DIR` - The installation directory of LLVM, where its `bin` and `lib` folders can be found
 - `MK_BOOST_DIR` - The installation directory of the desired version of Boost, where its `bin` and `lib` folders can be found
 - `MK_QT_DIR` - The installation directory of the desired version of Qt, where its `bin` and `lib` folders can be found
+- `MK_CMAKE` - The path to the CMake executable
+- `MK_NINJA` - The path to the Ninja executable

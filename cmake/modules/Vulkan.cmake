@@ -25,18 +25,18 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 #
-# Boost
-# https://cmake.org/cmake/help/v3.10/module/FindBoost.html
+# Vulkan
+# https://cmake.org/cmake/help/v3.10/module/FindVulkan.html
 #
 
-list(APPEND MK_BUILTIN_LIBRARIES Boost)
+list(APPEND MK_BUILTIN_LIBRARIES Vulkan)
 
-macro(mk_target_link_boost TARGET_NAME)
+function(mk_target_link_Vulkan TARGET_NAME)
 	
-	find_package(Boost COMPONENTS ${ARGN} REQUIRED)
+	find_package(Vulkan REQUIRED)
     
-	if (NOT Boost_FOUND)
-		mk_message(FATAL_ERROR "Boost libraries cannot be found!")
+	if (NOT Vulkan_FOUND)
+		mk_message(FATAL_ERROR "Vulkan libraries cannot be found!")
 		return()
 	endif ()
 
@@ -47,12 +47,8 @@ macro(mk_target_link_boost TARGET_NAME)
 	else ()
 		unset(LINK_SCOPE)
 	endif ()
+    
+	target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Vulkan::Vulkan)
+	#mk_target_deploy_libraries(${TARGET_NAME} Vulkan::Vulkan)
 
-	foreach (BOOST_MODULE IN ITEMS ${ARGN})
-		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Boost::${BOOST_MODULE})
-		#mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
-	endforeach ()
-
-	unset(LINK_SCOPE)
-
-endmacro()
+endfunction()

@@ -22,12 +22,18 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # OpenMP
 # https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 #
 
-function(mk_target_link_OpenMP TARGET_NAME)
+list(APPEND MK_BUILTIN_LIBRARIES OpenMP)
+
+set(MK_USE_LLVM_LIBOMP TRUE)
+
+macro(mk_target_link_OpenMP TARGET_NAME)
 	
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
@@ -39,7 +45,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		set(COMPILE_OPTIONS_SCOPE PRIVATE)
 	endif ()
 
-	if (TRUE) # Use LLVM libomp
+	if (MK_USE_LLVM_LIBOMP) # Use LLVM libomp
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
 		find_library(LIBOMP_LIB libomp PATHS $ENV{MK_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
@@ -55,7 +61,7 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} ${LIBOMP_LIB})
-		mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
+		#mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
 	else ()
 		find_package(OpenMP REQUIRED)
 
@@ -65,7 +71,10 @@ function(mk_target_link_OpenMP TARGET_NAME)
 		endif ()
 		
 		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenMP::OpenMP_CXX)
-		mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
+		#mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
 	endif ()
 
-endfunction()
+	unset(LINK_SCOPE)
+	unset(COMPILE_OPTIONS_SCOPE)
+
+endmacro()

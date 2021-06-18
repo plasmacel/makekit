@@ -25,34 +25,53 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 #
-# Boost
-# https://cmake.org/cmake/help/v3.10/module/FindBoost.html
+# OpenMP
+# https://cmake.org/cmake/help/v3.10/module/FindOpenMP.html
 #
 
-list(APPEND MK_BUILTIN_LIBRARIES Boost)
+list(APPEND MK_BUILTIN_LIBRARIES OpenMP)
 
-macro(mk_target_link_boost TARGET_NAME)
+set(MK_USE_LLVM_LIBOMP TRUE)
+
+function(mk_target_link_OpenMP TARGET_NAME)
 	
-	find_package(Boost COMPONENTS ${ARGN} REQUIRED)
-    
-	if (NOT Boost_FOUND)
-		mk_message(FATAL_ERROR "Boost libraries cannot be found!")
-		return()
-	endif ()
-
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
 		set(LINK_SCOPE INTERFACE)
+		set(COMPILE_OPTIONS_SCOPE INTERFACE)
 	else ()
 		unset(LINK_SCOPE)
+		set(COMPILE_OPTIONS_SCOPE PRIVATE)
 	endif ()
 
-	foreach (BOOST_MODULE IN ITEMS ${ARGN})
-		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Boost::${BOOST_MODULE})
-		#mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
-	endforeach ()
+	if (MK_USE_LLVM_LIBOMP) # Use LLVM libomp
+		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
+		find_library(LIBOMP_LIB libomp PATHS $ENV{MK_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
-	unset(LINK_SCOPE)
+		if (NOT LIBOMP_LIB)
+			mk_message(FATAL_ERROR "OpenMP (libomp) libraries cannot be found!")
+			return()
+		endif ()
+	
+		if (MK_OS_WINDOWS)
+			target_compile_options(${TARGET_NAME} ${COMPILE_OPTIONS_SCOPE} -Xclang -fopenmp)
+		else ()
+			target_compile_options(${TARGET_NAME} ${COMPILE_OPTIONS_SCOPE} -fopenmp=libomp)
+		endif ()
+		
+		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} ${LIBOMP_LIB})
+		#mk_target_deploy_libraries(${TARGET_NAME} ${LIBOMP_LIB})
+	else ()
+		find_package(OpenMP REQUIRED)
 
-endmacro()
+		if (NOT OpenMP_FOUND)
+			mk_message(FATAL_ERROR "OpenMP libraries cannot be found!")
+			return()
+		endif ()
+		
+		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} OpenMP::OpenMP_CXX)
+		#mk_target_deploy_libraries(${TARGET_NAME} OpenMP::OpenMP_CXX)
+	endif ()
+
+endfunction()

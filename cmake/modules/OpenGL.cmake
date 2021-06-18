@@ -25,34 +25,38 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 #
-# Boost
-# https://cmake.org/cmake/help/v3.10/module/FindBoost.html
+# OpenGL
+# https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
 #
 
-list(APPEND MK_BUILTIN_LIBRARIES Boost)
+list(APPEND MK_BUILTIN_LIBRARIES OpenGL)
 
-macro(mk_target_link_boost TARGET_NAME)
+function(mk_target_link_OpenGL TARGET_NAME)
 	
-	find_package(Boost COMPONENTS ${ARGN} REQUIRED)
-    
-	if (NOT Boost_FOUND)
-		mk_message(FATAL_ERROR "Boost libraries cannot be found!")
+	find_package(OpenGL REQUIRED)
+		
+	if (NOT OpenGL_FOUND)
+		mk_message(FATAL_ERROR "OpenGL libraries cannot be found!")
 		return()
 	endif ()
 
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
 	if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-		set(LINK_SCOPE INTERFACE)
+		set(MK_LINK_SCOPE INTERFACE)
 	else ()
-		unset(LINK_SCOPE)
+		unset(MK_LINK_SCOPE)
 	endif ()
 
-	foreach (BOOST_MODULE IN ITEMS ${ARGN})
-		target_link_libraries(${TARGET_NAME} ${LINK_SCOPE} Boost::${BOOST_MODULE})
-		#mk_target_deploy_libraries(${TARGET_NAME} Boost::${BOOST_MODULE})
-	endforeach ()
+	target_link_libraries(${TARGET_NAME} ${MK_LINK_SCOPE} OpenGL::GL)
+	#mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
 
-	unset(LINK_SCOPE)
+	#if (OpenGL::OpenGL)
+	#	target_link_libraries(${TARGET_NAME} OpenGL::OpenGL)
+	#	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::OpenGL)
+	#else ()
+	#	target_link_libraries(${TARGET_NAME} OpenGL::GL)
+	#	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
+	#endif ()
 
-endmacro()
+endfunction()

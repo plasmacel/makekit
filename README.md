@@ -1,6 +1,6 @@
 # MakeKit
 
-**MakeKit is a toolset to make the cross-platform compilation of modern C/C++ simple.** It relies on the [CMake](https://cmake.org) build system generator, the [Ninja](https://ninja-build.org) build system, and the [LLVM/clang](http://llvm.org) compiler infrastructure to achieve:
+**MakeKit is a toolset to make the cross-platform compilation and deployment of modern C/C++ simple.** It relies on the [CMake](https://cmake.org) build system generator, the [Ninja](https://ninja-build.org) build system, and the [LLVM/clang](http://llvm.org) compiler infrastructure to achieve:
 
 - Cross-platform, uniform, out of the box behavior :sparkles:
 - Providing simple, low-maintenance build configurations

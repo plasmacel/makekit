@@ -22,12 +22,16 @@
 #	SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+
 #
 # OpenGL
 # https://cmake.org/cmake/help/v3.10/module/FindOpenGL.html
 #
 
-function(mk_target_link_OpenGL TARGET_NAME)
+list(APPEND MK_BUILTIN_LIBRARIES OpenGL)
+
+macro(mk_target_link_OpenGL TARGET_NAME)
 	
 	find_package(OpenGL REQUIRED)
 		
@@ -45,7 +49,7 @@ function(mk_target_link_OpenGL TARGET_NAME)
 	endif ()
 
 	target_link_libraries(${TARGET_NAME} ${MK_LINK_SCOPE} OpenGL::GL)
-	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
+	#mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
 
 	#if (OpenGL::OpenGL)
 	#	target_link_libraries(${TARGET_NAME} OpenGL::OpenGL)
@@ -55,4 +59,6 @@ function(mk_target_link_OpenGL TARGET_NAME)
 	#	mk_target_deploy_libraries(${TARGET_NAME} OpenGL::GL)
 	#endif ()
 
-endfunction()
+	unset(MK_LINK_SCOPE)
+
+endmacro()

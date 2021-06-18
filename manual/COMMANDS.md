@@ -4,6 +4,15 @@
 
 The MakeKit CLI (Command Line Interface) `mk` provides the following commands:
 
+#### `mk bundle <EXECUTABLES> [-R <SEARCH_PATHS>] [-F] [-S]`
+
+Create a portable, self-containing package, a so-called bundle. The list of executable and/or paths must be semicolon (`;`) delimited.
+
+Arguments
+
+`-F` - Bundle full frameworks on macOS.
+`-S` - Bundle system libraries as well.
+
 #### `mk clean [<CONFIG>] [-X [<TARGETS>]]`
 
 Removes the directory (including the configuration and the built binaries) of the build configuration specified by `<CONFIG>`.
@@ -30,19 +39,29 @@ Creates a build system configuration for the specified `<CONFIG>`. If it has bee
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
 
-#### `mk deps [<CONFIG>]`
+#### `mk headers [<CONFIG>]`
 
-Lists the dependencies of `<CONFIG>` build, which are available only after a successful `make` command.
+Lists the comptile-time header dependencies of `<CONFIG>` build, which are available only after a successful `make` command.
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
+
+#### `mk getenv [<VARIABLE>]`
+
+Gets environment variable `<VARIABLE>`.
+
+#### `mk gethost`
+
+Gets the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
 
 #### `mk help`
 
 Outputs the list of available commands and their basic descriptions.
 
-#### `mk host`
+#### `mk install [<CONFIG>]`
 
-Outputs the [*target triple*](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) of the host machine.
+Runs the install script of `<CONFIG>` build.
+
+If `<CONFIG>` is not specified, it defaults to `Release`.
 
 #### `mk make [<CONFIG>] [-X <TARGETS | TARGET^>] [-J <MAX_THREADS>] [-C [-T <TOOLCHAIN>]] [-R]`
 
@@ -80,6 +99,12 @@ Arguments
 `-J` limit the number of parallel build threads
 
 If `<CONFIG>` is not specified, it defaults to `Release`.
+
+#### `mk setenv <VARIABLE> [<VALUE>]`
+
+Sets environment variable `<VARIABLE>` to value `<VALUE>` permanently.
+  
+If `<VALUE>` is not specified, it defaults to an empyt string.
 
 #### `mk version`
 

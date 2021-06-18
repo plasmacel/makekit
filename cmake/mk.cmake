@@ -25,7 +25,8 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 include_guard(GLOBAL)
 
-set(MK_LIB_VERSION "0.2.1")
+set(MK_MODULE_VERSION "0.3")
+set(MK_FULL_DEPLOY FALSE)
 
 #
 # Check include location
@@ -44,7 +45,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif ()
 
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	message(WARNING "MakeKit - Not a valid LLVM/clang compiler!
+	message(WARNING "MakeKit - Not a valid LLVM/clang compiler: ${CMAKE_CXX_COMPILER_ID}
 		You are maybe using the auto native toolchain or Apple's fork of LLVM/clang shipped with Xcode instead of the genuine one.")
 	#return()
 endif ()
@@ -178,7 +179,7 @@ else ()
 
 endif ()
 
-set(MK_CUDA_SOURCE_SUFFIX *.cu)
+set(MK_CUDA_SOURCE_PATTERN *.cu)
 
 #
 # Functions and macros
@@ -193,25 +194,26 @@ endmacro()
 # Build types
 #
 
-set(MK_BUILD_TYPES NONE DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+set(MK_DEFAULT_BUILD_TYPES NONE DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+set(MK_BUILD_TYPES ${MK_DEFAULT_BUILD_TYPES})
 
-# mk_add_build_type(<NAME> <INHERIT> C_FLAGS <...> CXX_FLAGS <...> LINKER_FLAGS <...> EXE_LINKER_FLAGS <...> SHARED_LINKER_FLAGS <...> STATIC_LINKER_FLAGS <...> [LIBRARY_POSTFIX <POSTFIX>])
+# mk_add_config(<NAME> [INHERIT <CONFIG>] [C_FLAGS <...>] [CXX_FLAGS <...>] [LINKER_FLAGS <...>] [EXE_LINKER_FLAGS <...>] [SHARED_LINKER_FLAGS <...>] [STATIC_LINKER_FLAGS <...>] [LIBRARY_POSTFIX <POSTFIX>])
 # This function must be invoked at the top level of the project and before the first target_link_libraries() command invocation.
-function(mk_add_build_type NAME INHERIT)
+function(mk_add_config NAME)
 
 	# Parse arguments
 
 	set(OPTION_KEYWORDS "")
-    set(SINGLE_VALUE_KEYWORDS "LIBRARY_POSTFIX")
+    set(SINGLE_VALUE_KEYWORDS "INHERIT" "LIBRARY_POSTFIX")
     set(MULTI_VALUE_KEYWORDS "C_FLAGS" "CXX_FLAGS" "LINKER_FLAGS" "EXE_LINKER_FLAGS" "SHARED_LINKER_FLAGS" "STATIC_LINKER_FLAGS")
 	cmake_parse_arguments(PARSE_ARGV 0 "ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}")
 
 	# Check against existing build types
 
 	string(TOUPPER ${NAME} NAME_UPPERCASE)
-	string(TOUPPER ${INHERIT} INHERIT_UPPERCASE)
+	string(TOUPPER ${ARGS_INHERIT} INHERIT_UPPERCASE)
 
-	if (${NAME_UPPERCASE} IN_LIST ${MK_BUILD_TYPES})
+	if (${NAME_UPPERCASE} IN_LIST MK_BUILD_TYPES)
 		mk_message(FATAL_ERROR "This is an already defined build type: ${NAME}")	
 	else ()
 		set(MK_BUILD_TYPES ${MK_BUILD_TYPES} ${NAME_UPPERCASE} PARENT_SCOPE)
@@ -227,21 +229,61 @@ function(mk_add_build_type NAME INHERIT)
 		CACHE STRING "Flags used by the CXX compiler during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_EXE_LINKER_FLAGS}"
+	set(CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE} "${CMAKE_EXE_LINKER_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_LINKER_FLAGS} ${ARGS_EXE_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of executables during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_SHARED_LINKER_FLAGS}"
+	set(CMAKE_MODULE_LINKER_FLAGS_${NAME_UPPERCASE} "${CMAKE_MODULE_LINKER_FLAGS_${INHERIT_UPPERCASE}}"
+		CACHE STRING "Flags used by the linker for the creation of modules during ${NAME} builds"
+		FORCE)
+
+	set(CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE} "${CMAKE_SHARED_LINKER_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_LINKER_FLAGS} ${ARGS_SHARED_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of shared libraries during ${NAME} builds"
 		FORCE)
 
-	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE} ${ARGS_LINKER_FLAGS} ${ARGS_STATIC_LINKER_FLAGS}"
+	set(CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE} "${CMAKE_STATIC_LINKER_FLAGS_${INHERIT_UPPERCASE}} ${ARGS_LINKER_FLAGS} ${ARGS_STATIC_LINKER_FLAGS}"
 		CACHE STRING "Flags used by the linker for the creation of static libraries during ${NAME} builds"
 		FORCE)
+
+	if (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE})
+		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${NAME_UPPERCASE} "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE}}"
+			CACHE STRING ""
+			FORCE)
+	endif ()
+
+	if (CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE})
+		set(CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_${NAME_UPPERCASE} "${CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE}}"
+			CACHE STRING ""
+			FORCE)
+	endif ()
+
+	if (CMAKE_PDB_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE})
+		set(CMAKE_PDB_OUTPUT_DIRECTORY_${NAME_UPPERCASE} "${CMAKE_PDB_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE}}"
+			CACHE STRING ""
+			FORCE)
+	endif ()
+
+	if (CMAKE_RUNTIME_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE})
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${NAME_UPPERCASE} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_${INHERIT_UPPERCASE}}"
+			CACHE STRING ""
+			FORCE)
+	endif ()
 
 	set(CMAKE_${NAME_UPPERCASE}_POSTFIX "${ARGS_LIBRARY_POSTFIX}"
 		CACHE STRING ""
 		FORCE)
+
+	# Map this config to the inherited config for imported targets
+
+	if (CMAKE_MAP_IMPORTED_CONFIG_${INHERIT_UPPERCASE})
+		set(CMAKE_MAP_IMPORTED_CONFIG_${NAME_UPPERCASE} "${CMAKE_MAP_IMPORTED_CONFIG_${INHERIT_UPPERCASE}}"
+			CACHE STRING ""
+			FORCE)
+	else ()
+		set(CMAKE_MAP_IMPORTED_CONFIG_${NAME_UPPERCASE} "${ARGS_INHERIT}"
+			CACHE STRING ""
+			FORCE)
+	endif ()
 
 	# Mark variables as advanced
 
@@ -249,9 +291,15 @@ function(mk_add_build_type NAME INHERIT)
 		CMAKE_CXX_FLAGS_${NAME_UPPERCASE}
 		CMAKE_C_FLAGS_${NAME_UPPERCASE}
 		CMAKE_EXE_LINKER_FLAGS_${NAME_UPPERCASE}
+		CMAKE_MODULE_LINKER_FLAGS_${NAME_UPPERCASE}
 		CMAKE_SHARED_LINKER_FLAGS_${NAME_UPPERCASE}
 		CMAKE_STATIC_LINKER_FLAGS_${NAME_UPPERCASE}
-		CMAKE_${NAME_UPPERCASE}_POSTFIX)
+		CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${NAME_UPPERCASE}
+		CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_${NAME_UPPERCASE}
+		CMAKE_PDB_OUTPUT_DIRECTORY_${NAME_UPPERCASE}
+		CMAKE_RUNTIME_OUTPUT_DIRECTORY_${NAME_UPPERCASE}
+		CMAKE_${NAME_UPPERCASE}_POSTFIX
+		CMAKE_MAP_IMPORTED_CONFIG_${NAME_UPPERCASE})
 
 	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
 
@@ -276,6 +324,18 @@ function(mk_add_build_type NAME INHERIT)
 	endif()
 
 endfunction()
+
+macro(mk_is_debug_config VAR)
+
+	string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPERCASE)
+	
+	if (${CMAKE_BUILD_TYPE_UPPERCASE} MATCHES "DEBUG" OR ${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST DEBUG_CONFIGURATIONS)
+		set(${VAR} TRUE)
+	else ()
+		set(${VAR} FALSE)
+	endif ()
+	
+endmacro()
 
 #
 # File operations
@@ -394,7 +454,7 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 
 	# CUDA source files
 
-	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CUDA_SOURCE_SUFFIX} ABSOLUTE)
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CUDA_SOURCE_PATTERN} ABSOLUTE)
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
@@ -581,8 +641,8 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 	# Parse arguments
 
-	set(OPTION_KEYWORDS "NATIVE_GUI")
-    set(SINGLE_VALUE_KEYWORDS "MACOS_BUNDLE_INFO_PLIST" "MACOS_FRAMEWORK_INFO_PLIST")
+	set(OPTION_KEYWORDS "WINDOWS_GUI" "MACOS_BUNDLE")
+    set(SINGLE_VALUE_KEYWORDS "MACOS_BUNDLE_INFO_PLIST")
     set(MULTI_VALUE_KEYWORDS "INCLUDE" "SOURCE")
 	cmake_parse_arguments("ARGS" "${OPTION_KEYWORDS}" "${SINGLE_VALUE_KEYWORDS}" "${MULTI_VALUE_KEYWORDS}" ${ARGN})
 
@@ -624,27 +684,30 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 		add_executable(${TARGET_NAME} ${TARGET_SOURCES}) # sources can be omitted here
 		target_include_directories(${TARGET_NAME} PRIVATE ${ARGS_INCLUDE})
-
-		# Set poperties to build as native GUI application
-		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
-		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		
 		# https://cmake.org/cmake/help/latest/prop_tgt/WIN32_EXECUTABLE.html
-		if (ARGS_NATIVE_GUI)
-				if (MK_OS_WINDOWS)
-					set_target_properties(
-						${TARGET_NAME} PROPERTIES
-						WIN32_EXECUTABLE TRUE
-					)
-				elseif (MK_OS_MACOS)
-					set_target_properties(
-						${TARGET_NAME} PROPERTIES
-						MACOSX_BUNDLE TRUE
-						MACOSX_BUNDLE_INFO_PLIST "${ARGS_MACOS_BUNDLE_INFO_PLIST}"
-					)
-				endif ()
+		if (MK_OS_WINDOWS AND ARGS_WINDOWS_GUI)
+			set_target_properties(
+				${TARGET_NAME} PROPERTIES
+				WIN32_EXECUTABLE TRUE
+			)
 		endif ()
 
-	else ()
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE.html
+		# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
+		if (MK_OS_MACOS AND ARGS_MACOS_BUNDLE)
+			set_target_properties(
+				${TARGET_NAME} PROPERTIES
+				MACOSX_BUNDLE TRUE
+				MACOSX_BUNDLE_INFO_PLIST "${ARGS_MACOS_BUNDLE_INFO_PLIST}"
+			)
+		endif ()
+
+	else () # Library
+
+		if (MK_OS_WINDOWS AND ARGS_WINDOWS_GUI)
+			mk_message(WARNING "WINDOWS_GUI option is ignored for library targets")
+		endif ()
 		
 		if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
 
@@ -671,10 +734,13 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 			add_library(${TARGET_NAME} ${TARGET_LIBRARY_TYPE} ${TARGET_SOURCES}) # sources can be omitted here, except for object libraries
 			target_include_directories(${TARGET_NAME} PUBLIC ${ARGS_INCLUDE} PRIVATE ${SOURCE_DIR})
 
-			if (ARGS_MACOS_FRAMEWORK_INFO_PLIST AND MK_OS_MACOS)
+			# https://cmake.org/cmake/help/latest/prop_tgt/FRAMEWORK.html
+			# https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_FRAMEWORK_INFO_PLIST.html
+			if (MK_OS_MACOS AND ARGS_MACOS_BUNDLE)
 				set_target_properties(
 					${TARGET_NAME} PROPERTIES
-					MACOSX_FRAMEWORK_INFO_PLIST "${ARGS_MACOS_FRAMEWORK_INFO_PLIST}"
+					FRAMEWORK TRUE
+					MACOSX_FRAMEWORK_INFO_PLIST "${ARGS_MACOS_BUNDLE_INFO_PLIST}"
 				)
 			endif ()
 
@@ -703,47 +769,6 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 endfunction()
 
-# mk_target_deploy_files(<TARGET_NAME> [<...>])
-function(__mk_target_deploy_files TARGET_NAME)
-
-	foreach (FILE IN LISTS ARGN)
-		mk_message(STATUS "Deploying file: ${FILE}")
-
-		if (IS_ABSOLUTE ${FILE})
-			set(FILE_ABSOLUTE_PATH ${FILE})
-		else ()
-			find_file(FILE_ABSOLUTE_PATH ${FILE})
-		endif ()
-		
-		# Deploy if the absolute path of the file is found
-
-		if (FILE_ABSOLUTE_PATH)
-			get_filename_component(FILE_NAME ${FILE} NAME)
-			
-			# Set deploy path
-			
-			if (MK_OS_MACOS)
-				get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
-			
-				if (TARGET_IS_BUNDLE)
-					set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
-				else ()
-					set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)	
-				endif ()
-			else ()
-				set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
-			endif ()
-		
-			# Add post-build deploy command
-		
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_ABSOLUTE_PATH} ${TARGET_DEPLOY_PATH}/${FILE_NAME})
-		else ()
-			mk_message(SEND_ERROR "File ${FILE} cannot be found!")
-		endif ()
-	endforeach ()
-
-endfunction()
-
 function(mk_target_deploy TARGET_NAME)
 
 	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
@@ -753,70 +778,53 @@ function(mk_target_deploy TARGET_NAME)
 		return()
 	endif ()
 
-	foreach (LIBRARY IN LISTS MK_${TARGET_NAME}_DEPLOY_LIBRARIES)
+	# Set deploy path
+
+	if (MK_OS_MACOS)
+		get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+			
+		if (TARGET_IS_BUNDLE)
+			set(TARGET_DEPLOY_PATH $<TARGET_BUNDLE_CONTENT_DIR:${TARGET_NAME}>/Frameworks)
+
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+				${CMAKE_COMMAND} -E make_directory ${TARGET_DEPLOY_PATH})
+		else ()
+			set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
+		endif ()
+	else ()
+		set(TARGET_DEPLOY_PATH $<TARGET_FILE_DIR:${TARGET_NAME}>)
+	endif ()
+	
+	# Deploy runtime libraries
+
+	mk_message(STATUS "Configuring deployment")
+
+	get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
+
+	foreach (LIBRARY IN ITEMS ${TARGET_LINK_LIBRARIES})
+
 		if (TARGET ${LIBRARY}) # LIBRARY is a TARGET
+
 			get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
-			#mk_message(STATUS "Library type: ${LIBRARY_TYPE}")
+			
 			if (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-				get_target_property(LIBRARY_IMPORTED ${LIBRARY} IMPORTED)
+				mk_message(STATUS "Deploy ${LIBRARY}")
 
-				if (LIBRARY_IMPORTED)
-					#mk_message(STATUS "Imported library: ${LIBRARY}")
+				get_target_property(LIBRARY_IS_FRAMEWORK ${LIBRARY} FRAMEWORK)
 
-					if (CMAKE_BUILD_TYPE) # Get library location from TARGET poperties
+				if (MK_OS_MACOS AND LIBRARY_IS_FRAMEWORK)
+					get_target_property(LIBRARY_IS_IMPORTED ${LIBRARY} IMPORTED)
 
-						string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
-
-						# Try properties IMPORTED_LOCATION_<CONFIG> and LOCATION_<CONFIG>
-
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_${CMAKE_BUILD_TYPE})
-
-						if (NOT LIBRARY_RUNTIME)
-							get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_${CMAKE_BUILD_TYPE})
-						
-						endif ()
-
-						# Try properties IMPORTED_LOCATION_<DEBUG | RELEASE> and LOCATION_<DEBUG | RELEASE>
-
-						if (NOT LIBRARY_RUNTIME)
-							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_DEBUG)
-							else ()
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION_RELEASE)
-							endif ()
-						endif ()
-
-						if (NOT LIBRARY_RUNTIME)
-							if (${CMAKE_BUILD_TYPE_UPPERCASE} IN_LIST ${DEBUG_CONFIGURATIONS})
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_DEBUG)
-							else ()
-								get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION_RELEASE)
-							endif ()
-						endif ()
-
-						if (LIBRARY_RUNTIME AND MK_OS_LINUX)
-							get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} IMPORTED_SONAME_${CMAKE_BUILD_TYPE_UPPERCASE})
-							
-							if (NOT LIBRARY_RUNTIME_SONAME)
-								get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} SONAME_${CMAKE_BUILD_TYPE_UPPERCASE})
-							endif()
-
-							if (LIBRARY_RUNTIME_SONAME)
-								get_filename_component(LIBRARY_RUNTIME_DIR ${LIBRARY_RUNTIME} DIRECTORY)
-								set(LIBRARY_RUNTIME_SONAME "${LIBRARY_RUNTIME_DIR}/${LIBRARY_RUNTIME_SONAME}")
-							endif ()
-						endif ()
-
-					endif ()
-
-					# if LOCATION_<CONFIG> property is undefined, try IMPORTED_LOCATION
-					if (NOT LIBRARY_RUNTIME)
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} IMPORTED_LOCATION)
-					endif ()
-
-					# if IMPORTED_LOCATION property is undefined, try LOCATION
-					if (NOT LIBRARY_RUNTIME)
-						get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
+					if (LIBRARY_IS_IMPORTED) # $<TARGET_BUNDLE_DIR:${LIBRARY}> is not available for IMPORTED targets
+						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							${CMAKE_COMMAND} -E copy_directory
+							$<TARGET_FILE_DIR:${LIBRARY}>
+							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
+					else ()
+						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							${CMAKE_COMMAND} -E copy_directory
+							$<TARGET_BUNDLE_DIR:${LIBRARY}>
+							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
 					endif ()
 
 					if (LIBRARY_RUNTIME AND NOT LIBRARY_RUNTIME_SONAME AND MK_OS_LINUX)
@@ -832,32 +840,68 @@ function(mk_target_deploy TARGET_NAME)
 						endif ()
 					endif ()
 				else ()
-					#mk_message(STATUS "Not an imported library: ${LIBRARY}")
-					get_target_property(LIBRARY_RUNTIME ${LIBRARY} LOCATION)
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+						${CMAKE_COMMAND} -E copy_if_different
+						$<TARGET_FILE:${LIBRARY}>
+						${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>)
 				endif ()
 			else ()
 				#mk_message(STATUS "Not a shared library: ${LIBRARY}")
 				continue() # Go to next iteration
 			endif ()
+
 		else () # LIBRARY is a FILEPATH
-			if (MK_OS_WINDOWS) # Find corresponding .dll in ${LIBRARY_DIRECTORY} or ${LIBRARY_DIRECTORY}/../bin
-				get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
-				get_filename_component(LIBRARY_NAME ${LIBRARY} NAME_WE)
-				find_file(LIBRARY_RUNTIME ${LIBRARY_NAME}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
-			else () # The corresponding runtime library is the library itself
-				get_filename_component(LIBRARY_EXT ${LIBRARY} EXT)
-				if (LIBRARY_EXT IN_LIST ".dylib;.so")
-					set(LIBRARY_RUNTIME ${LIBRARY})
+
+			if (IS_ABSOLUTE ${LIBRARY})
+				if (MK_OS_WINDOWS)
+					get_filename_component(LIBRARY_DIRECTORY ${LIBRARY} DIRECTORY)
+					get_filename_component(LIBRARY_NAME_WE ${LIBRARY} NAME_WE)
+					find_file(LIBRARY_RUNTIME_FILE ${LIBRARY_NAME_WE}.dll PATHS ${LIBRARY_DIRECTORY} ${LIBRARY_DIRECTORY}/../bin NO_DEFAULT_PATH REQUIRED)
+				else ()
+					set(LIBRARY_RUNTIME_FILE ${LIBRARY})
+				endif ()
+			else ()
+				get_filename_component(LIBRARY_NAME_WE ${LIBRARY} NAME_WE)
+				if (MK_OS_WINDOWS)
+					find_file(LIBRARY_RUNTIME_FILE ${LIBRARY_NAME_WE}.dll PATHS ${CMAKE_SOURCE_DIR} REQUIRED)
+				else ()
+					find_file(LIBRARY_RUNTIME_FILE ${LIBRARY} PATHS ${CMAKE_SOURCE_DIR} REQUIRED)
 				endif ()
 			endif ()
+
+			if (LIBRARY_RUNTIME_FILE)
+				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
+				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
+				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+			else ()
+				mk_message(SEND_ERROR "${LIBRARY_NAME_WE} runtime library cannot be found!")
+				continue()
+			endif ()
+
 		endif ()
 
-		if (LIBRARY_RUNTIME)
-			__mk_target_deploy_files(${TARGET_NAME} ${LIBRARY_RUNTIME})
-		endif ()
 	endforeach ()
 
-	__mk_target_deploy_files(${TARGET_NAME} ${MK_${TARGET_NAME}_DEPLOY_RESOURCES})
+	if (MK_OS_UNIX)
+		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+			COMMAND $ENV{MK_DIR}/bin/chmod.sh ${TARGET_DEPLOY_PATH})
+	endif ()
+	
+	# Deploy resources
+
+	get_target_property(TARGET_IS_BUNDLE ${TARGET_NAME} MACOSX_BUNDLE)
+	
+	if (MK_OS_MACOS AND TARGET_IS_BUNDLE)
+		set_target_properties(${TARGET_NAME} PROPERTIES RESOURCE "${MK_${TARGET_NAME}_DEPLOY_RESOURCES}")
+	else ()
+		foreach (RESOURCE_FILE IN LISTS MK_${TARGET_NAME}_DEPLOY_RESOURCES)
+			get_filename_component(RESOURCE_FILE_NAME ${RESOURCE_FILE} NAME)
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${TARGET_DEPLOY_PATH}/)
+		endforeach ()
+	endif ()
+	
+	# Deploy Qt
+
 	mk_target_deploy_Qt(${TARGET_NAME})
 
 endfunction()
@@ -867,7 +911,7 @@ endfunction()
 # It does nothing for non-shared libraries
 macro(mk_target_deploy_libraries TARGET_NAME)
 
-	set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${ARGN} CACHE INTERNAL "")
+	#set(MK_${TARGET_NAME}_DEPLOY_LIBRARIES ${MK_${TARGET_NAME}_DEPLOY_LIBRARIES} ${ARGN} CACHE INTERNAL "")
 
 endmacro()
 
