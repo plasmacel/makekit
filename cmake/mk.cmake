@@ -833,12 +833,18 @@ function(mk_target_deploy TARGET_NAME)
 
 					if (LIBRARY_IS_IMPORTED) # $<TARGET_BUNDLE_DIR:${LIBRARY}> is not available for IMPORTED targets
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							rsync -a
+							rm -rf
+							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework
+							&&
+							cp -a
 							$<TARGET_FILE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							rsync -a
+							rm -rf
+							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>
+							&&
+							cp -a
 							$<TARGET_BUNDLE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
 					endif ()
@@ -890,7 +896,10 @@ function(mk_target_deploy TARGET_NAME)
 				if (MK_OS_WINDOWS)
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
 				else ()
-					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND rsync -a ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							rm -rf ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME}
+							&&
+							cp -a ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
 				endif ()
 			else ()
 				mk_message(SEND_ERROR "${LIBRARY_NAME_WE} runtime library cannot be found!")
