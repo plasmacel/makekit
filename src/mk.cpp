@@ -1573,7 +1573,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	execute(cmd);
+	int exit_code = execute(cmd);
 
-	return 0;
+	return exit_code;
 }
