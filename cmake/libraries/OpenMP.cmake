@@ -47,7 +47,7 @@ macro(mk_target_link_OpenMP TARGET_NAME)
 
 	if (MK_USE_LLVM_LIBOMP) # Use LLVM libomp
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "") # Append empty string to the list of library prefixes
-		find_library(LIBOMP_LIB libomp PATHS $ENV{MK_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
+		find_library(LIBOMP_LIB libomp HINTS $ENV{MK_LLVM_DIR}/lib REQUIRED) # add NO_DEFAULT_PATH to restrict to LLVM-installed libomp
 
 		if (NOT LIBOMP_LIB)
 			mk_message(FATAL_ERROR "OpenMP (libomp) libraries cannot be found!")
