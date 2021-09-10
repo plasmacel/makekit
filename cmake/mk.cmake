@@ -53,6 +53,27 @@ endif ()
 message(STATUS "MakeKit - Configuring project ${PROJECT_NAME}...")
 
 #
+# OS Platform Detection
+#
+
+if (CMAKE_HOST_WIN32) # True if the host system is running Windows, including Windows 64-bit and MSYS, but false on Cygwin.
+	message(STATUS "MakeKit - Detected OS: Windows")
+	set(MK_OS_WINDOWS 1)
+	set(MK_RUNTIME_LIBRARY_EXTENSION .dll)
+elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, including APPLE operation systems and Cygwin.
+	set(MK_OS_UNIX 1)
+	if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
+		message(STATUS "MakeKit - Detected OS: macOS")
+		set(MK_OS_MACOS 1)
+		set(MK_RUNTIME_LIBRARY_EXTENSION .dylib)
+	else ()
+		message(STATUS "MakeKit - Detected OS: Unix/Linux")
+		set(MK_OS_LINUX 1)
+		set(MK_RUNTIME_LIBRARY_EXTENSION .so)
+	endif ()
+endif ()
+
+#
 # Languages and standards
 #
 
@@ -61,6 +82,11 @@ enable_language(CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+
+if (MK_OS_MACOS)
+	enable_language(OBJC)
+	enable_language(OBJCXX)
+endif ()
 
 if (MK_ASM)
 	enable_language(ASM)
@@ -95,27 +121,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # The executable file (e.g. .exe) of an executable target created by the add_executable() command.
 # On DLL platforms: the executable file (e.g. .dll) of a shared library target created by the add_library() command with the SHARED option.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-#
-# OS Platform Detection
-#
-
-if (CMAKE_HOST_WIN32) # True if the host system is running Windows, including Windows 64-bit and MSYS, but false on Cygwin.
-	message(STATUS "MakeKit - Detected OS: Windows")
-	set(MK_OS_WINDOWS 1)
-	set(MK_RUNTIME_LIBRARY_EXTENSION .dll)
-elseif (CMAKE_HOST_UNIX) # True for UNIX and UNIX like operating systems, including APPLE operation systems and Cygwin.
-	set(MK_OS_UNIX 1)
-	if (CMAKE_HOST_APPLE) # True for Apple macOS operation systems.
-		message(STATUS "MakeKit - Detected OS: macOS")
-		set(MK_OS_MACOS 1)
-		set(MK_RUNTIME_LIBRARY_EXTENSION .dylib)
-	else ()
-		message(STATUS "MakeKit - Detected OS: Unix/Linux")
-		set(MK_OS_LINUX 1)
-		set(MK_RUNTIME_LIBRARY_EXTENSION .so)
-	endif ()
-endif ()
 
 #
 # Include custom build types (compiler, linker and other flags)
@@ -155,6 +160,8 @@ set(MK_CXX_SOURCE_PATTERN *.c *.cc *.c++ *.cpp *.cxx)
 set(MK_CXX_HEADER_PATTERN *.h *.hh *.h++ *.hpp *.hxx)
 set(MK_CXX_INLINE_PATTERN *.inc *.inl *.ipp *.ixx *.tpp *.txx)
 
+set(MK_OBJC_SOURCE_PATTERN) # Objective-C source files disabled by default
+
 if (MK_OS_WINDOWS)
 
 	set(MK_CXX_RESOURCE_PATTERN *.rc) # Windows Resource (.rc)
@@ -165,6 +172,7 @@ if (MK_OS_WINDOWS)
 
 elseif (MK_OS_MACOS)
 
+	set(MK_OBJC_SOURCE_PATTERN *.m *.mm) # Objective-C source files (.m, .mm)
 	set(MK_CXX_OBJECT_LIBRARY_SUFFIX .o) # Object (.obj)
 	set(MK_CXX_STATIC_LIBRARY_SUFFIX .a) # Archive (.a)
 	set(MK_CXX_IMPORT_LIBRARY_SUFFIX .dylib) # Mach-O Dynamic Library (.dylib)
@@ -452,6 +460,14 @@ macro(mk_collect_sources OUTPUT_LIST SOURCE_DIR)
 	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
 	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
 
+if (MK_OS_MACOS)
+	# OBJC source files
+
+	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_OBJC_SOURCE_PATTERN} ABSOLUTE)
+	#set(${OUTPUT_LIST} ${${OUTPUT_LIST}} FILE_LIST PARENT_SCOPE)
+	list(APPEND ${OUTPUT_LIST} ${FILE_LIST})
+endif ()
+
 	# CUDA source files
 
 	mk_collect_files(FILE_LIST ${SOURCE_DIR} PATTERN ${MK_CUDA_SOURCE_PATTERN} ABSOLUTE)
@@ -656,7 +672,7 @@ function(mk_add_target TARGET_NAME TARGET_TYPE)
 
 	foreach(TARGET_SOURCE IN ITEMS ${ARGS_SOURCE})
 		if (IS_DIRECTORY ${TARGET_SOURCE}) # Find sources in the specified directory
-			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} PATTERN ${MK_CXX_HEADER_PATTERN} ${MK_CXX_INLINE_PATTERN} ${MK_CXX_RESOURCE_PATTERN} ${MK_CXX_SOURCE_PATTERN} ABSOLUTE)
+			mk_collect_files(TARGET_SOURCES_TEMP ${TARGET_SOURCE} PATTERN ${MK_CXX_HEADER_PATTERN} ${MK_CXX_INLINE_PATTERN} ${MK_CXX_RESOURCE_PATTERN} ${MK_CXX_SOURCE_PATTERN} ${MK_OBJC_SOURCE_PATTERN} ABSOLUTE)
 			list(APPEND TARGET_SOURCES ${TARGET_SOURCES_TEMP})
 			#set(TARGET_SOURCES ${TARGET_SOURCES} ${TARGET_SOURCES_TEMP})
 
@@ -817,14 +833,32 @@ function(mk_target_deploy TARGET_NAME)
 
 					if (LIBRARY_IS_IMPORTED) # $<TARGET_BUNDLE_DIR:${LIBRARY}> is not available for IMPORTED targets
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_directory
+							rm -rf
+							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework
+							&&
+							cp -a
 							$<TARGET_FILE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_FILE_NAME:${LIBRARY}>.framework)
 					else ()
 						add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
-							${CMAKE_COMMAND} -E copy_directory
+							rm -rf
+							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>
+							&&
+							cp -a
 							$<TARGET_BUNDLE_DIR:${LIBRARY}>
 							${TARGET_DEPLOY_PATH}/$<TARGET_BUNDLE_DIR_NAME:${LIBRARY}>)
+					endif ()
+
+				elseif (LIBRARY_RUNTIME AND NOT LIBRARY_RUNTIME_SONAME AND MK_OS_LINUX)
+					get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} IMPORTED_SONAME)
+
+					if (NOT LIBRARY_RUNTIME_SONAME)
+						get_target_property(LIBRARY_RUNTIME_SONAME ${LIBRARY} SONAME)
+					endif()
+
+					if (LIBRARY_RUNTIME_SONAME)
+						get_filename_component(LIBRARY_RUNTIME_DIR ${LIBRARY_RUNTIME} DIRECTORY)
+						set(LIBRARY_RUNTIME_SONAME "${LIBRARY_RUNTIME_DIR}/${LIBRARY_RUNTIME_SONAME}")
 					endif ()
 				else ()
 					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
@@ -859,7 +893,14 @@ function(mk_target_deploy TARGET_NAME)
 			if (LIBRARY_RUNTIME_FILE)
 				get_filename_component(LIBRARY_RUNTIME_FILE_NAME ${LIBRARY_RUNTIME_FILE} NAME)
 				mk_message(STATUS "Deploy ${LIBRARY_RUNTIME_FILE_NAME}")
-				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+				if (MK_OS_WINDOWS)
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+				else ()
+					add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND
+							rm -rf ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME}
+							&&
+							cp -a ${LIBRARY_RUNTIME_FILE} ${TARGET_DEPLOY_PATH}/${LIBRARY_RUNTIME_FILE_NAME})
+				endif ()
 			else ()
 				mk_message(SEND_ERROR "${LIBRARY_NAME_WE} runtime library cannot be found!")
 				continue()
@@ -869,10 +910,10 @@ function(mk_target_deploy TARGET_NAME)
 
 	endforeach ()
 
-	if (MK_OS_UNIX)
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-			COMMAND $ENV{MK_DIR}/bin/chmod.sh ${TARGET_DEPLOY_PATH})
-	endif ()
+	#if (MK_OS_UNIX)
+	#	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+	#		COMMAND $ENV{MK_DIR}/bin/chmod.sh ${TARGET_DEPLOY_PATH})
+	#endif ()
 	
 	# Deploy resources
 

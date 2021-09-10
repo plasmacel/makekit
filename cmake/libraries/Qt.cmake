@@ -176,8 +176,12 @@ function(mk_target_deploy_Qt TARGET_NAME)
 		return()
 	endif ()
 	
-	mk_message(STATUS "Deploy Qt5")
-	mk_message(STATUS "Qt qmldir: ${MK_QT_QMLDIR}")
+	mk_message(STATUS "Deploy Qt")
+	if ("${MK_QT_QMLDIR}" STREQUAL "")
+		mk_message(STATUS "Qt not using QML")
+	else ()
+		mk_message(STATUS "Qt qmldir: ${MK_QT_QMLDIR}")
+	endif ()
 
 	if (MK_OS_WINDOWS)
 
@@ -186,7 +190,11 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			set(QT_DEPLOY_OPTIONS --force)
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt ${QT_DEPLOY_OPTIONS} --qmldir ${MK_QT_QMLDIR} $<TARGET_FILE:${TARGET_NAME}>)
+		if ("${MK_QT_QMLDIR}" STREQUAL "")
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt ${QT_DEPLOY_OPTIONS} $<TARGET_FILE:${TARGET_NAME}>)
+		else ()
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/windeployqt ${QT_DEPLOY_OPTIONS} --qmldir ${MK_QT_QMLDIR} $<TARGET_FILE:${TARGET_NAME}>)
+		endif ()
 
 	elseif (MK_OS_MACOS)
 		
@@ -203,7 +211,11 @@ function(mk_target_deploy_Qt TARGET_NAME)
 		endif ()
 
 		# macdeployqt strictly requires a macOS application bundle
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS} -qmldir=${MK_QT_QMLDIR})
+		if ("${MK_QT_QMLDIR}" STREQUAL "")
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS})
+		else ()
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/macdeployqt $<TARGET_BUNDLE_DIR:${TARGET_NAME}> ${QT_DEPLOY_OPTIONS} -qmldir=${MK_QT_QMLDIR})
+		endif ()
 
 	elseif (MK_OS_LINUX)
 
@@ -211,7 +223,11 @@ function(mk_target_deploy_Qt TARGET_NAME)
 			set(QT_DEPLOY_OPTIONS -always-overwrite)
 		endif ()
 
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS} -qmldir=${MK_QT_QMLDIR})
+		if ("${MK_QT_QMLDIR}" STREQUAL "")
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS})
+		else ()
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND $ENV{MK_QT_DIR}/bin/linuxdeployqt $<TARGET_FILE:${TARGET_NAME}> -qmake=$ENV{MK_QT_DIR}/bin/qmake ${QT_DEPLOY_OPTIONS} -qmldir=${MK_QT_QMLDIR})
+		endif ()
 
 	else ()
 

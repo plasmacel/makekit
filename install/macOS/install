@@ -15,6 +15,20 @@ else
 	brew upgrade
 fi
 
+echo Detecting CMake...
+
+brew ls --versions cmake
+if [[ $? != 0 ]] ; then
+    # Install CMake
+    echo CMake not found, installing...
+    brew install cmake
+else
+    # Update CMake
+    brew info cmake
+    echo CMake found, updating...
+    brew upgrade cmake
+fi
+
 echo Detecting Ninja...
 
 brew ls --versions ninja
@@ -38,6 +52,9 @@ if [[ $? != 0 ]] ; then
 	brew install --with-toolchain llvm
 
 	echo Adding LLVM binaries to PATH...
+
+	perl -i -pe's/^export PATH="/usr/local/opt/llvm/bin:$PATH"\n//mg' ~/.bash_profile
+
 	echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
 else
 	# Update LLVM
@@ -48,9 +65,24 @@ fi
 
 echo Creating required environment variables...
 
+perl -i -pe's/^export MK_DIR=".*"\n//mg' ~/.bash_profile
+perl -i -pe's/^export MK_LLVM_DIR=".*"\n//mg' ~/.bash_profile
+perl -i -pe's/^export MK_TOOLCHAINS_DIR=".*"\n//mg' ~/.bash_profile
+perl -i -pe's/^export MK_CMAKE=".*"\n//mg' ~/.bash_profile
+perl -i -pe's/^export MK_NINJA=".*"\n//mg' ~/.bash_profile
+perl -i -pe's/^export MK_QT_DIR=".*"\n//mg' ~/.bash_profile
+perl -i -pe's/^export MK_QT_QMLDIR=".*"\n//mg' ~/.bash_profile
+
 echo 'export MK_DIR="/usr/local/makekit"' >> ~/.bash_profile
 echo 'export MK_LLVM_DIR="/usr/local/opt/llvm"' >> ~/.bash_profile
+echo 'export MK_TOOLCHAINS_DIR="/usr/local/makekit/cmake/toolchains"' >> ~/.bash_profile
+echo 'export MK_CMAKE="/usr/local/bin/cmake"' >> ~/.bash_profile
+echo 'export MK_NINJA="/usr/local/bin/ninja"' >> ~/.bash_profile
 echo 'export MK_QT_DIR=""' >> ~/.bash_profile
+
+echo --- Automatic Qt detection not implemented yet
+echo --- Please set MK_QT_DIR in ~/.bash_profile to a specific Qt version directory
+ehco --- E.g.: /usr/local/Qt/5.15.2/clang_64
 
 source ~/.bash_profile
 

@@ -133,10 +133,12 @@ echo Creating environment variable MK_NINJA...
 setx MK_NINJA "%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe"
 set MK_NINJA=%MK_NINJA_INSTALL_DIR:\=/%/bin/ninja.exe
 
-echo.
-echo Creating environment variable MK_QT_DIR...
-setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
-set MK_QT_DIR=%MK_QT_INSTALL_DIR:\=/%
+if NOT "%MK_QT_INSTALL_DIR%" == "" (
+	echo.
+	echo Creating environment variable MK_QT_DIR...
+	setx MK_QT_DIR "%MK_QT_INSTALL_DIR:\=/%"
+	set MK_QT_DIR=%MK_QT_INSTALL_DIR:\=/%
+)
 
 :: Building source
 
